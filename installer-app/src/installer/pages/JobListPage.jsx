@@ -1,35 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import useAssignedJobs from "../hooks/useAssignedJobs";
 
 const statusStyles = {
   assigned: "bg-gray-400",
   in_progress: "bg-yellow-400",
   blocked: "bg-red-500",
-  complete: "bg-green-500"
+  complete: "bg-green-500",
 };
 
 export default function JobListPage() {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/jobs?assignedTo=user_345')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setJobs(data);
-      })
-      .catch(() => {
-        setError('Failed to load jobs');
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const { jobs, loading, error } = useAssignedJobs();
 
   return (
     <div className="p-4">
@@ -48,10 +30,16 @@ export default function JobListPage() {
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-lg font-semibold">{job.customerName ?? job.clientName}</h2>
-                  <p className="text-sm text-gray-600">{job.id ?? job.jobNumber}</p>
+                  <h2 className="text-lg font-semibold">
+                    {job.customerName ?? job.clientName}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {job.id ?? job.jobNumber}
+                  </p>
                 </div>
-                <span className={`text-white text-sm px-2 py-1 rounded ${statusStyles[job.status] || 'bg-gray-200'}`}>
+                <span
+                  className={`text-white text-sm px-2 py-1 rounded ${statusStyles[job.status] || "bg-gray-200"}`}
+                >
                   {job.status?.replace("_", " ") ?? "Unknown"}
                 </span>
               </div>
