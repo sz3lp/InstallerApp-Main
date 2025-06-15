@@ -8,7 +8,7 @@ const inventoryList = [
   'Power Supply',
 ];
 
-const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
+const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job, submitting }) => {
   const [step, setStep] = useState(0);
 
   // Step 1 state
@@ -46,7 +46,7 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
     });
     return obj;
   });
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState({});
 
   // Finalize job
   const [fullName, setFullName] = useState('');
@@ -118,10 +118,10 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
       absenceReason,
       installCounts,
       materialsUsed,
-      photo,
       fullName,
       paymentCollected,
       signature: canvasRef.current?.toDataURL(),
+      photos,
     });
   };
 
@@ -137,6 +137,18 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
         {step === 0 && (
           <div>
             <h3 className="font-bold mb-2">Confirm Customer Presence</h3>
+            <div className="mb-2">
+              <label className="block text-sm font-medium mb-1">
+                Upload Photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setPhotos({ ...photos, 0: e.target.files[0] })
+                }
+              />
+            </div>
             <div className="space-x-4 mb-2">
               <label>
                 <input
@@ -173,6 +185,18 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
         {step === 1 && (
           <div>
             <h3 className="font-bold mb-2">Verify Sales Scope</h3>
+            <div className="mb-2">
+              <label className="block text-sm font-medium mb-1">
+                Upload Photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setPhotos({ ...photos, 1: e.target.files[0] })
+                }
+              />
+            </div>
             {Object.entries(salesTotals).map(([name, qty]) => {
               const over = Number(installCounts[name]) > qty;
               return (
@@ -248,12 +272,14 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
             ))}
             <div className="mt-2">
               <label className="block text-sm font-medium mb-1">
-                Upload Photo (optional)
+                Upload Photo
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setPhoto(e.target.files[0])}
+                onChange={(e) =>
+                  setPhotos({ ...photos, 2: e.target.files[0] })
+                }
               />
             </div>
           </div>
@@ -262,6 +288,16 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
         {step === 3 && (
           <div>
             <h3 className="font-bold mb-2">Finalize Job</h3>
+            <div className="mb-2">
+              <label className="block text-sm font-medium mb-1">Upload Photo</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setPhotos({ ...photos, 3: e.target.files[0] })
+                }
+              />
+            </div>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">
                 Signature
@@ -353,10 +389,10 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={!stepValid()}
+              disabled={!stepValid() || submitting}
               className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
             >
-              Complete Installation
+              {submitting ? 'Submitting...' : 'Complete Installation'}
             </button>
           )}
           <button onClick={onClose} className="text-sm text-red-600">
@@ -372,6 +408,7 @@ InstallerChecklistWizard.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  submitting: PropTypes.bool,
   job: PropTypes.shape({
     zones: PropTypes.arrayOf(
       PropTypes.shape({

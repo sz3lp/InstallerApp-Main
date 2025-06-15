@@ -1,42 +1,46 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import InstallerChecklistWizard from '../components/InstallerChecklistWizard';
-import { setAppointmentStatus } from '../hooks/useInstallerData';
-import { useNavigate } from 'react-router-dom';
-import DocumentViewerModal from '../components/DocumentViewerModal';
-import Header from '../components/Header';
-import SideDrawer from '../components/SideDrawer';
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
+
+import DocumentViewerModal from "../components/DocumentViewerModal";
+import Header from "../components/Header";
+import SideDrawer from "../components/SideDrawer";
 
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const { jobId } = useParams();
-  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
+  const [checklistResults, setChecklistResults] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const installerId = "user_345";
 
   // Mock job data using the route param for id
   const job = {
     id: jobId,
-    jobNumber: jobId?.replace(/[^0-9]/g, ''),
-    clientName: 'Sarah Lee',
-    installDate: '2025-06-18',
-    location: '1234 Solar Lane, Phoenix, AZ',
-    installer: 'Connor Preble',
+    jobNumber: jobId?.replace(/[^0-9]/g, ""),
+    clientName: "Sarah Lee",
+    installDate: "2025-06-18",
+    location: "1234 Solar Lane, Phoenix, AZ",
+    installer: "Connor Preble",
     zones: [
       {
-        zoneName: 'Zone 1 – Admin',
-        systemType: 'HVAC Retrofit',
+        zoneName: "Zone 1 – Admin",
+        systemType: "HVAC Retrofit",
         components: [
-          { name: 'Panel', quantity: 6 },
-          { name: 'Sensor', quantity: 2 },
+          { name: "Panel", quantity: 6 },
+          { name: "Sensor", quantity: 2 },
         ],
       },
       {
-        zoneName: 'Zone 2 – Gym',
-        systemType: 'HVAC Retrofit',
+        zoneName: "Zone 2 – Gym",
+        systemType: "HVAC Retrofit",
         components: [
-          { name: 'Panel', quantity: 6 },
-          { name: 'Sensor', quantity: 2 },
+          { name: "Panel", quantity: 6 },
+          { name: "Sensor", quantity: 2 },
         ],
       },
     ],
@@ -53,9 +57,9 @@ const JobDetailPage = () => {
 
   const rateMap = {
     Controller: 50,
-    'PIR Sensor': 25,
-    'DHT22 Sensor': 20,
-    'Relay Block': 30,
+    "PIR Sensor": 25,
+    "DHT22 Sensor": 20,
+    "Relay Block": 30,
   };
 
   const payMap = new Map();
@@ -79,11 +83,51 @@ const JobDetailPage = () => {
 
   const totalPay = calculatedLineItems.reduce(
     (sum, item) => sum + item.total,
-    0
+    0,
   );
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
+  const handleChecklistOpen = () => {
+    setStartTime(new Date());
+    setShowWizard(true);
+  };
+
+  const handleWizardSubmit = (results) => {
+    setSubmitLoading(true);
+    setSubmitMessage("");
+    const end = new Date();
+    const formData = new FormData();
+    formData.append("jobId", jobId);
+    formData.append("installerId", installerId);
+    formData.append("startTime", startTime?.toISOString());
+    formData.append("endTime", end.toISOString());
+    const { photos = {}, ...rest } = results;
+    formData.append("checklistResults", JSON.stringify(rest));
+    Object.entries(photos).forEach(([stepId, file]) => {
+      if (file) {
+        formData.append(`photos[${stepId}]`, file);
+      }
+    });
+
+    fetch(`/api/jobs/${jobId}/checklist`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Request failed");
+        setSubmitMessage("Checklist submitted successfully");
+        setChecklistResults(rest);
+      })
+      .catch(() => {
+        setSubmitMessage("Failed to submit checklist");
+      })
+      .finally(() => {
+        setSubmitLoading(false);
+        setEndTime(end);
+        setShowWizard(false);
+      });
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
@@ -92,11 +136,9 @@ const JobDetailPage = () => {
       <InstallerChecklistWizard
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
-        onSubmit={() => {
-          setAppointmentStatus(jobId, 'complete', true);
-          navigate('/appointments');
-        }}
+        onSubmit={handleWizardSubmit}
         job={job}
+        submitting={submitLoading}
       />
 
       <DocumentViewerModal
@@ -105,21 +147,21 @@ const JobDetailPage = () => {
         documents={[
           {
             id: 1,
-            name: 'permit.pdf',
-            type: 'pdf',
-            url: '#',
+            name: "permit.pdf",
+            type: "pdf",
+            url: "#",
           },
           {
             id: 2,
-            name: 'blueprints.pdf',
-            type: 'pdf',
-            url: '#',
+            name: "blueprints.pdf",
+            type: "pdf",
+            url: "#",
           },
           {
             id: 3,
-            name: 'site-photo.jpg',
-            type: 'image',
-            url: '#',
+            name: "site-photo.jpg",
+            type: "image",
+            url: "#",
           },
         ]}
       />
@@ -200,7 +242,7 @@ const JobDetailPage = () => {
 
         <div className="absolute bottom-4 right-4 space-x-2">
           <button
-            onClick={() => setShowWizard(true)}
+            onClick={handleChecklistOpen}
             className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
           >
             Checklist
@@ -212,6 +254,9 @@ const JobDetailPage = () => {
             Documents
           </button>
         </div>
+        {submitMessage && (
+          <p className="absolute bottom-2 left-4 text-sm">{submitMessage}</p>
+        )}
       </main>
     </div>
   );
