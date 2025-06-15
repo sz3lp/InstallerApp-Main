@@ -12,13 +12,13 @@ import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
 import { useAppointments } from '../hooks/useInstallerData';
 
-
 const AppointmentSummaryPage = ({ jobs }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const { appointments, loading } = useAppointments();
-  const data = jobs || appointments;
   const navigate = useNavigate();
+
+  const { appointments, loading, error } = useAppointments();
+  const data = jobs || appointments;
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
@@ -118,6 +118,8 @@ const AppointmentSummaryPage = ({ jobs }) => {
         <div className="space-y-4">
           {loading && !jobs ? (
             <p className="text-center text-gray-500">Loading...</p>
+          ) : error ? (
+            <p className="text-center text-red-500">{error}</p>
           ) : (
             data.map((job) => {
               const status = computeStatus(job);
