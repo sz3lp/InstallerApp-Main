@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   FaInfoCircle,
@@ -10,35 +10,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
-
+import { useAppointments } from '../hooks/useInstallerData';
 
 const AppointmentSummaryPage = ({ jobs }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (jobs) {
-      setLoading(false);
-      return;
-    }
-    fetch('/api/jobs?assignedTo=user_345')
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then((data) => {
-        setAppointments(data);
-      })
-      .catch(() => {
-        setError('Failed to load jobs');
-      })
-      .finally(() => setLoading(false));
-  }, [jobs]);
-
+  const { appointments, loading, error } = useAppointments();
   const data = jobs || appointments;
 
   const handleDrawerOpen = () => setShowDrawer(true);
