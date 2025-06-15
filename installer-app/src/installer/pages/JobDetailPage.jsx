@@ -1,42 +1,49 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import InstallerChecklistWizard from '../components/InstallerChecklistWizard';
-import { setAppointmentStatus } from '../hooks/useInstallerData';
-import { useNavigate } from 'react-router-dom';
-import DocumentViewerModal from '../components/DocumentViewerModal';
-import Header from '../components/Header';
-import SideDrawer from '../components/SideDrawer';
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
+
+import DocumentViewerModal from "../components/DocumentViewerModal";
+import Header from "../components/Header";
+import SideDrawer from "../components/SideDrawer";
 
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const { jobId } = useParams();
-  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
+  const [checklistResults, setChecklistResults] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [photos, setPhotos] = useState({});
+  const [photoPreviews, setPhotoPreviews] = useState({});
+  const [uploadStatus, setUploadStatus] = useState({});
+  const installerId = "user_345";
 
   // Mock job data using the route param for id
   const job = {
     id: jobId,
-    jobNumber: jobId?.replace(/[^0-9]/g, ''),
-    clientName: 'Sarah Lee',
-    installDate: '2025-06-18',
-    location: '1234 Solar Lane, Phoenix, AZ',
-    installer: 'Connor Preble',
+    jobNumber: jobId?.replace(/[^0-9]/g, ""),
+    clientName: "Sarah Lee",
+    installDate: "2025-06-18",
+    location: "1234 Solar Lane, Phoenix, AZ",
+    installer: "Connor Preble",
     zones: [
       {
-        zoneName: 'Zone 1 – Admin',
-        systemType: 'HVAC Retrofit',
+        zoneName: "Zone 1 – Admin",
+        systemType: "HVAC Retrofit",
         components: [
-          { name: 'Panel', quantity: 6 },
-          { name: 'Sensor', quantity: 2 },
+          { name: "Panel", quantity: 6 },
+          { name: "Sensor", quantity: 2 },
         ],
       },
       {
-        zoneName: 'Zone 2 – Gym',
-        systemType: 'HVAC Retrofit',
+        zoneName: "Zone 2 – Gym",
+        systemType: "HVAC Retrofit",
         components: [
-          { name: 'Panel', quantity: 6 },
-          { name: 'Sensor', quantity: 2 },
+          { name: "Panel", quantity: 6 },
+          { name: "Sensor", quantity: 2 },
         ],
       },
     ],
@@ -53,9 +60,9 @@ const JobDetailPage = () => {
 
   const rateMap = {
     Controller: 50,
-    'PIR Sensor': 25,
-    'DHT22 Sensor': 20,
-    'Relay Block': 30,
+    "PIR Sensor": 25,
+    "DHT22 Sensor": 20,
+    "Relay Block": 30,
   };
 
   const payMap = new Map();
@@ -79,11 +86,101 @@ const JobDetailPage = () => {
 
   const totalPay = calculatedLineItems.reduce(
     (sum, item) => sum + item.total,
-    0
+    0,
   );
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
+  const handleChecklistOpen = () => {
+    setStartTime(new Date());
+    setShowWizard(true);
+  };
+  const handleWizardSubmit = (results) => {
+    setChecklistResults(results);
+    setEndTime(new Date());
+    setShowWizard(false);
+  };
+
+  const handlePhotoChange = (zoneKey, type, file) => {
+    if (!file) return;
+    setPhotos((prev) => ({
+      ...prev,
+      [zoneKey]: { ...prev[zoneKey], [type]: file },
+    }));
+    setPhotoPreviews((prev) => ({
+      ...prev,
+      [zoneKey]: { ...prev[zoneKey], [type]: URL.createObjectURL(file) },
+    }));
+    setUploadStatus((prev) => ({
+      ...prev,
+      [zoneKey]: { ...prev[zoneKey], [type]: "ready" },
+    }));
+  };
+  const handleSubmitChecklist = () => {
+    if (!checklistResults) return;
+    setSubmitLoading(true);
+    setSubmitMessage("");
+    // mark all selected photos as uploading
+    setUploadStatus((prev) => {
+      const update = {};
+      Object.keys(photos).forEach((zone) => {
+        update[zone] = {};
+        ["before", "during", "after"].forEach((t) => {
+          if (photos[zone]?.[t]) update[zone][t] = "uploading";
+        });
+      });
+      return { ...prev, ...update };
+    });
+
+    const formData = new FormData();
+    formData.append("jobId", jobId);
+    formData.append("installerId", installerId);
+    formData.append("checklistResults", JSON.stringify(checklistResults));
+    formData.append("startTime", startTime?.toISOString());
+    formData.append("endTime", endTime?.toISOString());
+    Object.entries(photos).forEach(([zone, files]) => {
+      Object.entries(files).forEach(([type, file]) => {
+        if (file) {
+          formData.append(`photos[${zone}][${type}]`, file);
+        }
+      });
+    });
+
+    fetch(`/api/jobs/${jobId}/checklist`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Request failed");
+        }
+        setSubmitMessage("Checklist submitted successfully");
+        setUploadStatus((prev) => {
+          const update = {};
+          Object.keys(prev).forEach((zone) => {
+            update[zone] = {};
+            Object.keys(prev[zone]).forEach((t) => {
+              update[zone][t] = "success";
+            });
+          });
+          return update;
+        });
+      })
+      .catch(() => {
+        setSubmitMessage("Failed to submit checklist");
+        setUploadStatus((prev) => {
+          const update = {};
+          Object.keys(prev).forEach((zone) => {
+            update[zone] = {};
+            Object.keys(prev[zone]).forEach((t) => {
+              update[zone][t] = "error";
+            });
+          });
+          return update;
+        });
+      })
+      .finally(() => setSubmitLoading(false));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
@@ -92,10 +189,7 @@ const JobDetailPage = () => {
       <InstallerChecklistWizard
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
-        onSubmit={() => {
-          setAppointmentStatus(jobId, 'complete', true);
-          navigate('/appointments');
-        }}
+        onSubmit={handleWizardSubmit}
         job={job}
       />
 
@@ -105,21 +199,21 @@ const JobDetailPage = () => {
         documents={[
           {
             id: 1,
-            name: 'permit.pdf',
-            type: 'pdf',
-            url: '#',
+            name: "permit.pdf",
+            type: "pdf",
+            url: "#",
           },
           {
             id: 2,
-            name: 'blueprints.pdf',
-            type: 'pdf',
-            url: '#',
+            name: "blueprints.pdf",
+            type: "pdf",
+            url: "#",
           },
           {
             id: 3,
-            name: 'site-photo.jpg',
-            type: 'image',
-            url: '#',
+            name: "site-photo.jpg",
+            type: "image",
+            url: "#",
           },
         ]}
       />
@@ -187,6 +281,49 @@ const JobDetailPage = () => {
           </p>
         </div>
 
+        {job.zones?.map((zone, idx) => (
+          <div key={idx} className="mb-6">
+            <h3 className="font-semibold mb-2">{zone.zoneName} Photos</h3>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              {["before", "during", "after"].map((type) => (
+                <div key={type} className="space-y-1">
+                  {photoPreviews[zone.zoneName]?.[type] && (
+                    <img
+                      src={photoPreviews[zone.zoneName][type]}
+                      alt={`${type} preview`}
+                      className="w-24 h-24 object-cover rounded"
+                    />
+                  )}
+                  <label className="block">
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        handlePhotoChange(
+                          zone.zoneName,
+                          type,
+                          e.target.files[0],
+                        )
+                      }
+                      className="mt-1"
+                    />
+                  </label>
+                  {uploadStatus[zone.zoneName]?.[type] === "uploading" && (
+                    <p>Uploading...</p>
+                  )}
+                  {uploadStatus[zone.zoneName]?.[type] === "success" && (
+                    <p className="text-green-600">Uploaded</p>
+                  )}
+                  {uploadStatus[zone.zoneName]?.[type] === "error" && (
+                    <p className="text-red-600">Failed</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
         <div className="mb-20">
           <h2 className="text-lg font-semibold">Install Scope</h2>
           <ul className="list-disc pl-5">
@@ -200,7 +337,7 @@ const JobDetailPage = () => {
 
         <div className="absolute bottom-4 right-4 space-x-2">
           <button
-            onClick={() => setShowWizard(true)}
+            onClick={handleChecklistOpen}
             className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
           >
             Checklist
@@ -211,7 +348,17 @@ const JobDetailPage = () => {
           >
             Documents
           </button>
+          <button
+            onClick={handleSubmitChecklist}
+            disabled={submitLoading || !checklistResults}
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 hover:opacity-90 active:scale-95"
+          >
+            {submitLoading ? "Submitting..." : "Submit Checklist"}
+          </button>
         </div>
+        {submitMessage && (
+          <p className="absolute bottom-2 left-4 text-sm">{submitMessage}</p>
+        )}
       </main>
     </div>
   );
