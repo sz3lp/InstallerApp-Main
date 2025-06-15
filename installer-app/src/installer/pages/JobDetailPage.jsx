@@ -1,382 +1,248 @@
-; import React, { useState, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
+import useInstallerAuth from "../hooks/useInstallerAuth";
+import DocumentViewerModal from "../components/DocumentViewerModal";
+import Header from "../components/Header";
+import SideDrawer from "../components/SideDrawer";
 
-const inventoryList = [
-  'PIR Motion Detector',
-  'DHT22 Sensor',
-  'Relay Block',
-  'Power Supply',
-];
+const JobDetailPage = () => {
+  const [showDrawer, setShowDrawer] = useState(false);
+  const { jobId } = useParams();
+  const navigate = useNavigate();
+  const [showWizard, setShowWizard] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
+  const startTimeRef = useRef(Date.now());
 
-const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
-  const [step, setStep] = useState(0);
+  const { installerId } = useInstallerAuth();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [customerPresent, setCustomerPresent] = useState('');
-  const [absenceReason, setAbsenceReason] = useState('');
+  useEffect(() => {
+    async function loadJob() {
+      try {
+        const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
+        const found = data.find(
+          (j) => j.jobId === jobId || j.id === jobId || j.jobNumber === jobId,
+        );
+        setJob(found || null);
+      } catch (e) {
+        setError("Failed to load job");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadJob();
+  }, [installerId, jobId]);
 
-  const salesTotals = {};
-  job?.zones?.forEach((zone) => {
-    zone.components?.forEach((comp) => {
-      salesTotals[comp.name] = (salesTotals[comp.name] || 0) + comp.quantity;
+  const componentMap = new Map();
+  job.zones?.forEach((zone) => {
+    zone.components.forEach((comp) => {
+      const key = comp.name;
+      const qty = componentMap.get(key) ?? 0;
+      componentMap.set(key, qty + comp.quantity);
     });
   });
 
-  const [installCounts, setInstallCounts] = useState(() => {
-    const obj = {};
-    Object.keys(salesTotals).forEach((k) => {
-      obj[k] = '';
+  const rateMap = {
+    Controller: 50,
+    "PIR Sensor": 25,
+    "DHT22 Sensor": 20,
+    "Relay Block": 30,
+  };
+
+  const payMap = new Map();
+  job.zones?.forEach((zone) => {
+    zone.components.forEach((comp) => {
+      if (comp.reusable) return;
+      const qty = payMap.get(comp.name) ?? 0;
+      payMap.set(comp.name, qty + comp.quantity);
     });
-    return obj;
   });
-  const [contactedIM, setContactedIM] = useState(() => {
-    const obj = {};
-    Object.keys(salesTotals).forEach((k) => {
-      obj[k] = false;
-    });
-    return obj;
+
+  const calculatedLineItems = [...payMap.entries()].map(([name, quantity]) => {
+    const rate = rateMap[name] ?? 0;
+    return {
+      name,
+      quantity,
+      rate,
+      total: quantity * rate,
+    };
   });
 
-  const [materialsUsed, setMaterialsUsed] = useState(() => {
-    const obj = {};
-    inventoryList.forEach((item) => {
-      obj[item] = 0;
-    });
-    return obj;
-  });
-  const [photo, setPhoto] = useState(null);
+  const totalPay = calculatedLineItems.reduce(
+    (sum, item) => sum + item.total,
+    0,
+  );
 
-  const [fullName, setFullName] = useState('');
-  const [paymentCollected, setPaymentCollected] = useState('');
-  const [confirm, setConfirm] = useState(false);
-  const canvasRef = useRef(null);
-  const [drawing, setDrawing] = useState(false);
-
-  const startDraw = (e) => {
-    setDrawing(true);
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    const { offsetX, offsetY } = e.nativeEvent;
-    ctx.moveTo(offsetX, offsetY);
+  const handlePhotoUpload = async (file) => {
+    if (!file) return null;
+    // simulate upload delay and return fake URL
+    return Promise.resolve(`https://example.com/uploads/${file.name}`);
   };
 
-  const draw = (e) => {
-    if (!drawing) return;
-    const ctx = canvasRef.current.getContext('2d');
-    const { offsetX, offsetY } = e.nativeEvent;
-    ctx.lineTo(offsetX, offsetY);
-    ctx.stroke();
-  };
-
-  const endDraw = () => {
-    setDrawing(false);
-  };
-
-  const clearSignature = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const stepValid = () => {
-    if (step === 0) {
-      return (
-        customerPresent &&
-        (customerPresent === 'yes' || absenceReason.trim() !== '')
-      );
-    }
-    if (step === 1) {
-      return Object.entries(salesTotals).every(([name, qty]) => {
-        const val = installCounts[name];
-        if (val === '') return false;
-        if (Number(val) > qty) return contactedIM[name];
-        return true;
-      });
-    }
-    if (step === 2) {
-      return inventoryList.every((item) => materialsUsed[item] !== '');
-    }
-    if (step === 3) {
-      return fullName.trim() !== '' && paymentCollected && confirm;
-    }
-    return true;
-  };
-
-  const nextStep = () => {
-    if (stepValid()) setStep((prev) => prev + 1);
-  };
-
-  const handleSubmit = () => {
-    if (!stepValid()) return;
-    onSubmit({
-      customerPresent,
-      absenceReason,
-      installCounts,
-      materialsUsed,
-      photo,
-      fullName,
-      paymentCollected,
-      signature: canvasRef.current?.toDataURL(),
+  const submitChecklist = async (id, payload) => {
+    await fetch(`/api/jobs/${id}/checklist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
   };
 
-  if (!isOpen) return null;
+  const handleDrawerOpen = () => setShowDrawer(true);
+  const handleDrawerClose = () => setShowDrawer(false);
+
+  if (loading) {
+    return <p className="p-4">Loading job...</p>;
+  }
+
+  if (error || !job) {
+    return <p className="p-4 text-red-500">{error || "Job not found"}</p>;
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">
-          Installer Close-Out Checklist
-        </h2>
+    <div className="min-h-screen bg-gray-100 flex flex-col relative">
+      <SideDrawer isOpen={showDrawer} onClose={handleDrawerClose} />
 
-        {step === 0 && (
+      <InstallerChecklistWizard
+        isOpen={showWizard}
+        onClose={() => setShowWizard(false)}
+        onSubmit={async (data) => {
+          const photoUrl = await handlePhotoUpload(data.photo);
+          await submitChecklist(jobId, {
+            installerId,
+            checklistResults: data,
+            photos: photoUrl ? [photoUrl] : [],
+            timeStarted: new Date(startTimeRef.current).toISOString(),
+            timeCompleted: new Date().toISOString(),
+          });
+          navigate("/appointments");
+        }}
+        job={job}
+      />
+
+      <DocumentViewerModal
+        isOpen={showDocuments}
+        onClose={() => setShowDocuments(false)}
+        documents={[
+          {
+            id: 1,
+            name: "permit.pdf",
+            type: "pdf",
+            url: "#",
+          },
+          {
+            id: 2,
+            name: "blueprints.pdf",
+            type: "pdf",
+            url: "#",
+          },
+          {
+            id: 3,
+            name: "site-photo.jpg",
+            type: "image",
+            url: "#",
+          },
+        ]}
+      />
+
+      <Header
+        title={`SEA#${job.jobNumber ?? job.id}`}
+        onMenuClick={handleDrawerOpen}
+      />
+
+      <main className="flex-grow p-4 relative">
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          {job.clientName}
+        </h1>
+        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
           <div>
-            <h3 className="font-bold mb-2">Confirm Customer Presence</h3>
-            <div className="space-x-4 mb-2">
-              <label>
-                <input
-                  type="radio"
-                  name="cust"
-                  value="yes"
-                  checked={customerPresent === 'yes'}
-                  onChange={() => setCustomerPresent('yes')}
-                />
-                <span className="ml-1">Yes</span>
-              </label>
-              <label className="ml-4">
-                <input
-                  type="radio"
-                  name="cust"
-                  value="no"
-                  checked={customerPresent === 'no'}
-                  onChange={() => setCustomerPresent('no')}
-                />
-                <span className="ml-1">No</span>
-              </label>
-            </div>
-            {customerPresent === 'no' && (
-              <textarea
-                className="border p-2 w-full"
-                placeholder="Explain why customer is not present"
-                value={absenceReason}
-                onChange={(e) => setAbsenceReason(e.target.value)}
-              />
+            <p className="font-semibold">Install Date</p>
+            <p>{job.installDate}</p>
+          </div>
+          <div>
+            <p className="font-semibold">Location</p>
+            <p>{job.location}</p>
+          </div>
+          <div>
+            <p className="font-semibold">Installer</p>
+            <p>{job.installer}</p>
+          </div>
+          <div>
+            <p className="font-semibold">System Type</p>
+            {job.zones?.length ? (
+              <div className="space-y-1">
+                {job.zones.map((zone, idx) => (
+                  <p key={idx}>
+                    <strong>{zone.zoneName}:</strong> {zone.systemType}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p>System Type: Unassigned</p>
             )}
           </div>
-        )}
+        </div>
 
-        {step === 1 && (
-          <div>
-            <h3 className="font-bold mb-2">Verify Sales Scope</h3>
-            {Object.entries(salesTotals).map(([name, qty]) => {
-              const over = Number(installCounts[name]) > qty;
-              return (
-                <div key={name} className="mb-4">
-                  <p className="font-medium">{name}</p>
-                  <p className="text-sm text-gray-600 mb-1">
-                    Sales Planned: {qty}
-                  </p>
-                  <input
-                    type="number"
-                    min="0"
-                    className={`w-full border rounded p-2 ${over ? 'border-yellow-500' : ''}`}
-                    value={installCounts[name]}
-                    onChange={(e) =>
-                      setInstallCounts({
-                        ...installCounts,
-                        [name]: e.target.value,
-                      })
-                    }
-                  />
-                  {over && (
-                    <>
-                      <p className="text-yellow-600 text-sm mt-1">
-                        ⚠️ You have entered more than what sales scoped. Contact
-                        Install Manager before proceeding.
-                      </p>
-                      <label className="flex items-center text-sm mt-1">
-                        <input
-                          type="checkbox"
-                          checked={contactedIM[name]}
-                          onChange={(e) =>
-                            setContactedIM({
-                              ...contactedIM,
-                              [name]: e.target.checked,
-                            })
-                          }
-                        />
-                        <span className="ml-2">I contacted IM</span>
-                      </label>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <h3 className="font-bold mb-2">Record Materials Used</h3>
-            {inventoryList.map((item) => (
-              <div key={item} className="mb-2">
-                <label className="block text-sm font-medium mb-1" htmlFor={item}>
-                  {item}
-                </label>
-                <input
-                  id={item}
-                  type="number"
-                  min="0"
-                  value={materialsUsed[item]}
-                  onChange={(e) =>
-                    setMaterialsUsed({
-                      ...materialsUsed,
-                      [item]: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded p-2"
-                />
-              </div>
+        <div className="mb-6">
+          <h2 className="font-semibold mb-2">Job Summary</h2>
+          <ul className="list-disc pl-5">
+            {[...componentMap.entries()].map(([name, qty]) => (
+              <li key={name}>
+                {qty}x {name}
+              </li>
             ))}
-            <div className="mt-2">
-              <label className="block text-sm font-medium mb-1">
-                Upload Photo (optional)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setPhoto(e.target.files[0])}
-              />
-            </div>
-          </div>
-        )}
+          </ul>
+        </div>
 
-        {step === 3 && (
-          <div>
-            <h3 className="font-bold mb-2">Finalize Job</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                Signature
-              </label>
-              <canvas
-                ref={canvasRef}
-                width={300}
-                height={100}
-                className="border w-full mb-2 touch-none"
-                onMouseDown={startDraw}
-                onMouseMove={draw}
-                onMouseUp={endDraw}
-                onMouseLeave={endDraw}
-                onTouchStart={startDraw}
-                onTouchMove={draw}
-                onTouchEnd={endDraw}
-              />
-              <button
-                type="button"
-                onClick={clearSignature}
-                className="text-sm text-gray-600 mb-2"
-              >
-                Clear
-              </button>
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full border rounded p-2 mb-2"
-              />
-            </div>
-            <div className="mb-4">
-              <p className="font-medium mb-1">Was payment collected?</p>
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="yes"
-                  checked={paymentCollected === 'yes'}
-                  onChange={() => setPaymentCollected('yes')}
-                />
-                <span className="ml-1">Yes</span>
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="no"
-                  checked={paymentCollected === 'no'}
-                  onChange={() => setPaymentCollected('no')}
-                />
-                <span className="ml-1">No</span>
-              </label>
-            </div>
-            <label className="flex items-center text-sm">
-              <input
-                type="checkbox"
-                checked={confirm}
-                onChange={(e) => setConfirm(e.target.checked)}
-              />
-              <span className="ml-2">
-                I certify that this job was completed to the best of my ability
-                and all listed items were installed or noted otherwise.
-              </span>
-            </label>
-          </div>
-        )}
+        <div className="mt-6 border rounded-lg p-4 bg-white shadow-sm">
+          <h2 className="text-lg font-semibold mb-2">Labor Bill</h2>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-foreground">
+            {calculatedLineItems.map((item) => (
+              <li key={item.name}>
+                {item.quantity}x {item.name} @ ${item.rate} = ${item.total}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 font-bold text-md">
+            Total Installer Pay: ${totalPay}
+          </p>
+        </div>
 
-        <div className="flex justify-between mt-6">
-          {step > 0 ? (
-            <button
-              onClick={() => setStep(step - 1)}
-              className="text-sm text-gray-500"
-            >
-              Back
-            </button>
-          ) : (
-            <span />
-          )}
-          {step < 3 ? (
-            <button
-              onClick={nextStep}
-              disabled={!stepValid()}
-              className="bg-gray-800 text-white px-3 py-1 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={!stepValid()}
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-            >
-              Complete Installation
-            </button>
-          )}
-          <button onClick={onClose} className="text-sm text-red-600">
-            Cancel
+        <div className="mb-20">
+          <h2 className="text-lg font-semibold">Install Scope</h2>
+          <ul className="list-disc pl-5">
+            {[...componentMap.entries()].map(([name, qty]) => (
+              <li key={name}>
+                {qty}x {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="absolute bottom-4 right-4 space-x-2">
+          <button
+            onClick={() => {
+              startTimeRef.current = Date.now();
+              setShowWizard(true);
+            }}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
+          >
+            Checklist
+          </button>
+          <button
+            onClick={() => setShowDocuments(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
+          >
+            Documents
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-InstallerChecklistWizard.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  job: PropTypes.shape({
-    zones: PropTypes.arrayOf(
-      PropTypes.shape({
-        components: PropTypes.arrayOf(
-          PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            quantity: PropTypes.number.isRequired,
-          })
-        ),
-      })
-    ),
-  }),
-};
-
-export default InstallerChecklistWizard;
+export default JobDetailPage;
