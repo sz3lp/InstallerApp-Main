@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import InstallerChecklistWizard from '../components/InstallerChecklistWizard';
-import { setAppointmentStatus } from '../hooks/useInstallerData';
-import { useNavigate } from 'react-router-dom';
+
 import DocumentViewerModal from '../components/DocumentViewerModal';
 import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
@@ -10,9 +9,14 @@ import SideDrawer from '../components/SideDrawer';
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const { jobId } = useParams();
-  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
+  const [checklistResults, setChecklistResults] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const installerId = 'user_345';
 
   // Mock job data using the route param for id
   const job = {
@@ -84,6 +88,41 @@ const JobDetailPage = () => {
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
+  const handleChecklistOpen = () => {
+    setStartTime(new Date());
+    setShowWizard(true);
+  };
+  const handleWizardSubmit = (results) => {
+    setChecklistResults(results);
+    setEndTime(new Date());
+    setShowWizard(false);
+  };
+  const handleSubmitChecklist = () => {
+    if (!checklistResults) return;
+    setSubmitLoading(true);
+    setSubmitMessage('');
+    fetch(`/api/jobs/${jobId}/checklist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobId,
+        installerId,
+        checklistResults,
+        startTime: startTime?.toISOString(),
+        endTime: endTime?.toISOString(),
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Request failed');
+        }
+        setSubmitMessage('Checklist submitted successfully');
+      })
+      .catch(() => {
+        setSubmitMessage('Failed to submit checklist');
+      })
+      .finally(() => setSubmitLoading(false));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
@@ -92,10 +131,7 @@ const JobDetailPage = () => {
       <InstallerChecklistWizard
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
-        onSubmit={() => {
-          setAppointmentStatus(jobId, 'complete', true);
-          navigate('/appointments');
-        }}
+        onSubmit={handleWizardSubmit}
         job={job}
       />
 
@@ -200,7 +236,7 @@ const JobDetailPage = () => {
 
         <div className="absolute bottom-4 right-4 space-x-2">
           <button
-            onClick={() => setShowWizard(true)}
+            onClick={handleChecklistOpen}
             className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
           >
             Checklist
@@ -211,7 +247,19 @@ const JobDetailPage = () => {
           >
             Documents
           </button>
+          <button
+            onClick={handleSubmitChecklist}
+            disabled={submitLoading || !checklistResults}
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 hover:opacity-90 active:scale-95"
+          >
+            {submitLoading ? 'Submitting...' : 'Submit Checklist'}
+          </button>
         </div>
+        {submitMessage && (
+          <p className="absolute bottom-2 left-4 text-sm">
+            {submitMessage}
+          </p>
+        )}
       </main>
     </div>
   );
