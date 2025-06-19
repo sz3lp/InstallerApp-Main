@@ -143,6 +143,14 @@ const AppointmentSummaryPage = ({ jobs }) => {
             })
           )}
         </div>
+        <div className="mt-6">
+          <button
+            onClick={() => navigate('/ifi')}
+            className="w-full bg-green-600 text-white py-2 rounded-md"
+          >
+            Open IFI Dashboard
+          </button>
+        </div>
       </main>
     </div>
   );
