@@ -7,7 +7,7 @@ import JobDetailPage from "./installer/pages/JobDetailPage";
 import IFIDashboard from "./installer/pages/IFIDashboard";
 import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
-import InstallManagerDashboard from "./app/install-manager/page.jsx";
+import InstallManagerDashboard from "./app/install-manager/page";
 
 const App = () => (
   <Router>
