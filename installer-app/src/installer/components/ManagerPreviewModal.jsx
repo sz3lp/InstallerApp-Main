@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import { FaArrowLeft, FaFan } from "react-icons/fa";
 
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const ManagerPreviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const [tab, setTab] = useState<0 | 1>(0);
+const ManagerPreviewModal = ({ isOpen, onClose }) => {
+  const [tab, setTab] = useState(0);
 
   if (!isOpen) return null;
 
