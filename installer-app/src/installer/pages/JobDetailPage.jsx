@@ -5,6 +5,7 @@ import useInstallerAuth from "../hooks/useInstallerAuth";
 import DocumentViewerModal from "../components/DocumentViewerModal";
 import Header from "../components/Header";
 import SideDrawer from "../components/SideDrawer";
+import uploadDocument from "../../lib/uploadDocument";
 
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -16,25 +17,25 @@ const JobDetailPage = () => {
 
   const { installerId } = useInstallerAuth();
 
-  const isTest = process.env.NODE_ENV === 'test';
+  const isTest = process.env.NODE_ENV === "test";
   const sampleJobs = isTest
     ? [
         {
-          jobId: 'SEA1041',
-          jobNumber: 'SEA#1041',
-          customerName: 'Lincoln Elementary',
-          address: '1234 Solar Lane',
-          assignedTo: 'user_345',
-          status: 'assigned',
+          jobId: "SEA1041",
+          jobNumber: "SEA#1041",
+          customerName: "Lincoln Elementary",
+          address: "1234 Solar Lane",
+          assignedTo: "user_345",
+          status: "assigned",
           zones: [],
         },
         {
-          jobId: 'SEA1042',
-          jobNumber: 'SEA#1042',
-          customerName: 'Jefferson High',
-          address: '9876 Copper Rd',
-          assignedTo: 'user_345',
-          status: 'in_progress',
+          jobId: "SEA1042",
+          jobNumber: "SEA#1042",
+          customerName: "Jefferson High",
+          address: "9876 Copper Rd",
+          assignedTo: "user_345",
+          status: "in_progress",
           zones: [],
         },
       ]
@@ -49,6 +50,11 @@ const JobDetailPage = () => {
   const [job, setJob] = useState(initialJob);
   const [loading, setLoading] = useState(!isTest);
   const [error, setError] = useState(null);
+  const [documents, setDocuments] = useState(initialJob?.documents ?? []);
+
+  useEffect(() => {
+    setDocuments(job?.documents ?? []);
+  }, [job]);
 
   useEffect(() => {
     if (isTest) return;
@@ -56,14 +62,15 @@ const JobDetailPage = () => {
     async function loadJob() {
       try {
         const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
-        if (!res.ok) throw new Error('Network response was not ok');
+        if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
         const found = data.find(
           (j) => j.jobId === jobId || j.id === jobId || j.jobNumber === jobId,
         );
         setJob(found || null);
+        setDocuments(found?.documents ?? []);
       } catch (e) {
-        setError('Failed to load job');
+        setError("Failed to load job");
       } finally {
         setLoading(false);
       }
@@ -114,8 +121,23 @@ const JobDetailPage = () => {
 
   const handlePhotoUpload = async (file) => {
     if (!file) return null;
-    // simulate upload delay and return fake URL
-    return Promise.resolve(`https://example.com/uploads/${file.name}`);
+    try {
+      const doc = await uploadDocument(file);
+      setDocuments((d) => [...d, doc]);
+      if (!isTest) {
+        const { default: supabase } = await import(
+          "../../lib/supabaseClient.js"
+        );
+        await supabase
+          .from("jobs")
+          .update({ documents: [...documents, doc] })
+          .eq("id", jobId);
+      }
+      return doc;
+    } catch (err) {
+      console.error("Upload failed", err);
+      return null;
+    }
   };
 
   const submitChecklist = async (id, payload) => {
@@ -145,11 +167,11 @@ const JobDetailPage = () => {
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
         onSubmit={async (data) => {
-          const photoUrl = await handlePhotoUpload(data.photo);
+          const uploaded = await handlePhotoUpload(data.photo);
           await submitChecklist(jobId, {
             installerId,
             checklistResults: data,
-            photos: photoUrl ? [photoUrl] : [],
+            photos: uploaded?.url ? [uploaded.url] : [],
             timeStarted: new Date(startTimeRef.current).toISOString(),
             timeCompleted: new Date().toISOString(),
           });
@@ -161,26 +183,7 @@ const JobDetailPage = () => {
       <DocumentViewerModal
         isOpen={showDocuments}
         onClose={() => setShowDocuments(false)}
-        documents={[
-          {
-            id: 1,
-            name: "permit.pdf",
-            type: "pdf",
-            url: "#",
-          },
-          {
-            id: 2,
-            name: "blueprints.pdf",
-            type: "pdf",
-            url: "#",
-          },
-          {
-            id: 3,
-            name: "site-photo.jpg",
-            type: "image",
-            url: "#",
-          },
-        ]}
+        documents={documents}
       />
 
       <Header
