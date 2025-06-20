@@ -12,10 +12,14 @@ This repository contains the extracted Vite + React installer application in the
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Run the test suite to make sure everything works:
+   ```bash
+   npm test
+   ```
+4. Start the development server:
    ```bash
    npm run dev
    ```
-4. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
+5. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
 
 The original application structure inside `installer-app/` has not been modified.
