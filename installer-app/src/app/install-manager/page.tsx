@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import JobCard, { Job } from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
@@ -27,6 +28,7 @@ const mockJobs: Job[] = [
 ];
 
 export default function InstallManagerDashboard() {
+  console.log("InstallManagerDashboard rendering");
   const handleView = (id: string) => console.log("view", id);
   const handleEdit = (id: string) => console.log("edit", id);
   const handleUpload = (id: string) => console.log("upload", id);
@@ -39,37 +41,48 @@ export default function InstallManagerDashboard() {
         <h1 className="text-2xl font-bold">Install Manager Dashboard</h1>
       </header>
       <ul className="space-y-4">
-        {mockJobs.map((job) => (
-          <li key={job.id} className="p-2 rounded bg-gray-50">
-            <JobCard job={job} onViewDetails={() => handleView(job.id)} />
-            <div className="mt-2 flex gap-2">
-              <SZButton size="sm" onClick={() => handleView(job.id)}>
-                View
-              </SZButton>
-              <SZButton
-                size="sm"
-                variant="secondary"
-                onClick={() => handleEdit(job.id)}
-              >
-                Edit
-              </SZButton>
-              <SZButton
-                size="sm"
-                variant="secondary"
-                onClick={() => handleUpload(job.id)}
-              >
-                Upload Docs
-              </SZButton>
-              <SZButton
-                size="sm"
-                variant="secondary"
-                onClick={() => handleAssignInventory(job.id)}
-              >
-                Assign Inventory
-              </SZButton>
-            </div>
-          </li>
-        ))}
+        {mockJobs.map((job) => {
+          try {
+            return (
+              <li key={job.id} className="p-2 rounded bg-gray-50">
+                <JobCard job={job} onViewDetails={() => handleView(job.id)} />
+                <div className="mt-2 flex gap-2">
+                  <SZButton size="sm" onClick={() => handleView(job.id)}>
+                    View
+                  </SZButton>
+                  <SZButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleEdit(job.id)}
+                  >
+                    Edit
+                  </SZButton>
+                  <SZButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleUpload(job.id)}
+                  >
+                    Upload Docs
+                  </SZButton>
+                  <SZButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleAssignInventory(job.id)}
+                  >
+                    Assign Inventory
+                  </SZButton>
+                </div>
+              </li>
+            );
+          } catch (err) {
+            console.error(err);
+            return (
+              <li key={job.id}>
+                <div>Error loading job</div>
+              </li>
+            );
+          }
+        })}
       </ul>
     </div>
   );
