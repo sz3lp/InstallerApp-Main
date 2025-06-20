@@ -99,5 +99,4 @@ export const SZModal: React.FC<SZModalProps> = ({
       </div>
     </div>
   );
-};
-
+}
