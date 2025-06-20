@@ -13,7 +13,7 @@ const MockJobsPage = () => (
         {jobs.map((job) => (
           <li key={job}>
             <Link
-              to={`/jobs/${job}`}
+              to={`/job/${job}`}
               className="block bg-white rounded shadow px-4 py-2 text-green-600 hover:bg-gray-50 text-center"
             >
               {job}

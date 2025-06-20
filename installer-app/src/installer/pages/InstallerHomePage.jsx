@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import { FaSyncAlt, FaBriefcase, FaClock } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import SideDrawer from '../components/SideDrawer';
+import React, { useState } from "react";
+import { FaSyncAlt, FaBriefcase, FaClock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import SideDrawer from "../components/SideDrawer";
+import OpenManagerPreview from "../components/OpenManagerPreview";
 
 const InstallerHomePage = ({
-  installerEmail = 'lukepreble@outlook.com',
+  installerEmail = "lukepreble@outlook.com",
   inventoryValue = 0,
 }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const navigate = useNavigate();
   const handleDrawer = () => setShowDrawer(true);
   const handleRefresh = () => navigate(0);
-  const handleAppointmentSummary = () => navigate('/appointments');
-  const handleActivitySummary = () => navigate('/activity');
+  const handleAppointmentSummary = () => navigate("/appointments");
+  const handleActivitySummary = () => navigate("/activity");
 
   return (
-    <div className="bg-gray-100 flex flex-col min-h-screen">
+    <div className="bg-gray-100 flex flex-col min-h-screen relative">
       <SideDrawer isOpen={showDrawer} onClose={() => setShowDrawer(false)} />
 
       <Header
@@ -53,11 +54,12 @@ const InstallerHomePage = ({
           </section>
 
           <footer className="pt-6 text-center text-sm text-muted-foreground">
-            Total Current Inventory Amount:{' '}
+            Total Current Inventory Amount:{" "}
             <strong>${inventoryValue.toFixed(2)}</strong>
           </footer>
         </div>
       </main>
+      <OpenManagerPreview />
     </div>
   );
 };
