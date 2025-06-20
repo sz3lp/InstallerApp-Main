@@ -7,6 +7,7 @@ import { useJobs } from "./useJobs";
 import NewJobModal from "./NewJobModal";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import QAReviewPanel from "./QAReviewPanel";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
@@ -103,6 +104,8 @@ export default function InstallManagerDashboard() {
           }
         }}
       />
+      <h2 className="text-xl font-bold mt-8 mb-4">QA Review</h2>
+      <QAReviewPanel />
     </div>
   );
 }
