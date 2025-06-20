@@ -1,13 +1,9 @@
 import { useCallback } from "react";
 import supabase from "../supabaseClient";
 
-interface AuditDetails {
-  [key: string]: any;
-}
-
 export function useAuditLogger() {
   const logEvent = useCallback(
-    async (jobId: string, event: string, details: AuditDetails = {}) => {
+    async (jobId, event, details = {}) => {
       try {
         const {
           data: { session },

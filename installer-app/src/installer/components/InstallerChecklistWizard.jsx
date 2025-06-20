@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import useAuditLogger from '../../lib/hooks/useAuditLogger';
 import PropTypes from 'prop-types';
 
 const inventoryList = [
@@ -11,6 +12,7 @@ const inventoryList = [
 const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState({});
+  const { logEvent } = useAuditLogger();
   const handlePhotoUpload = (stepId, file) => {
     setPhotos((prev) => ({ ...prev, [stepId]: file }));
   };
@@ -85,9 +87,9 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
 
   const nextStep = () => { if (stepValid()) setStep((prev) => prev + 1); };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!stepValid()) return;
-    onSubmit({
+    await onSubmit({
       customerPresent,
       absenceReason,
       installCounts,
@@ -96,6 +98,11 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
       fullName,
       paymentCollected,
       signature: canvasRef.current?.toDataURL(),
+    });
+    const stepCount = step + 1;
+    await logEvent(job?.id || job?.jobId || job?.jobNumber || "", "checklist_completed", {
+      stepsCompleted: stepCount,
+      flaggedItems: [],
     });
   };
 

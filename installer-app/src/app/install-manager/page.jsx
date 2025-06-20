@@ -8,16 +8,18 @@ import NewJobModal from "./NewJobModal";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
+import DocumentUploaderModal from "./DocumentUploaderModal";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
   const [newOpen, setNewOpen] = useState(false);
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
+  const [uploadJob, setUploadJob] = useState(null);
 
   const handleView = (id) => console.log("view", id);
   const handleEdit = (job) => setEditJob(job);
-  const handleUpload = (id) => console.log("upload", id);
+  const handleUpload = (job) => setUploadJob(job);
   const handleAssignInventory = (id) => console.log("assign inventory", id);
 
   return (
@@ -50,7 +52,7 @@ export default function InstallManagerDashboard() {
                   <SZButton
                     size="sm"
                     variant="secondary"
-                    onClick={() => handleUpload(job.id)}
+                    onClick={() => handleUpload(job)}
                   >
                     Upload Docs
                   </SZButton>
@@ -103,6 +105,12 @@ export default function InstallManagerDashboard() {
             refresh();
           }
         }}
+      />
+      <DocumentUploaderModal
+        jobId={uploadJob?.id || null}
+        isOpen={!!uploadJob}
+        onClose={() => setUploadJob(null)}
+        onUploaded={refresh}
       />
       <h2 className="text-xl font-bold mt-8 mb-4">QA Review</h2>
       <QAReviewPanel />

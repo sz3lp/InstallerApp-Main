@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
+import useAuditLogger from "../../lib/hooks/useAuditLogger";
 import DocumentViewerModal from "../../installer/components/DocumentViewerModal";
 
 export type QAReviewPanelProps = {};
@@ -29,6 +30,7 @@ const QAReviewPanel: React.FC<QAReviewPanelProps> = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeDocs, setActiveDocs] = useState<any[] | null>(null);
+  const { logEvent } = useAuditLogger();
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -59,6 +61,10 @@ const QAReviewPanel: React.FC<QAReviewPanelProps> = () => {
 
   const updateStatus = async (id: string, status: "complete" | "rework") => {
     await supabase.from("jobs").update({ status }).eq("id", id);
+    await logEvent(id, "status_updated", {
+      newStatus: status,
+      source: "manager",
+    });
     fetchJobs();
   };
 
