@@ -89,4 +89,3 @@ export const SZButton: React.FC<SZButtonProps> = ({
   );
 };
 
-export default SZButton;
