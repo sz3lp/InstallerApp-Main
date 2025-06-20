@@ -29,7 +29,6 @@ export const SZModal: React.FC<SZModalProps> = ({
       if (e.key === 'Escape') {
         onClose();
       }
-
       if (e.key === 'Tab' && modalRef.current) {
         const focusable = modalRef.current.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex="0"]',
@@ -37,7 +36,6 @@ export const SZModal: React.FC<SZModalProps> = ({
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
         if (!first || !last) return;
-
         if (e.shiftKey) {
           if (document.activeElement === first) {
             e.preventDefault();
@@ -54,7 +52,6 @@ export const SZModal: React.FC<SZModalProps> = ({
 
     document.addEventListener('keydown', onKeyDown);
     document.body.style.overflow = 'hidden';
-
     lastFocused.current = document.activeElement as HTMLElement;
     setTimeout(() => {
       modalRef.current?.focus();
@@ -102,4 +99,4 @@ export const SZModal: React.FC<SZModalProps> = ({
       </div>
     </div>
   );
-};
+}

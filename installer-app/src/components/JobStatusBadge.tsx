@@ -30,7 +30,11 @@ const JobStatusBadge: React.FC<JobStatusBadgeProps> = ({
   status,
   className = "",
 }) => {
-  const { label, variant } = statusMap[status];
+  const fallback: { label: string; variant: SZBadgeProps["variant"] } = {
+    label: "Unknown",
+    variant: "gray",
+  };
+  const { label, variant } = statusMap[status] ?? fallback;
   return <SZBadge label={label} variant={variant} className={className} />;
 };
 

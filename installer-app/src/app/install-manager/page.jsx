@@ -1,49 +1,31 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
+import { useJobs } from "./useJobs";
+import NewJobModal from "./NewJobModal";
+import EditJobModal from "./EditJobModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 export default function InstallManagerDashboard() {
-  console.log("InstallManagerDashboard rendering");
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { jobs, loading, error, refresh } = useJobs();
+  const [newOpen, setNewOpen] = useState(false);
+  const [editJob, setEditJob] = useState(null);
+  const [deleteJob, setDeleteJob] = useState(null);
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("jobs")
-          .select("id, address, assigned_to, status, scheduled_date");
-        if (error) throw error;
-        const normalized = (data ?? []).map((j) => ({
-          id: j.id,
-          address: j.address,
-          assignedTo: j.assigned_to,
-          status: j.status,
-          scheduledDate: j.scheduled_date,
-        }));
-        setJobs(normalized);
-      } catch (err) {
-        console.error(err);
-        setError(err.message || "Failed to load jobs");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchJobs();
-  }, []);
   const handleView = (id) => console.log("view", id);
-  const handleEdit = (id) => console.log("edit", id);
+  const handleEdit = (job) => setEditJob(job);
   const handleUpload = (id) => console.log("upload", id);
   const handleAssignInventory = (id) => console.log("assign inventory", id);
 
   return (
     <div className="p-4">
-      <header className="sticky top-0 bg-white p-4 shadow mb-4">
+      <header className="sticky top-0 bg-white p-4 shadow mb-4 flex justify-between">
         <h1 className="text-2xl font-bold">Install Manager Dashboard</h1>
+        <SZButton size="sm" onClick={() => setNewOpen(true)}>
+          New Job
+        </SZButton>
       </header>
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-600">{error}</div>}
@@ -60,7 +42,7 @@ export default function InstallManagerDashboard() {
                   <SZButton
                     size="sm"
                     variant="secondary"
-                    onClick={() => handleEdit(job.id)}
+                    onClick={() => handleEdit(job)}
                   >
                     Edit
                   </SZButton>
@@ -78,6 +60,13 @@ export default function InstallManagerDashboard() {
                   >
                     Assign Inventory
                   </SZButton>
+                  <SZButton
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setDeleteJob(job)}
+                  >
+                    Delete
+                  </SZButton>
                 </div>
               </li>
             );
@@ -91,6 +80,29 @@ export default function InstallManagerDashboard() {
           }
         })}
       </ul>
+      <NewJobModal
+        isOpen={newOpen}
+        onClose={() => setNewOpen(false)}
+        onCreated={refresh}
+      />
+      <EditJobModal
+        job={editJob}
+        isOpen={!!editJob}
+        onClose={() => setEditJob(null)}
+        onUpdated={refresh}
+      />
+      <ConfirmDeleteModal
+        jobId={deleteJob?.id}
+        isOpen={!!deleteJob}
+        onClose={() => setDeleteJob(null)}
+        onConfirm={async () => {
+          if (deleteJob) {
+            await supabase.from("jobs").delete().eq("id", deleteJob.id);
+            setDeleteJob(null);
+            refresh();
+          }
+        }}
+      />
     </div>
   );
 }
