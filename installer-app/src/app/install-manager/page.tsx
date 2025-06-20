@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import JobCard, { Job } from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
@@ -27,6 +28,7 @@ const mockJobs: Job[] = [
 ];
 
 export default function InstallManagerDashboard() {
+  console.log("InstallManagerDashboard rendering");
   const handleView = (id: string) => console.log("view", id);
   const handleEdit = (id: string) => console.log("edit", id);
   const handleUpload = (id: string) => console.log("upload", id);
