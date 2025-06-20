@@ -4,14 +4,14 @@ import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
 import { useJobs } from "./useJobs";
-import NewJobModal from "./NewJobModal";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
+import { useNavigate } from "react-router-dom";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
-  const [newOpen, setNewOpen] = useState(false);
+  const navigate = useNavigate();
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
 
@@ -24,7 +24,7 @@ export default function InstallManagerDashboard() {
     <div className="p-4">
       <header className="sticky top-0 bg-white p-4 shadow mb-4 flex justify-between">
         <h1 className="text-2xl font-bold">Install Manager Dashboard</h1>
-        <SZButton size="sm" onClick={() => setNewOpen(true)}>
+        <SZButton size="sm" onClick={() => navigate('/install-manager/job/new')}>
           New Job
         </SZButton>
       </header>
@@ -81,11 +81,6 @@ export default function InstallManagerDashboard() {
           }
         })}
       </ul>
-      <NewJobModal
-        isOpen={newOpen}
-        onClose={() => setNewOpen(false)}
-        onCreated={refresh}
-      />
       <EditJobModal
         job={editJob}
         isOpen={!!editJob}
