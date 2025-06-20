@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ManagerPreviewModal from "./ManagerPreviewModal.tsx";
+import ManagerPreviewModal from "./ManagerPreviewModal.jsx";
 
 export default function OpenManagerPreview() {
   const [open, setOpen] = useState(false);
