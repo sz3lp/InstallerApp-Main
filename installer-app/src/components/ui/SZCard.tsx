@@ -31,5 +31,3 @@ export const SZCard: React.FC<SZCardProps> = ({
     </div>
   );
 };
-
-export default SZCard;
