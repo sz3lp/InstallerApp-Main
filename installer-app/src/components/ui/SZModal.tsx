@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export type SZModalProps = {
   isOpen: boolean;
@@ -19,6 +19,9 @@ export const SZModal: React.FC<SZModalProps> = ({
   hideCloseButton = false,
   className = '',
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const lastFocused = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -26,14 +29,41 @@ export const SZModal: React.FC<SZModalProps> = ({
       if (e.key === 'Escape') {
         onClose();
       }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex="0"]',
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
     };
 
     document.addEventListener('keydown', onKeyDown);
     document.body.style.overflow = 'hidden';
 
+    lastFocused.current = document.activeElement as HTMLElement;
+    setTimeout(() => {
+      modalRef.current?.focus();
+    });
+
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = '';
+      lastFocused.current?.focus();
     };
   }, [isOpen, onClose]);
 
@@ -53,6 +83,8 @@ export const SZModal: React.FC<SZModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
+        ref={modalRef}
+        tabIndex={-1}
         className={`bg-white rounded shadow-xl p-6 max-h-full overflow-y-auto ${className}`}
       >
         {!hideCloseButton && (
@@ -71,4 +103,3 @@ export const SZModal: React.FC<SZModalProps> = ({
     </div>
   );
 };
-
