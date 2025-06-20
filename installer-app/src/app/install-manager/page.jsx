@@ -1,35 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import JobCard, { Job } from "../../components/JobCard";
+import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
 
-interface JobRow {
-  id: string;
-  address: string;
-  assigned_to: string | null;
-  status: Job["status"];
-  scheduled_date: string;
-}
-
 export default function InstallManagerDashboard() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         const { data, error } = await supabase
-          .from<JobRow>("jobs")
+          .from("jobs")
           .select("id, address, assigned_to, status, scheduled_date");
         if (error) throw error;
-
-        const normalized = (data ?? []).map((j) => ({
-          id: j.id,
-          address: j.address,
-          assignedTo: j.assigned_to,
-          status: j.status,
+      } catch (err) {
+  const handleView = (id) => console.log("view", id);
+  const handleEdit = (id) => console.log("edit", id);
+  const handleUpload = (id) => console.log("upload", id);
+  const handleAssignInventory = (id) => console.log("assign inventory", id);
           scheduledDate: j.scheduled_date,
         }));
 
