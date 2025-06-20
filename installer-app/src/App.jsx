@@ -18,7 +18,6 @@ const App = () => (
       <Route path="/job/:jobId" element={<JobDetailPage />} />
       <Route path="/mock-jobs" element={<MockJobsPage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
-      <Route path="/install-manager" element={<InstallManagerDashboard />} />
     </Routes>
   </Router>
 );
