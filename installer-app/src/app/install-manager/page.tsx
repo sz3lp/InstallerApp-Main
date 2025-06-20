@@ -13,7 +13,6 @@ interface JobRow {
 }
 
 export default function InstallManagerDashboard() {
-  console.log("InstallManagerDashboard rendering");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +24,7 @@ export default function InstallManagerDashboard() {
           .from<JobRow>("jobs")
           .select("id, address, assigned_to, status, scheduled_date");
         if (error) throw error;
+
         const normalized = (data ?? []).map((j) => ({
           id: j.id,
           address: j.address,
@@ -32,6 +32,7 @@ export default function InstallManagerDashboard() {
           status: j.status,
           scheduledDate: j.scheduled_date,
         }));
+
         setJobs(normalized);
       } catch (err: any) {
         console.error(err);
@@ -43,6 +44,7 @@ export default function InstallManagerDashboard() {
 
     fetchJobs();
   }, []);
+
   const handleView = (id: string) => console.log("view", id);
   const handleEdit = (id: string) => console.log("edit", id);
   const handleUpload = (id: string) => console.log("upload", id);
@@ -57,48 +59,37 @@ export default function InstallManagerDashboard() {
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-600">{error}</div>}
       <ul className="space-y-4">
-        {jobs.map((job) => {
-          try {
-            return (
-              <li key={job.id} className="p-2 rounded bg-gray-50">
-                <JobCard job={job} onViewDetails={() => handleView(job.id)} />
-                <div className="mt-2 flex gap-2">
-                  <SZButton size="sm" onClick={() => handleView(job.id)}>
-                    View
-                  </SZButton>
-                  <SZButton
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleEdit(job.id)}
-                  >
-                    Edit
-                  </SZButton>
-                  <SZButton
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleUpload(job.id)}
-                  >
-                    Upload Docs
-                  </SZButton>
-                  <SZButton
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleAssignInventory(job.id)}
-                  >
-                    Assign Inventory
-                  </SZButton>
-                </div>
-              </li>
-            );
-          } catch (err) {
-            console.error(err);
-            return (
-              <li key={job.id}>
-                <div>Error loading job</div>
-              </li>
-            );
-          }
-        })}
+        {jobs.map((job) => (
+          <li key={job.id} className="p-2 rounded bg-gray-50">
+            <JobCard job={job} onViewDetails={() => handleView(job.id)} />
+            <div className="mt-2 flex gap-2">
+              <SZButton size="sm" onClick={() => handleView(job.id)}>
+                View
+              </SZButton>
+              <SZButton
+                size="sm"
+                variant="secondary"
+                onClick={() => handleEdit(job.id)}
+              >
+                Edit
+              </SZButton>
+              <SZButton
+                size="sm"
+                variant="secondary"
+                onClick={() => handleUpload(job.id)}
+              >
+                Upload Docs
+              </SZButton>
+              <SZButton
+                size="sm"
+                variant="secondary"
+                onClick={() => handleAssignInventory(job.id)}
+              >
+                Assign Inventory
+              </SZButton>
+            </div>
+          </li>
+        ))}
       </ul>
     </div>
   );
