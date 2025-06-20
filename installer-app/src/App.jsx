@@ -6,6 +6,7 @@ import ActivitySummaryPage from './installer/pages/ActivitySummaryPage';
 import JobDetailPage from './installer/pages/JobDetailPage';
 import IFIDashboard from './installer/pages/IFIDashboard';
 import MockJobsPage from './installer/pages/MockJobsPage';
+import FeedbackPage from './installer/pages/FeedbackPage';
 
 const App = () => (
   <Router>
@@ -16,6 +17,7 @@ const App = () => (
       <Route path="/ifi" element={<IFIDashboard />} />
       <Route path="/job/:jobId" element={<JobDetailPage />} />
       <Route path="/mock-jobs" element={<MockJobsPage />} />
+      <Route path="/feedback" element={<FeedbackPage />} />
     </Routes>
   </Router>
 );
