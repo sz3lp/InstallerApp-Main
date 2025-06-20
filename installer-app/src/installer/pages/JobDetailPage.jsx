@@ -39,7 +39,7 @@ const JobDetailPage = () => {
   }, [installerId, jobId]);
 
   const componentMap = new Map();
-  job.zones?.forEach((zone) => {
+  job?.zones?.forEach((zone) => {
     zone.components.forEach((comp) => {
       const key = comp.name;
       const qty = componentMap.get(key) ?? 0;
@@ -55,7 +55,7 @@ const JobDetailPage = () => {
   };
 
   const payMap = new Map();
-  job.zones?.forEach((zone) => {
+  job?.zones?.forEach((zone) => {
     zone.components.forEach((comp) => {
       if (comp.reusable) return;
       const qty = payMap.get(comp.name) ?? 0;
@@ -173,9 +173,9 @@ const JobDetailPage = () => {
           </div>
           <div>
             <p className="font-semibold">System Type</p>
-            {job.zones?.length ? (
+            {job?.zones?.length ? (
               <div className="space-y-1">
-                {job.zones.map((zone, idx) => (
+                {job?.zones?.map((zone, idx) => (
                   <p key={idx}>
                     <strong>{zone.zoneName}:</strong> {zone.systemType}
                   </p>

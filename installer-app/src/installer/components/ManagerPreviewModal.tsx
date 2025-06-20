@@ -82,9 +82,9 @@ const ManagerPreviewModal: React.FC<ManagerPreviewModalProps> = ({
               {zones.map((zone) => (
                 <div
                   key={zone.id}
-                  className={`flex items-center justify-between rounded-lg px-4 py-2 min-h-[44px] ${zone.warning ? 'bg-orange-100 text-orange-700' : 'bg-gray-100'}`}
+                  className={`flex items-center justify-between rounded-lg px-4 py-2 min-h-[44px] ${zone.warning ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'}`}
                 >
-                  <span className="text-gray-700">{zone.name}</span>
+                  <span>{zone.name}</span>
                   <span className="text-sm text-gray-500">
                     {zone.temp} – {zone.hvac} – {zone.occupancy}
                   </span>
