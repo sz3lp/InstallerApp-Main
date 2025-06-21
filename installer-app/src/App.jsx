@@ -9,6 +9,7 @@ import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
+import ManagerJobDetailPage from "./app/install-manager/job/JobDetailPage";
 
 const App = () => (
   <Router>
@@ -21,6 +22,10 @@ const App = () => (
       <Route path="/mock-jobs" element={<MockJobsPage />} />
       <Route path="/install-manager" element={<InstallManagerDashboard />} />
       <Route path="/install-manager/job/new" element={<NewJobBuilderPage />} />
+      <Route
+        path="/install-manager/job/:jobId"
+        element={<ManagerJobDetailPage />}
+      />
       <Route path="/feedback" element={<FeedbackPage />} />
     </Routes>
   </Router>
