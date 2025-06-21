@@ -66,7 +66,14 @@ const App = () => (
               </RequireRole>
             }
           />
-          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route
+            path="/feedback"
+            element={
+              <RequireRole role={["Installer", "Manager", "Admin"]}>
+                <FeedbackPage />
+              </RequireRole>
+            }
+          />
           <Route
             path="/clients"
             element={
