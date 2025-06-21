@@ -43,11 +43,33 @@ export function useJobMaterials(jobId: string) {
     return data;
   }, []);
 
+  const addMaterial = useCallback(
+    async (material_id: string, quantity: number) => {
+      if (!jobId) throw new Error("Missing job id");
+      const { data, error } = await supabase
+        .from<JobMaterial>("job_materials")
+        .insert({ job_id: jobId, material_id, quantity })
+        .select()
+        .single();
+      if (error) throw error;
+      setItems((is) => [...is, data]);
+      return data;
+    },
+    [jobId],
+  );
+
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
-  return { items, loading, error, fetchItems, updateUsed } as const;
+  return {
+    items,
+    loading,
+    error,
+    fetchItems,
+    updateUsed,
+    addMaterial,
+  } as const;
 }
 
 export default useJobMaterials;
