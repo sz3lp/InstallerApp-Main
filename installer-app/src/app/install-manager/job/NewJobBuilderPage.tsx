@@ -244,10 +244,18 @@ const NewJobBuilderPage: React.FC = () => {
       </section>
 
       <div className="flex flex-wrap gap-2">
-        <SZButton variant="secondary" size="sm">Generate Installer Documents</SZButton>
-        <SZButton variant="secondary" size="sm">Generate Invoice</SZButton>
-        <SZButton variant="secondary" size="sm">Generate Royalty Contract</SZButton>
-        <SZButton variant="secondary" size="sm">Generate Contracts</SZButton>
+        <SZButton variant="secondary" size="sm" disabled title="Coming soon">
+          Generate Installer Documents
+        </SZButton>
+        <SZButton variant="secondary" size="sm" disabled title="Coming soon">
+          Generate Invoice
+        </SZButton>
+        <SZButton variant="secondary" size="sm" disabled title="Coming soon">
+          Generate Royalty Contract
+        </SZButton>
+        <SZButton variant="secondary" size="sm" disabled title="Coming soon">
+          Generate Contracts
+        </SZButton>
       </div>
 
       <div className="pt-4">
