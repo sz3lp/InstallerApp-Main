@@ -1,33 +1,33 @@
-import { useEffect, useState } from "react";
-import supabase from "../supabaseClient";
+import { createContext, useState, useEffect, useContext } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
-export interface AuthSession {
-  user: {
-    id: string;
-  } | null;
-  [key: string]: any;
-}
+const AuthContext = createContext();
 
-export function useAuth() {
-  const [session, setSession] = useState<AuthSession | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [session, setSession] = useState(null);
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session as AuthSession | null);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, sess) => {
-        setSession(sess as AuthSession | null);
-      },
-    );
-
-    return () => {
-      listener?.subscription.unsubscribe();
+    const fetchSessionAndRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      if (session?.user) {
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id).single();
+        setRole(data?.role);
+      }
+      setLoading(false);
     };
+
+    fetchSessionAndRole();
+    supabase.auth.onAuthStateChange(() => fetchSessionAndRole());
   }, []);
 
-  return { session } as const;
-}
+  return (
+    <AuthContext.Provider value={{ session, role, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-export default useAuth;
+export const useAuth = () => useContext(AuthContext);
