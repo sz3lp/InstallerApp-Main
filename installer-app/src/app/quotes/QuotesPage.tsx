@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";

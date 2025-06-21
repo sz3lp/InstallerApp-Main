@@ -71,3 +71,13 @@ index.html             // Vite HTML entry
 - Swap mock data for backend integration (Firebase or REST APIs)
 - Implement user authentication and persistent storage
 - Expand the IFI dashboard with charts and analytics
+
+### Environment Variables
+
+Required:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_API_KEY`
+
+Optional (for compatibility only; Vite uses VITE_ prefix):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
