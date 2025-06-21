@@ -12,9 +12,14 @@ This repository contains the extracted Vite + React installer application in the
    ```bash
    npm install
    ```
-3. Run the test suite to make sure everything works:
+3. Create a `.env` file containing your Supabase credentials:
    ```bash
-   npm test
+   echo "VITE_SUPABASE_URL=YOUR_SUPABASE_URL" >> .env
+   echo "VITE_SUPABASE_API_KEY=YOUR_SUPABASE_ANON_KEY" >> .env
+   ```
+4. Start the development server:
+   ```bash
+5. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
    ```
 4. Start the development server:
    ```bash
