@@ -1,29 +1,51 @@
 import { useState, useEffect } from "react";
-import useInstallerAuth from "./useInstallerAuth";
+import { useAuth } from "../../lib/hooks/useAuth";
+import supabase from "../../lib/supabaseClient";
 
 export default function useAssignedJobs() {
-  const { installerId } = useInstallerAuth();
+  const { session } = useAuth();
+  const installerId = session?.user?.id;
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!installerId) {
+      setJobs([]);
+      setLoading(false);
+      return;
+    }
+
     async function fetchJobs() {
       setLoading(true);
       setError(null);
-      try {
-        const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        setJobs(data);
-      } catch (err) {
-        setError("Failed to load jobs");
-      } finally {
-        setLoading(false);
+      const { data, error } = await supabase
+        .from("jobs")
+        .select(
+          "id, address, assigned_to, status, scheduled_date, clinic_name, documents"
+        )
+        .eq("assigned_to", installerId)
+        .order("scheduled_date", { ascending: true });
+
+      if (error) {
+        setError(error.message);
+        setJobs([]);
+      } else {
+        setJobs(
+          (data ?? []).map((j) => ({
+            id: j.id,
+            address: j.address,
+            assignedTo: j.assigned_to,
+            status: j.status,
+            scheduledDate: j.scheduled_date,
+            clientName: j.clinic_name,
+            documents: j.documents ?? [],
+          }))
+        );
       }
+      setLoading(false);
     }
+
     fetchJobs();
   }, [installerId]);
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
-import useInstallerAuth from "../hooks/useInstallerAuth";
+import { useAuth } from "../../lib/hooks/useAuth";
+import supabase from "../../lib/supabaseClient";
 import DocumentViewerModal from "../components/DocumentViewerModal";
 import Header from "../components/Header";
 import SideDrawer from "../components/SideDrawer";
@@ -15,7 +16,8 @@ const JobDetailPage = () => {
   const [showDocuments, setShowDocuments] = useState(false);
   const startTimeRef = useRef(Date.now());
 
-  const { installerId } = useInstallerAuth();
+  const { session } = useAuth();
+  const installerId = session?.user?.id;
 
   const isTest = process.env.NODE_ENV === "test";
   const sampleJobs = isTest
@@ -57,23 +59,31 @@ const JobDetailPage = () => {
   }, [job]);
 
   useEffect(() => {
-    if (isTest) return;
+    if (isTest || !installerId) return;
 
     async function loadJob() {
-      try {
-        const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        const found = data.find(
-          (j) => j.jobId === jobId || j.id === jobId || j.jobNumber === jobId,
-        );
-        setJob(found || null);
-        setDocuments(found?.documents ?? []);
-      } catch (e) {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from("jobs")
+        .select(
+          "id, address, assigned_to, status, scheduled_date, clinic_name, documents, zones"
+        )
+        .eq("id", jobId)
+        .eq("assigned_to", installerId)
+        .single();
+      if (error) {
         setError("Failed to load job");
-      } finally {
-        setLoading(false);
+        setJob(null);
+        setDocuments([]);
+      } else {
+        const mapped = data
+          ? { ...data, clientName: data.clinic_name ?? data.clientName }
+          : null;
+        setJob(mapped);
+        setDocuments(mapped?.documents ?? []);
       }
+      setLoading(false);
     }
 
     loadJob();
