@@ -6,6 +6,7 @@ import { useJobs } from "./useJobs";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
+import FeedbackReviewPanel from "./FeedbackReviewPanel";
 import { useNavigate } from "react-router-dom";
 
 export default function InstallManagerDashboard() {
@@ -100,6 +101,8 @@ export default function InstallManagerDashboard() {
       />
       <h2 className="text-xl font-bold mt-8 mb-4">QA Review</h2>
       <QAReviewPanel />
+      <h2 className="text-xl font-bold mt-8 mb-4">Installer Feedback</h2>
+      <FeedbackReviewPanel />
     </div>
   );
 }

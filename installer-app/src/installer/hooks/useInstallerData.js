@@ -139,16 +139,19 @@ export function useActivityLogs() {
   return { logs, loading };
 }
 
-// submitInstallerFeedback would normally post to backend
-export function submitInstallerFeedback(formData) {
+// submitInstallerFeedback now posts to API endpoint
+export async function submitInstallerFeedback(formData) {
   try {
-    const stored = JSON.parse(
-      localStorage.getItem('installerFeedbacks') || '[]'
-    );
-    stored.push({ ...formData, submittedAt: new Date().toISOString() });
-    localStorage.setItem('installerFeedbacks', JSON.stringify(stored));
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
   } catch (err) {
-    // localStorage may be unavailable or full
+    // network or other errors can be safely ignored in this demo
+    console.error('Failed to submit installer feedback', err);
   }
 }
 
