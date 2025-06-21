@@ -23,9 +23,7 @@ const QuotesPage = lazy(() => import("./app/quotes/QuotesPage"));
 const InvoicesPage = lazy(() => import("./app/invoices/InvoicesPage"));
 const PaymentsPage = lazy(() => import("./app/payments/PaymentsPage"));
 const MessagesPanel = lazy(() => import("./app/messages/MessagesPanel"));
-const TimeTrackingPanel = lazy(
-  () => import("./app/time-tracking/TimeTrackingPanel"),
-);
+const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPanel"));
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
 
 const App = () => (
@@ -34,7 +32,7 @@ const App = () => (
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route element={<RequireRole role="Installer" />}> 
+          <Route element={<RequireRole role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
             <Route path="/appointments" element={<AppointmentSummaryPage />} />
             <Route path="/activity" element={<ActivitySummaryPage />} />
@@ -44,11 +42,11 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
           </Route>
-          <Route element={<RequireRole role="Admin" />}> 
+          <Route element={<RequireRole role="Admin" />}>
             <Route path="/admin/jobs/new" element={<AdminNewJob />} />
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
-          <Route element={<RequireRole role="Manager" />}> 
+          <Route element={<RequireRole role="Manager" />}>
             <Route path="/manager/review" element={<ManagerReview />} />
           </Route>
           <Route path="/install-manager" element={<InstallManagerDashboard />} />
