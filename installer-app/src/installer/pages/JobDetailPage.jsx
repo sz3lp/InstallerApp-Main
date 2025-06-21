@@ -167,11 +167,26 @@ const JobDetailPage = () => {
         isOpen={showWizard}
         onClose={() => setShowWizard(false)}
         onSubmit={async (data) => {
-          const uploaded = await handlePhotoUpload(data.photo);
+          const urls = [];
+          if (data.photos?.[2]) {
+            for (const file of data.photos[2]) {
+              const uploaded = await handlePhotoUpload(file);
+              if (uploaded?.url) urls.push(uploaded.url);
+            }
+          }
           await submitChecklist(jobId, {
             installerId,
-            checklistResults: data,
-            photos: uploaded?.url ? [uploaded.url] : [],
+            checklistResults: {
+              customerPresent: data.customerPresent,
+              absenceReason: data.absenceReason,
+              installCounts: data.installCounts,
+              contactedManager: data.contactedManager,
+              materialsUsed: data.materialsUsed,
+              paymentCollected: data.paymentCollected,
+              fullName: data.fullName,
+              signatureData: data.signatureData,
+            },
+            photos: urls,
             timeStarted: new Date(startTimeRef.current).toISOString(),
             timeCompleted: new Date().toISOString(),
           });
