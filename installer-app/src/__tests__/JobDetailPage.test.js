@@ -7,7 +7,7 @@ test('renders job number from route', () => {
   render(
     <MemoryRouter initialEntries={['/job/SEA1042']}>
       <Routes>
-        <Route path="/job/:jobId" element={<JobDetailPage />} />
+        <Route path="/job/:id" element={<JobDetailPage />} />
       </Routes>
     </MemoryRouter>
   );
@@ -18,7 +18,7 @@ test('displays calculated installer pay', () => {
   render(
     <MemoryRouter initialEntries={['/job/SEA1042']}>
       <Routes>
-        <Route path="/job/:jobId" element={<JobDetailPage />} />
+        <Route path="/job/:id" element={<JobDetailPage />} />
       </Routes>
     </MemoryRouter>
   );

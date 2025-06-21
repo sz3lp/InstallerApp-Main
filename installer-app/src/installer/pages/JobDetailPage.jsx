@@ -9,7 +9,7 @@ import uploadDocument from "../../lib/uploadDocument";
 
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
-  const { jobId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
@@ -43,7 +43,7 @@ const JobDetailPage = () => {
 
   const initialJob = isTest
     ? sampleJobs.find(
-        (j) => j.jobId === jobId || j.id === jobId || j.jobNumber === jobId,
+        (j) => j.jobId === id || j.id === id || j.jobNumber === id,
       )
     : null;
 
@@ -61,14 +61,17 @@ const JobDetailPage = () => {
 
     async function loadJob() {
       try {
-        const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        const found = data.find(
-          (j) => j.jobId === jobId || j.id === jobId || j.jobNumber === jobId,
+        const { default: supabase } = await import(
+          "../../lib/supabaseClient.js"
         );
-        setJob(found || null);
-        setDocuments(found?.documents ?? []);
+        const { data, error } = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (error) throw error;
+        setJob(data || null);
+        setDocuments(data?.documents ?? []);
       } catch (e) {
         setError("Failed to load job");
       } finally {
@@ -77,7 +80,7 @@ const JobDetailPage = () => {
     }
 
     loadJob();
-  }, [installerId, jobId, isTest]);
+  }, [installerId, id, isTest]);
 
   const componentMap = new Map();
   job?.zones?.forEach((zone) => {
@@ -131,7 +134,7 @@ const JobDetailPage = () => {
         await supabase
           .from("jobs")
           .update({ documents: [...documents, doc] })
-          .eq("id", jobId);
+          .eq("id", id);
       }
       return doc;
     } catch (err) {
@@ -174,7 +177,7 @@ const JobDetailPage = () => {
               if (uploaded?.url) urls.push(uploaded.url);
             }
           }
-          await submitChecklist(jobId, {
+          await submitChecklist(id, {
             installerId,
             checklistResults: {
               customerPresent: data.customerPresent,

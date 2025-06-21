@@ -17,7 +17,7 @@ const App = () => (
       <Route path="/appointments" element={<AppointmentSummaryPage />} />
       <Route path="/activity" element={<ActivitySummaryPage />} />
       <Route path="/ifi" element={<IFIDashboard />} />
-      <Route path="/job/:jobId" element={<JobDetailPage />} />
+      <Route path="/job/:id" element={<JobDetailPage />} />
       <Route path="/mock-jobs" element={<MockJobsPage />} />
       <Route path="/install-manager" element={<InstallManagerDashboard />} />
       <Route path="/install-manager/job/new" element={<NewJobBuilderPage />} />
