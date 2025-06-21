@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { SZTable } from "../../components/ui/SZTable";
 

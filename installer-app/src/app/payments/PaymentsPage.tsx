@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";

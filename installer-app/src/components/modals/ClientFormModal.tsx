@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../installer/components/ModalWrapper";
 import { SZInput } from "../ui/SZInput";
