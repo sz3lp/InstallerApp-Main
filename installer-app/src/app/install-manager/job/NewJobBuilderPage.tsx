@@ -41,9 +41,7 @@ const NewJobBuilderPage: React.FC = () => {
     const fetchMaterials = async () => {
       const { data } = await supabase
         .from<Material>("materials")
-        .select(
-          "id, name, base_cost, default_pay_rate, default_sale_price"
-        );
+        .select("id, name, base_cost, default_pay_rate, default_sale_price");
       setMaterials(data ?? []);
     };
     fetchMaterials();
@@ -127,37 +125,11 @@ const NewJobBuilderPage: React.FC = () => {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Job Info</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SZInput
-            id="clinic_name"
-            label="Clinic Name"
-            value={job.clinic_name}
-            onChange={(v) => handleJobChange("clinic_name", v)}
-          />
-          <SZInput
-            id="contact_name"
-            label="Contact Name"
-            value={job.contact_name}
-            onChange={(v) => handleJobChange("contact_name", v)}
-          />
-          <SZInput
-            id="contact_phone"
-            label="Contact Phone"
-            value={job.contact_phone}
-            onChange={(v) => handleJobChange("contact_phone", v)}
-          />
-          <SZInput
-            id="contact_email"
-            label="Contact Email"
-            value={job.contact_email}
-            onChange={(v) => handleJobChange("contact_email", v)}
-          />
-          <SZInput
-            id="address"
-            label="Address"
-            value={job.address}
-            onChange={(v) => handleJobChange("address", v)}
-            className="md:col-span-2"
-          />
+          <SZInput id="clinic_name" label="Clinic Name" value={job.clinic_name} onChange={(v) => handleJobChange("clinic_name", v)} />
+          <SZInput id="contact_name" label="Contact Name" value={job.contact_name} onChange={(v) => handleJobChange("contact_name", v)} />
+          <SZInput id="contact_phone" label="Contact Phone" value={job.contact_phone} onChange={(v) => handleJobChange("contact_phone", v)} />
+          <SZInput id="contact_email" label="Contact Email" value={job.contact_email} onChange={(v) => handleJobChange("contact_email", v)} />
+          <SZInput id="address" label="Address" value={job.address} onChange={(v) => handleJobChange("address", v)} className="md:col-span-2" />
           <div>
             <label className="block text-sm font-medium text-gray-700" htmlFor="status">Job Status</label>
             <select
@@ -272,18 +244,10 @@ const NewJobBuilderPage: React.FC = () => {
       </section>
 
       <div className="flex flex-wrap gap-2">
-        <SZButton variant="secondary" size="sm">
-          Generate Installer Documents
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Invoice
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Royalty Contract
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Contracts
-        </SZButton>
+        <SZButton variant="secondary" size="sm">Generate Installer Documents</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Invoice</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Royalty Contract</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Contracts</SZButton>
       </div>
 
       <div className="pt-4">
@@ -296,4 +260,3 @@ const NewJobBuilderPage: React.FC = () => {
 };
 
 export default NewJobBuilderPage;
-
