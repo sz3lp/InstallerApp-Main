@@ -1,52 +1,97 @@
 import { renderHook, act } from '@testing-library/react';
-import {
+
+const mockFrom = jest.fn();
+
+jest.mock('../lib/supabaseClient', () => ({
+  __esModule: true,
+  default: { from: mockFrom },
+  supabase: { from: mockFrom },
+}));
+
+const {
   useAppointments,
   useActivityLogs,
   useIFIScores,
   submitInstallerFeedback,
   setAppointmentStatus,
-} from '../installer/hooks/useInstallerData';
+} = require('../installer/hooks/useInstallerData');
 
-jest.useFakeTimers();
-
-function advance() {
-  act(() => {
-    jest.runAllTimers();
-  });
+function flush() {
+  return new Promise(process.nextTick);
 }
 
-test('useAppointments returns mock data', () => {
+beforeEach(() => {
+  mockFrom.mockReset();
+});
+
+test('useAppointments fetches appointments', async () => {
+  const rows = [
+    {
+      job_number: '123',
+      client_name: 'Ann',
+      due_date: '2024-01-01',
+      checklist_status: 'open',
+      signature_captured: false,
+    },
+  ];
+  mockFrom.mockImplementation(() => ({
+    select: jest.fn().mockReturnThis(),
+    order: jest.fn(() => Promise.resolve({ data: rows, error: null })),
+    update: jest.fn(() => ({ eq: jest.fn() })),
+    insert: jest.fn(),
+  }));
   const { result } = renderHook(() => useAppointments());
-  advance();
-  expect(result.current.appointments.length).toBeGreaterThan(0);
+  await act(async () => {
+    await flush();
+  });
+  expect(mockFrom).toHaveBeenCalledWith('jobs');
+  expect(result.current.appointments[0].jobNumber).toBe('123');
 });
 
-test('useActivityLogs returns mock data', () => {
+test('useActivityLogs fetches logs', async () => {
+  const rows = [
+    { id: 1, timestamp: 't', item: 'i', qty: 1, reason: 'r', confirmed: false },
+  ];
+  mockFrom.mockImplementation(() => ({
+    select: jest.fn().mockReturnThis(),
+    order: jest.fn(() => Promise.resolve({ data: rows, error: null })),
+  }));
   const { result } = renderHook(() => useActivityLogs());
-  advance();
-  expect(result.current.logs.length).toBeGreaterThan(0);
+  await act(async () => {
+    await flush();
+  });
+  expect(mockFrom).toHaveBeenCalledWith('activity_logs');
+  expect(result.current.logs.length).toBe(1);
 });
 
-test('useIFIScores returns mock data', () => {
+test('useIFIScores fetches scores', async () => {
+  const rows = [
+    { job_number: 'J1', installer: 'A', score: 80, date: 'd', issues: '', notes: '' },
+  ];
+  mockFrom.mockImplementation(() => ({
+    select: jest.fn(() => Promise.resolve({ data: rows, error: null })),
+  }));
   const { result } = renderHook(() => useIFIScores());
-  advance();
-  expect(result.current.data).toBeTruthy();
+  await act(async () => {
+    await flush();
+  });
+  expect(mockFrom).toHaveBeenCalledWith('ifi_scores');
+  expect(result.current.data.totalSubmissions).toBe(1);
 });
 
-test('submitInstallerFeedback stores feedback', () => {
-  localStorage.clear();
-  submitInstallerFeedback({ hello: 'world' });
-  const stored = JSON.parse(localStorage.getItem('installerFeedbacks'));
-  expect(stored.length).toBe(1);
+test('submitInstallerFeedback inserts row', async () => {
+  const insert = jest.fn(() => Promise.resolve({ error: null }));
+  mockFrom.mockImplementation(() => ({ insert }));
+  await submitInstallerFeedback({ hello: 'world' });
+  expect(insert).toHaveBeenCalled();
 });
 
-test('setAppointmentStatus updates storage', () => {
-  localStorage.setItem(
-    'appointments',
-    JSON.stringify([{ jobNumber: '123', checklistStatus: 'open', signatureCaptured: false }])
-  );
-  setAppointmentStatus('123', 'complete', true);
-  const stored = JSON.parse(localStorage.getItem('appointments'));
-  expect(stored[0].checklistStatus).toBe('complete');
-  expect(stored[0].signatureCaptured).toBe(true);
+test('setAppointmentStatus updates job', async () => {
+  const eq = jest.fn(() => Promise.resolve({ error: null }));
+  const update = jest.fn(() => ({ eq }));
+  mockFrom.mockImplementation(() => ({ update }));
+  await setAppointmentStatus('123', 'complete', true);
+  expect(update).toHaveBeenCalledWith({ checklist_status: 'complete', signature_captured: true });
+  expect(eq).toHaveBeenCalledWith('job_number', '123');
 });
+

@@ -8,6 +8,23 @@ import ActivitySummaryPage from '../installer/pages/ActivitySummaryPage';
 import IFIDashboard from '../installer/pages/IFIDashboard';
 import FeedbackPage from '../installer/pages/FeedbackPage';
 
+var mockFrom;
+jest.mock('../lib/supabaseClient', () => {
+  mockFrom = jest.fn();
+  return {
+    __esModule: true,
+    default: { from: mockFrom },
+    supabase: { from: mockFrom },
+  };
+});
+
+beforeEach(() => {
+  mockFrom.mockImplementation(() => ({
+    select: jest.fn().mockReturnThis(),
+    order: jest.fn(() => Promise.resolve({ data: [], error: null })),
+  }));
+});
+
 test('navigates via side drawer links', async () => {
   render(
     <MemoryRouter initialEntries={['/']}>

@@ -1,97 +1,6 @@
 import { useState, useEffect } from 'react';
+import supabase from '../../lib/supabaseClient';
 
-// Mock data for appointments
-const mockAppointments = [
-  {
-    jobNumber: 'SEA#1041',
-    clientName: 'John Doe',
-    dueDate: '2025-06-20',
-    checklistStatus: 'complete',
-    signatureCaptured: true,
-  },
-  {
-    jobNumber: 'SEA#1042',
-    clientName: 'Sarah Lee',
-    dueDate: '2025-06-21',
-    checklistStatus: 'open',
-    signatureCaptured: false,
-  },
-  {
-    jobNumber: 'SEA#1043',
-    clientName: 'Paul Smith',
-    dueDate: '2024-01-01',
-    checklistStatus: 'in progress',
-    signatureCaptured: false,
-  },
-];
-
-// Mock data for activity logs
-const mockActivityLogs = [
-  {
-    id: 1,
-    timestamp: '2025-06-18T08:00:00Z',
-    item: 'Solar Panel',
-    qty: -2,
-    reason: 'Used in install',
-    confirmed: false,
-  },
-  {
-    id: 2,
-    timestamp: '2025-06-18T12:00:00Z',
-    item: 'Mounting Kit',
-    qty: -1,
-    reason: 'Used in install',
-    confirmed: true,
-  },
-  {
-    id: 3,
-    timestamp: '2025-06-19T09:30:00Z',
-    item: 'HVAC Sensor',
-    qty: 1,
-    reason: 'Returned',
-    confirmed: false,
-  },
-];
-
-// Mock data for IFI Dashboard
-const mockIFIScores = {
-  averageScore: 84.2,
-  totalSubmissions: 36,
-  belowThresholdCount: 5,
-  graphData: [
-    { date: '2025-06-14', score: 78 },
-    { date: '2025-06-15', score: 82 },
-    { date: '2025-06-16', score: 90 },
-    { date: '2025-06-17', score: 87 },
-    { date: '2025-06-18', score: 84 },
-  ],
-  tableData: [
-    {
-      jobNumber: 'SEA#1041',
-      installer: 'Connor Preble',
-      score: 92,
-      date: '2025-06-18',
-      issues: 'Missing inventory',
-      notes: 'Resolved on site',
-    },
-    {
-      jobNumber: 'SEA#1042',
-      installer: 'Sarah Lee',
-      score: 88,
-      date: '2025-06-18',
-      issues: 'Hardware defect',
-      notes: 'Replacement ordered',
-    },
-    {
-      jobNumber: 'SEA#1043',
-      installer: 'Paul Smith',
-      score: 76,
-      date: '2025-06-18',
-      issues: 'Customer unavailable',
-      notes: '',
-    },
-  ],
-};
 
 // useAppointments hook retrieves mock appointment data
 export function useAppointments() {
@@ -99,18 +8,35 @@ export function useAppointments() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('appointments');
-    if (stored) {
-      setAppointments(JSON.parse(stored));
-      setLoading(false);
-      return;
+    let ignore = false;
+    async function fetchAppointments() {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select(
+          'job_number, client_name, due_date, checklist_status, signature_captured',
+        )
+        .order('due_date', { ascending: true });
+      if (!ignore) {
+        if (error) {
+          console.error('Failed to fetch appointments', error);
+          setAppointments([]);
+        } else {
+          const mapped = (data ?? []).map((row) => ({
+            jobNumber: row.job_number ?? row.id,
+            clientName: row.client_name,
+            dueDate: row.due_date,
+            checklistStatus: row.checklist_status,
+            signatureCaptured: row.signature_captured ?? false,
+          }));
+          setAppointments(mapped);
+        }
+        setLoading(false);
+      }
     }
-    const timer = setTimeout(() => {
-      setAppointments(mockAppointments);
-      localStorage.setItem('appointments', JSON.stringify(mockAppointments));
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    fetchAppointments();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return { appointments, loading };
@@ -122,33 +48,40 @@ export function useActivityLogs() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('activityLogs');
-    if (stored) {
-      setLogs(JSON.parse(stored));
-      setLoading(false);
-      return;
+    let ignore = false;
+    async function fetchLogs() {
+      const { data, error } = await supabase
+        .from('activity_logs')
+        .select('id, timestamp, item, qty, reason, confirmed')
+        .order('timestamp', { ascending: false });
+      if (!ignore) {
+        if (error) {
+          console.error('Failed to fetch activity logs', error);
+          setLogs([]);
+        } else {
+          setLogs(data ?? []);
+        }
+        setLoading(false);
+      }
     }
-    const timer = setTimeout(() => {
-      setLogs(mockActivityLogs);
-      localStorage.setItem('activityLogs', JSON.stringify(mockActivityLogs));
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    fetchLogs();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return { logs, loading };
 }
 
 // submitInstallerFeedback would normally post to backend
-export function submitInstallerFeedback(formData) {
+export async function submitInstallerFeedback(formData) {
   try {
-    const stored = JSON.parse(
-      localStorage.getItem('installerFeedbacks') || '[]'
-    );
-    stored.push({ ...formData, submittedAt: new Date().toISOString() });
-    localStorage.setItem('installerFeedbacks', JSON.stringify(stored));
+    await supabase.from('installer_feedback').insert({
+      ...formData,
+      submitted_at: new Date().toISOString(),
+    });
   } catch (err) {
-    // localStorage may be unavailable or full
+    console.error('Failed to submit feedback', err);
   }
 }
 
@@ -158,34 +91,49 @@ export function useIFIScores() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ifiScores');
-    if (stored) {
-      setData(JSON.parse(stored));
-      setLoading(false);
-      return;
+    let ignore = false;
+    async function fetchScores() {
+      const { data: rows, error } = await supabase
+        .from('ifi_scores')
+        .select('job_number, installer, score, date, issues, notes');
+      if (!ignore) {
+        if (error) {
+          console.error('Failed to fetch IFI scores', error);
+          setData(null);
+        } else {
+          const tableData = rows ?? [];
+          const scores = tableData.map((r) => r.score || 0);
+          const averageScore =
+            scores.reduce((sum, s) => sum + s, 0) / (scores.length || 1);
+          const belowThresholdCount = scores.filter((s) => s < 90).length;
+          setData({
+            averageScore,
+            totalSubmissions: tableData.length,
+            belowThresholdCount,
+            graphData: [],
+            tableData,
+          });
+        }
+        setLoading(false);
+      }
     }
-    const timer = setTimeout(() => {
-      setData(mockIFIScores);
-      localStorage.setItem('ifiScores', JSON.stringify(mockIFIScores));
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    fetchScores();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return { data, loading };
 }
 
 // update appointment status in localStorage
-export function setAppointmentStatus(jobNumber, status, signature = false) {
+export async function setAppointmentStatus(jobNumber, status, signature = false) {
   try {
-    const stored = JSON.parse(localStorage.getItem('appointments') || '[]');
-    const updated = stored.map((appt) =>
-      appt.jobNumber === jobNumber
-        ? { ...appt, checklistStatus: status, signatureCaptured: signature }
-        : appt
-    );
-    localStorage.setItem('appointments', JSON.stringify(updated));
+    await supabase
+      .from('jobs')
+      .update({ checklist_status: status, signature_captured: signature })
+      .eq('job_number', jobNumber);
   } catch (err) {
-    // ignore
+    console.error('Failed to update appointment status', err);
   }
 }
