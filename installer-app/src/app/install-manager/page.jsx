@@ -7,17 +7,21 @@ import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
 import { useNavigate } from "react-router-dom";
+import UploadDocsModal from "./UploadDocsModal";
+import AssignInventoryModal from "./AssignInventoryModal";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
   const navigate = useNavigate();
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
+  const [uploadJobId, setUploadJobId] = useState(null);
+  const [inventoryJobId, setInventoryJobId] = useState(null);
 
   const handleView = (id) => navigate(`/install-manager/job/${id}`);
   const handleEdit = (job) => setEditJob(job);
-  const handleUpload = () => alert('Upload documents feature coming soon');
-  const handleAssignInventory = () => alert('Assign inventory feature coming soon');
+  const handleUpload = (id) => setUploadJobId(id);
+  const handleAssignInventory = (id) => setInventoryJobId(id);
 
   return (
     <div className="p-4">
@@ -97,6 +101,17 @@ export default function InstallManagerDashboard() {
             refresh();
           }
         }}
+      />
+      <UploadDocsModal
+        jobId={uploadJobId}
+        isOpen={!!uploadJobId}
+        onClose={() => setUploadJobId(null)}
+        onUploaded={refresh}
+      />
+      <AssignInventoryModal
+        jobId={inventoryJobId}
+        isOpen={!!inventoryJobId}
+        onClose={() => setInventoryJobId(null)}
       />
       <h2 className="text-xl font-bold mt-8 mb-4">QA Review</h2>
       <QAReviewPanel />
