@@ -23,8 +23,9 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const cachedRole = localStorage.getItem("role") as UserRole | null;
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<UserRole>(null);
+  const [role, setRole] = useState<UserRole>(cachedRole);
   const [loading, setLoading] = useState(true);
 
   const fetchRole = async (userId: string) => {
@@ -41,29 +42,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session) {
-        await fetchRole(data.session.user.id);
+      if (data.session) fetchRole(data.session.user.id);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_evt, sess) => {
+      setSession(sess);
+      if (sess) {
+        fetchRole(sess.user.id);
+      } else {
+        setRole(null);
       }
       setLoading(false);
-    };
-    init();
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_evt, sess) => {
-        setSession(sess);
-        if (sess) {
-          await fetchRole(sess.user.id);
-        } else {
-          setRole(null);
-        }
-      },
-    );
+    });
+
     return () => {
-      listener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 5000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (role) {
+      localStorage.setItem("role", role);
+    } else {
+      localStorage.removeItem("role");
+    }
+  }, [role]);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
