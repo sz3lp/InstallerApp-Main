@@ -1,11 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useJobs } from "../../lib/hooks/useJobs";
+import { useAuth } from "../../lib/hooks/useAuth";
 
 const InstallerDashboard: React.FC = () => {
+  const { session } = useAuth();
+  const currentUserId = session?.user?.id;
   const { jobs, loading } = useJobs();
   const myJobs = jobs.filter(
-    (j) => j.status === "assigned" || j.status === "in_progress",
+    (j) =>
+      (j.status === "assigned" || j.status === "in_progress") &&
+      j.assigned_to === currentUserId,
   );
 
   if (loading) return <p className="p-4">Loading...</p>;
