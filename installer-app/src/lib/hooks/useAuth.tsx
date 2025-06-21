@@ -1,97 +1,40 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
-import supabase from "../supabaseClient";
+import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 
-export type UserRole = "Installer" | "Admin" | "Manager" | null;
-
-interface AuthContextType {
-  session: Session | null;
-  role: UserRole;
+type AuthContextType = {
+  session: any;
+  role: string | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-}
+};
 
-const AuthContext = createContext<AuthContextType>({
-  session: null,
-  role: null,
-  loading: true,
-  signIn: async () => {},
-  signOut: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<UserRole>(() => localStorage.getItem("role") as UserRole | null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [session, setSession] = useState<any>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRole = async (userId?: string | null) => {
-    if (!userId) {
-      setRole(null);
-      return;
-    }
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
-    setRole(!error && data ? (data.role as UserRole) : null);
-  };
-
   useEffect(() => {
-    const initialize = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      await fetchRole(data.session?.user?.id);
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      if (session?.user) {
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id).single();
+        setRole(data?.role || null);
+      }
       setLoading(false);
     };
-
-    initialize();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setSession(newSession);
-      await fetchRole(newSession?.user?.id);
-      setLoading(false);
-    });
-
-    const fallback = setTimeout(() => setLoading(false), 10000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(fallback);
-    };
+    init();
   }, []);
 
-  useEffect(() => {
-    if (role) localStorage.setItem("role", role);
-    else localStorage.removeItem("role");
-  }, [role]);
-
-  const signIn = async (email: string, password: string) => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      setLoading(false);
-      throw error || new Error("Login failed");
-    }
-    setSession(data.session);
-    await fetchRole(data.session.user.id);
-    setLoading(false);
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setRole(null);
-  };
-
   return (
-    <AuthContext.Provider value={{ session, role, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, role, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
+};
