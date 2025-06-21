@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";

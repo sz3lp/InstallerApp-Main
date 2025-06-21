@@ -10,7 +10,7 @@ export default async function uploadDocument(file) {
     };
   }
 
-  const { default: supabase } = await import("./supabaseClient.js");
+  const { default: supabase } = await import("./supabaseClient");
   const ext = file.name.split(".").pop();
   const filePath = `${Date.now()}_${file.name}`;
   const { error } = await supabase.storage
