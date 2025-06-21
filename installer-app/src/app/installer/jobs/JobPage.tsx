@@ -1,18 +1,24 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { SZButton } from "../../../components/ui/SZButton";
 import SZChecklist from "../../../components/ui/SZChecklist";
 import { useJobs } from "../../../lib/hooks/useJobs";
 import { useChecklist } from "../../../lib/hooks/useChecklist";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 import { SZTable } from "../../../components/ui/SZTable";
+import { useAuth } from "../../../lib/hooks/useAuth";
 
 const JobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const { jobs, updateStatus } = useJobs();
   const { items, toggleItem } = useChecklist(id || "");
   const { items: mats, updateUsed } = useJobMaterials(id || "");
   const job = jobs.find((j) => j.id === id);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Installer")) return <Navigate to="/unauthorized" replace />;
 
   if (!job) return <p className="p-4">Job not found</p>;
 

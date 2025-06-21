@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 interface Log {
   id: string;
@@ -10,9 +12,15 @@ interface Log {
 }
 
 const TimeTrackingPanel: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const [clockedIn, setClockedIn] = useState(false);
   const [start, setStart] = useState<number | null>(null);
   const [logs, setLogs] = useState<Log[]>([]);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const toggleClock = () => {
     if (clockedIn) {

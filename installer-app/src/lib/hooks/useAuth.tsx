@@ -4,6 +4,7 @@ type AuthContextType = {
   session: any;
   role: string | null;
   loading: boolean;
+  isAuthorized: (role: string) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,8 +27,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
+  const isAuthorized = (r: string) => role === r;
+
   return (
-    <AuthContext.Provider value={{ session, role, loading }}>
+    <AuthContext.Provider value={{ session, role, loading, isAuthorized }}>
       {children}
     </AuthContext.Provider>
   );

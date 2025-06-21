@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { FaSyncAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../../lib/hooks/useAuth';
 import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
 
 const ActivitySummaryPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
+  const { session, isAuthorized, loading } = useAuth();
 
   const withdrawals = [
     {
@@ -17,6 +19,10 @@ const ActivitySummaryPage = () => {
       ],
     },
   ];
+
+  if (loading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized('Installer')) return <Navigate to="/unauthorized" replace />;
 
   const navigate = useNavigate();
   const handleDrawerOpen = () => setShowDrawer(true);

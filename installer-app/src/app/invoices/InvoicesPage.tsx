@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 interface Invoice {
   id: string;
@@ -15,6 +17,7 @@ const initialInvoices: Invoice[] = [
 ];
 
 const InvoicesPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
 
@@ -23,6 +26,11 @@ const InvoicesPage: React.FC = () => {
       inv.map((i) => (i.id === id ? { ...i, status: "paid" } : i)),
     );
   };
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const filtered = invoices.filter((i) =>
     filter === "all" ? true : i.status === filter,

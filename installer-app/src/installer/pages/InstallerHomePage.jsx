@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaSyncAlt, FaBriefcase, FaClock } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../../lib/hooks/useAuth";
 import Header from "../components/Header";
 import SideDrawer from "../components/SideDrawer";
 import OpenManagerPreview from "../components/OpenManagerPreview";
@@ -11,10 +12,15 @@ const InstallerHomePage = ({
 }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const navigate = useNavigate();
+  const { session, isAuthorized, loading } = useAuth();
   const handleDrawer = () => setShowDrawer(true);
   const handleRefresh = () => navigate(0);
   const handleAppointmentSummary = () => navigate("/appointments");
   const handleActivitySummary = () => navigate("/activity");
+
+  if (loading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Installer")) return <Navigate to="/unauthorized" replace />;
 
   return (
     <div className="bg-gray-100 flex flex-col min-h-screen relative">

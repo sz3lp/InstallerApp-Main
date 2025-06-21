@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
-import QuoteFormModal, {
-  QuoteData,
-} from "../../components/modals/QuoteFormModal";
+import QuoteFormModal, { QuoteData } from "../../components/modals/QuoteFormModal";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 const initialQuotes: QuoteData[] = [
   { id: "1", client: "Acme Clinic", lines: [], total: 1500 },
@@ -11,6 +11,7 @@ const initialQuotes: QuoteData[] = [
 ];
 
 const QuotesPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const [quotes, setQuotes] = useState(
     initialQuotes.map((q) => ({ ...q, status: "pending" })) as (QuoteData & {
       status: string;
@@ -20,6 +21,11 @@ const QuotesPage: React.FC = () => {
     (QuoteData & { status?: string }) | null
   >(null);
   const [open, setOpen] = useState(false);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const handleSave = (data: QuoteData) => {
     if (data.id) {

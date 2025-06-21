@@ -15,6 +15,7 @@ import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/JobPage";
 import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
+import UnauthorizedPage from "./app/UnauthorizedPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
 import RequireRole from "./components/RequireRole";
@@ -33,6 +34,7 @@ const App = () => (
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route element={<RequireRoleOutlet role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
             <Route path="/appointments" element={<AppointmentSummaryPage />} />
@@ -40,15 +42,17 @@ const App = () => (
             <Route path="/ifi" element={<IFIDashboard />} />
             <Route path="/job/:jobId" element={<JobDetailPage />} />
             <Route path="/mock-jobs" element={<MockJobsPage />} />
-            <Route path="/installer/dashboard" element={<InstallerDashboard />} />
-            <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
           </Route>
-          <Route element={<RequireRoleOutlet role="Admin" />}>
-            <Route path="/admin/jobs/new" element={<AdminNewJob />} />
-            <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
+          <Route path="/installer" element={<RequireRoleOutlet role="Installer" />}>
+            <Route path="dashboard" element={<InstallerDashboard />} />
+            <Route path="jobs/:id" element={<InstallerJobPage />} />
           </Route>
-          <Route element={<RequireRoleOutlet role="Manager" />}>
-            <Route path="/manager/review" element={<ManagerReview />} />
+          <Route path="/admin" element={<RequireRoleOutlet role="Admin" />}>
+            <Route path="jobs/new" element={<AdminNewJob />} />
+            <Route path="jobs/:id" element={<AdminJobDetail />} />
+          </Route>
+          <Route path="/manager" element={<RequireRoleOutlet role="Manager" />}>
+            <Route path="review" element={<ManagerReview />} />
           </Route>
           <Route
             path="/install-manager"

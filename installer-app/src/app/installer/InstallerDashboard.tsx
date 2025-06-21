@@ -1,10 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useJobs } from "../../lib/hooks/useJobs";
 import { useAuth } from "../../lib/hooks/useAuth";
 
 const InstallerDashboard: React.FC = () => {
-  const { session } = useAuth();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const currentUserId = session?.user?.id;
   const { jobs, loading } = useJobs();
   const myJobs = jobs.filter(
@@ -13,6 +13,9 @@ const InstallerDashboard: React.FC = () => {
       j.assigned_to === currentUserId,
   );
 
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Installer")) return <Navigate to="/unauthorized" replace />;
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (

@@ -6,13 +6,20 @@ import { useJobs } from "./useJobs";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../../lib/hooks/useAuth";
 
 export default function InstallManagerDashboard() {
-  const { jobs, loading, error, refresh } = useJobs();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
+  const { jobs, loading: jobsLoading, error, refresh } = useJobs();
   const navigate = useNavigate();
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
+
+  if (authLoading) return <p>Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const handleView = (id) => console.log("view", id);
   const handleEdit = (job) => setEditJob(job);
@@ -27,7 +34,7 @@ export default function InstallManagerDashboard() {
           New Job
         </SZButton>
       </header>
-      {loading && <div>Loading...</div>}
+      {jobsLoading && <div>Loading...</div>}
       {error && <div className="text-red-600">{error}</div>}
       <ul className="space-y-4">
         {jobs.map((job) => {

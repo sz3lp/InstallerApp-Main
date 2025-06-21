@@ -3,13 +3,21 @@ import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import ClientFormModal, { Client } from "../../components/modals/ClientFormModal";
 import useClinics from "../../lib/hooks/useClinics";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 
 const ClientsPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const [clients, { loading, error, createClinic, updateClinic, deleteClinic }] =
     useClinics();
   const [active, setActive] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const handleSave = async (data: Client) => {
     try {

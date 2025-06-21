@@ -2,13 +2,20 @@ import React, { useState } from "react";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import { useJobs } from "../../../lib/hooks/useJobs";
+import { useAuth } from "../../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 const NewJobPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const { createJob } = useJobs();
   const [clinic, setClinic] = useState("");
   const [contact, setContact] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Admin")) return <Navigate to="/unauthorized" replace />;
 
   const handleCreate = async () => {
     setLoading(true);

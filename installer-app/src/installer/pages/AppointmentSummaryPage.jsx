@@ -7,7 +7,8 @@ import {
   FaTimesCircle,
   FaRegCircle,
 } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../../lib/hooks/useAuth';
 import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
 import { useAppointments } from '../hooks/useInstallerData';
@@ -16,9 +17,14 @@ const AppointmentSummaryPage = ({ jobs }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const navigate = useNavigate();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
 
   const { appointments, loading, error } = useAppointments();
   const data = jobs || appointments;
+
+  if (authLoading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized('Installer')) return <Navigate to="/unauthorized" replace />;
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);

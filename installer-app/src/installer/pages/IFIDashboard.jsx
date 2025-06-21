@@ -1,9 +1,16 @@
 import React from 'react';
 import { useIFIScores } from '../hooks/useInstallerData';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../lib/hooks/useAuth';
 
 
 const IFIDashboard = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const { data, loading } = useIFIScores();
+
+  if (authLoading) return <div className="p-4 text-center">Loading...</div>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized('Installer')) return <Navigate to="/unauthorized" replace />;
 
   if (loading || !data) {
     return <div className="p-4 text-center">Loading...</div>;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../../../lib/hooks/useAuth";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
@@ -30,12 +31,18 @@ const initialJob = {
 
 const NewJobBuilderPage: React.FC = () => {
   const navigate = useNavigate();
+  const { session, isAuthorized, loading } = useAuth();
   const [job, setJob] = useState(initialJob);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [rows, setRows] = useState<MaterialRow[]>([
     { material_id: "", quantity: 1, sale_price: "", install_location: "" },
   ]);
   const [submitting, setSubmitting] = useState(false);
+
+  if (loading) return <p>Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   useEffect(() => {
     const fetchMaterials = async () => {

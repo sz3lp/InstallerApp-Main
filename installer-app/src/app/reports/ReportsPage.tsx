@@ -1,12 +1,20 @@
 import React from "react";
 import { SZTable } from "../../components/ui/SZTable";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 const ReportsPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const metrics = [
     { label: "Total Jobs", value: 42 },
     { label: "Revenue", value: "$12,000" },
     { label: "Avg Job Size", value: "$300" },
   ];
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   return (
     <div className="p-4 space-y-4">

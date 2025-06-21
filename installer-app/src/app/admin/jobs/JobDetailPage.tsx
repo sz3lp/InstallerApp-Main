@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { SZButton } from "../../../components/ui/SZButton";
 import { SZTable } from "../../../components/ui/SZTable";
 import { useJobs } from "../../../lib/hooks/useJobs";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 import { useInstallers } from "../../../lib/hooks/useInstallers";
 import supabase from "../../../lib/supabaseClient";
+import { useAuth } from "../../../lib/hooks/useAuth";
 
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const { jobs, assignJob } = useJobs();
   const { items, updateUsed, addMaterial, fetchItems } = useJobMaterials(
     id || "",
@@ -21,6 +23,10 @@ const JobDetailPage: React.FC = () => {
   const [installerId, setInstallerId] = useState(job?.assigned_to || "");
   const [newMaterial, setNewMaterial] = useState("");
   const [newQty, setNewQty] = useState(1);
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Admin")) return <Navigate to="/unauthorized" replace />;
 
   useEffect(() => {
     async function loadMaterials() {

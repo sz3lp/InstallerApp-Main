@@ -3,6 +3,8 @@ import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import { SZTable } from "../../components/ui/SZTable";
 import ModalWrapper from "../../installer/components/ModalWrapper";
+import { useAuth } from "../../lib/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 interface Payment {
   id: string;
@@ -25,6 +27,7 @@ const initialPayments: Payment[] = [
 const invoices = ["INV-1", "INV-2"];
 
 const PaymentsPage: React.FC = () => {
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -32,6 +35,11 @@ const PaymentsPage: React.FC = () => {
     amount: "",
     method: "",
   });
+
+  if (authLoading) return <p className="p-4">Loading...</p>;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Manager") && !isAuthorized("Admin"))
+    return <Navigate to="/unauthorized" replace />;
 
   const handleSave = () => {
     setPayments((ps) => [

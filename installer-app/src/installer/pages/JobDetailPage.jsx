@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
-import useInstallerAuth from "../hooks/useInstallerAuth";
+import { useAuth } from "../../lib/hooks/useAuth";
 import DocumentViewerModal from "../components/DocumentViewerModal";
 import Header from "../components/Header";
 import SideDrawer from "../components/SideDrawer";
@@ -15,7 +15,12 @@ const JobDetailPage = () => {
   const [showDocuments, setShowDocuments] = useState(false);
   const startTimeRef = useRef(Date.now());
 
-  const { installerId } = useInstallerAuth();
+  const { session, isAuthorized, loading } = useAuth();
+  const installerId = session?.user?.id || "";
+
+  if (loading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAuthorized("Installer")) return <Navigate to="/unauthorized" replace />;
 
   const isTest = process.env.NODE_ENV === "test";
   const sampleJobs = isTest
