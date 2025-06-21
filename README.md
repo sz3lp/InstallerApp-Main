@@ -18,24 +18,12 @@ This repository contains the extracted Vite + React installer application in the
    echo "VITE_SUPABASE_API_KEY=YOUR_SUPABASE_ANON_KEY" >> .env
    ```
 4. Start the development server:
-
-   ```bash
-
-   ```
-
-5. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
-
-   ```
-
-   ```
-
-6. Start the development server:
    ```bash
    npm run dev
    ```
-7. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
+5. Open the printed local URL in your browser to see the app. Tailwind CSS styles are loaded automatically.
 
-8. Run the test suite:
+6. Run the test suite:
    ```bash
    npm test
    ```
