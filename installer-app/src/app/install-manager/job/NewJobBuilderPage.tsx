@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
-import MaterialTable, { MaterialRow } from "./MaterialTable";
+
+interface Material {
+  id: string;
+  name: string;
+  base_cost: number;
+  default_pay_rate: number;
+  default_sale_price: number;
+}
+
+interface MaterialRow {
+  material_id: string;
+  quantity: number;
+  sale_price: string;
+  install_location: string;
+}
 
 const initialJob = {
   clinic_name: "",
@@ -17,23 +31,63 @@ const initialJob = {
 const NewJobBuilderPage: React.FC = () => {
   const navigate = useNavigate();
   const [job, setJob] = useState(initialJob);
-  const [rows, setRows] = useState<MaterialRow[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [rows, setRows] = useState<MaterialRow[]>([
+    { material_id: "", quantity: 1, sale_price: "", install_location: "" },
+  ]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      const { data } = await supabase
+        .from<Material>("materials")
+        .select("id, name, base_cost, default_pay_rate, default_sale_price");
+      setMaterials(data ?? []);
+    };
+    fetchMaterials();
+  }, []);
+
+  const materialMap = Object.fromEntries(
+    materials.map((m) => [m.id, m])
+  ) as Record<string, Material>;
 
   const handleJobChange = (key: string, value: string) => {
     setJob((j) => ({ ...j, [key]: value }));
   };
 
+  const handleRowChange = (
+    index: number,
+    key: keyof MaterialRow,
+    value: string | number
+  ) => {
+    setRows((rs) => {
+      const copy = [...rs];
+      // @ts-ignore
+      copy[index] = { ...copy[index], [key]: value };
+      return copy;
+    });
+  };
 
-  const totalPrice = rows.reduce(
-    (sum, r) => sum + r.quantity * (r.unit_material_cost + r.unit_labor_cost),
-    0,
-  );
+  const addRow = () =>
+    setRows((r) => [
+      ...r,
+      { material_id: "", quantity: 1, sale_price: "", install_location: "" },
+    ]);
 
-  const techPayout = rows.reduce(
-    (sum, r) => sum + r.quantity * r.unit_labor_cost,
-    0,
-  );
+  const removeRow = (idx: number) =>
+    setRows((r) => r.filter((_, i) => i !== idx));
+
+  const totalPrice = rows.reduce((sum, r) => {
+    const m = materialMap[r.material_id];
+    if (!m) return sum;
+    return sum + r.quantity * (m.base_cost + m.default_pay_rate);
+  }, 0);
+
+  const techPayout = rows.reduce((sum, r) => {
+    const m = materialMap[r.material_id];
+    if (!m) return sum;
+    return sum + r.quantity * m.default_pay_rate;
+  }, 0);
 
   const handleSubmit = async () => {
     if (!job.clinic_name || !job.contact_name || !job.address) return;
@@ -46,15 +100,18 @@ const NewJobBuilderPage: React.FC = () => {
     const jobId = data[0].id as string;
     const rowsToInsert = rows
       .filter((r) => r.material_id)
-      .map((r) => ({
-        job_id: jobId,
-        material_id: r.material_id,
-        quantity: r.quantity,
-        unit_material_cost: r.unit_material_cost,
-        unit_labor_cost: r.unit_labor_cost,
-        sale_price: r.sale_price,
-        install_location: r.install_location,
-      }));
+      .map((r) => {
+        const m = materialMap[r.material_id];
+        return {
+          job_id: jobId,
+          material_id: r.material_id,
+          quantity: r.quantity,
+          unit_material_cost: m.base_cost,
+          unit_labor_cost: m.default_pay_rate,
+          sale_price: r.sale_price ? parseFloat(r.sale_price) : m.default_sale_price,
+          install_location: r.install_location,
+        };
+      });
     if (rowsToInsert.length) {
       await supabase.from("job_materials").insert(rowsToInsert);
     }
@@ -68,37 +125,11 @@ const NewJobBuilderPage: React.FC = () => {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Job Info</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SZInput
-            id="clinic_name"
-            label="Clinic Name"
-            value={job.clinic_name}
-            onChange={(v) => handleJobChange("clinic_name", v)}
-          />
-          <SZInput
-            id="contact_name"
-            label="Contact Name"
-            value={job.contact_name}
-            onChange={(v) => handleJobChange("contact_name", v)}
-          />
-          <SZInput
-            id="contact_phone"
-            label="Contact Phone"
-            value={job.contact_phone}
-            onChange={(v) => handleJobChange("contact_phone", v)}
-          />
-          <SZInput
-            id="contact_email"
-            label="Contact Email"
-            value={job.contact_email}
-            onChange={(v) => handleJobChange("contact_email", v)}
-          />
-          <SZInput
-            id="address"
-            label="Address"
-            value={job.address}
-            onChange={(v) => handleJobChange("address", v)}
-            className="md:col-span-2"
-          />
+          <SZInput id="clinic_name" label="Clinic Name" value={job.clinic_name} onChange={(v) => handleJobChange("clinic_name", v)} />
+          <SZInput id="contact_name" label="Contact Name" value={job.contact_name} onChange={(v) => handleJobChange("contact_name", v)} />
+          <SZInput id="contact_phone" label="Contact Phone" value={job.contact_phone} onChange={(v) => handleJobChange("contact_phone", v)} />
+          <SZInput id="contact_email" label="Contact Email" value={job.contact_email} onChange={(v) => handleJobChange("contact_email", v)} />
+          <SZInput id="address" label="Address" value={job.address} onChange={(v) => handleJobChange("address", v)} className="md:col-span-2" />
           <div>
             <label className="block text-sm font-medium text-gray-700" htmlFor="status">Job Status</label>
             <select
@@ -117,7 +148,94 @@ const NewJobBuilderPage: React.FC = () => {
 
       <section className="space-y-2">
         <h2 className="text-xl font-semibold">Materials</h2>
-        <MaterialTable onChange={setRows} />
+        <table className="min-w-full text-sm border">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="p-2 border">Product</th>
+              <th className="p-2 border">Qty</th>
+              <th className="p-2 border">Material Cost</th>
+              <th className="p-2 border">Labor Cost</th>
+              <th className="p-2 border">Total</th>
+              <th className="p-2 border">Sale Price</th>
+              <th className="p-2 border">Install Location</th>
+              <th className="p-2 border"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, idx) => {
+              const m = materialMap[r.material_id];
+              const mat = m?.base_cost ?? 0;
+              const labor = m?.default_pay_rate ?? 0;
+              const total = r.quantity * (mat + labor);
+              return (
+                <tr key={idx} className="border-t">
+                  <td className="p-2 border">
+                    <select
+                      className="border rounded px-2 py-1 w-full"
+                      value={r.material_id}
+                      onChange={(e) =>
+                        handleRowChange(idx, "material_id", e.target.value)
+                      }
+                    >
+                      <option value="">Select</option>
+                      {materials.map((mat) => (
+                        <option key={mat.id} value={mat.id}>
+                          {mat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-2 border">
+                    <input
+                      type="number"
+                      className="border rounded px-2 py-1 w-16"
+                      value={r.quantity}
+                      min={1}
+                      onChange={(e) =>
+                        handleRowChange(idx, "quantity", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td className="p-2 border text-right">{mat}</td>
+                  <td className="p-2 border text-right">{labor}</td>
+                  <td className="p-2 border text-right">{total}</td>
+                  <td className="p-2 border">
+                    <input
+                      type="number"
+                      className="border rounded px-2 py-1 w-24"
+                      value={r.sale_price}
+                      onChange={(e) =>
+                        handleRowChange(idx, "sale_price", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td className="p-2 border">
+                    <input
+                      type="text"
+                      className="border rounded px-2 py-1"
+                      value={r.install_location}
+                      onChange={(e) =>
+                        handleRowChange(idx, "install_location", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td className="p-2 border text-center">
+                    <button
+                      type="button"
+                      className="text-red-600"
+                      onClick={() => removeRow(idx)}
+                    >
+                      X
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <SZButton size="sm" variant="secondary" onClick={addRow}>
+          Add Material
+        </SZButton>
       </section>
 
       <section className="space-y-1">
@@ -126,18 +244,10 @@ const NewJobBuilderPage: React.FC = () => {
       </section>
 
       <div className="flex flex-wrap gap-2">
-        <SZButton variant="secondary" size="sm">
-          Generate Installer Documents
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Invoice
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Royalty Contract
-        </SZButton>
-        <SZButton variant="secondary" size="sm">
-          Generate Contracts
-        </SZButton>
+        <SZButton variant="secondary" size="sm">Generate Installer Documents</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Invoice</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Royalty Contract</SZButton>
+        <SZButton variant="secondary" size="sm">Generate Contracts</SZButton>
       </div>
 
       <div className="pt-4">
@@ -150,4 +260,3 @@ const NewJobBuilderPage: React.FC = () => {
 };
 
 export default NewJobBuilderPage;
-
