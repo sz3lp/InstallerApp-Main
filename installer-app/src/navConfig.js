@@ -5,5 +5,12 @@ export const navLinks = [
   { path: '/ifi', label: 'IFI Dashboard' },
   { path: '/install-manager', label: 'Install Manager Dashboard' },
   { path: '/feedback', label: 'Feedback' },
+  { path: '/clients', label: 'Clients' },
+  { path: '/quotes', label: 'Quotes' },
+  { path: '/invoices', label: 'Invoices' },
+  { path: '/payments', label: 'Payments' },
+  { path: '/messages', label: 'Messages' },
+  { path: '/time-tracking', label: 'Time Tracking' },
+  { path: '/reports', label: 'Reports' },
   { path: '#', label: 'MyLearning - SentientZone' },
 ];

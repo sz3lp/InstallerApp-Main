@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { navLinks } from '../../navConfig';
 
 const SideDrawer = ({ isOpen, onClose }) => {
@@ -18,9 +18,15 @@ const SideDrawer = ({ isOpen, onClose }) => {
           {navLinks.map((link) => (
             <li key={link.path}>
               {link.path.startsWith('/') ? (
-                <Link to={link.path} onClick={onClose} className="block">
+                <NavLink
+                  to={link.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `block ${isActive ? 'font-semibold' : ''}`.trim()
+                  }
+                >
                   {link.label}
-                </Link>
+                </NavLink>
               ) : (
                 <a href={link.path} className="block" onClick={onClose}>
                   {link.label}
