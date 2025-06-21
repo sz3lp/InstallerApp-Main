@@ -8,7 +8,11 @@ interface Props {
   redirectTo?: string;
 }
 
-export default function RequireRole({ role: required, children, redirectTo = "/" }: Props) {
+export default function RequireRole({
+  role: required,
+  children,
+  redirectTo = "/",
+}: Props) {
   const { role, loading } = useAuth();
 
   if (loading) return null;

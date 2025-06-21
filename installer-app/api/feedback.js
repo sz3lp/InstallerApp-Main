@@ -3,8 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.VITE_SUPABASE_API_KEY;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_API_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -14,8 +13,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = req.body || {};
-    const { error } = await supabase.from("feedback").insert({ ...body });
+    const { jobId, notes } = req.body || {};
+    if (!jobId) {
+      return res.status(400).json({ error: "Missing jobId" });
+    }
+
+    const { error } = await supabase.from("feedback").insert({
+      job_id: jobId,
+      notes,
+    });
+
     if (error) throw error;
     return res.status(200).json({ ok: true });
   } catch (err) {
