@@ -1,3 +1,13 @@
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.VITE_SUPABASE_API_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default async function handler(req, res) {
   const { id } = req.query;
 
@@ -7,8 +17,12 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    console.log("Checklist submitted for job", id, body);
-    // Here you could store the checklist payload to a database
+    const { error } = await supabase.from("audit_log").insert({
+      job_id: id,
+      event: "checklist_submitted",
+      details: body,
+    });
+    if (error) throw error;
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error("Failed to process checklist", err);
