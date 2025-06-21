@@ -34,6 +34,25 @@ export function useJobs() {
     setLoading(false);
   }, []);
 
+  const fetchMyJobs = useCallback(async (userId: string) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from<Job>("jobs")
+      .select(
+        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at",
+      )
+      .eq("assigned_to", userId)
+      .order("created_at", { ascending: false });
+    if (error) {
+      setError(error.message);
+      setJobs([]);
+    } else {
+      setJobs(data ?? []);
+      setError(null);
+    }
+    setLoading(false);
+  }, []);
+
   const createJob = useCallback(
     async (job: Omit<Job, "id" | "status" | "assigned_to" | "created_at">) => {
       const { data, error } = await supabase
@@ -80,6 +99,7 @@ export function useJobs() {
     jobs,
     loading,
     error,
+    fetchMyJobs,
     fetchJobs,
     createJob,
     assignJob,

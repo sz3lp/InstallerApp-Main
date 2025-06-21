@@ -5,12 +5,13 @@ import SZChecklist from "../../../components/ui/SZChecklist";
 import { useJobs } from "../../../lib/hooks/useJobs";
 import { useChecklist } from "../../../lib/hooks/useChecklist";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
+import { SZTable } from "../../../components/ui/SZTable";
 
 const JobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { jobs, updateStatus } = useJobs();
   const { items, toggleItem } = useChecklist(id || "");
-  const { items: mats } = useJobMaterials(id || "");
+  const { items: mats, updateUsed } = useJobMaterials(id || "");
   const job = jobs.find((j) => j.id === id);
 
   if (!job) return <p className="p-4">Job not found</p>;
@@ -27,13 +28,22 @@ const JobPage: React.FC = () => {
       <h2 className="text-xl font-semibold">Checklist</h2>
       <SZChecklist items={checklistItems} />
       <h2 className="text-xl font-semibold">Materials</h2>
-      <ul className="list-disc pl-5 space-y-1">
+      <SZTable headers={["Material", "Qty", "Used"]}>
         {mats.map((m) => (
-          <li key={m.id}>
-            {m.material_id}: {m.used_quantity}/{m.quantity}
-          </li>
+          <tr key={m.id} className="border-t">
+            <td className="p-2 border">{m.material_id}</td>
+            <td className="p-2 border text-right">{m.quantity}</td>
+            <td className="p-2 border">
+              <input
+                type="number"
+                value={m.used_quantity}
+                className="border rounded px-2 py-1 w-16"
+                onChange={(e) => updateUsed(m.id, Number(e.target.value))}
+              />
+            </td>
+          </tr>
         ))}
-      </ul>
+      </SZTable>
       <SZButton onClick={handleSubmit}>Submit Job</SZButton>
     </div>
   );
