@@ -18,6 +18,7 @@ import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
 import RequireRole from "./components/RequireRole";
+import UnderConstructionPage from "./app/UnderConstructionPage";
 
 const ClientsPage = lazy(() => import("./app/clients/ClientsPage"));
 const QuotesPage = lazy(() => import("./app/quotes/QuotesPage"));
@@ -63,6 +64,14 @@ const App = () => (
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <NewJobBuilderPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/install-manager/job/:id"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <UnderConstructionPage />
               </RequireRole>
             }
           />

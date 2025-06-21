@@ -14,10 +14,10 @@ export default function InstallManagerDashboard() {
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
 
-  const handleView = (id) => console.log("view", id);
+  const handleView = (id) => navigate(`/install-manager/job/${id}`);
   const handleEdit = (job) => setEditJob(job);
-  const handleUpload = (id) => console.log("upload", id);
-  const handleAssignInventory = (id) => console.log("assign inventory", id);
+  const handleUpload = () => alert('Upload documents feature coming soon');
+  const handleAssignInventory = () => alert('Assign inventory feature coming soon');
 
   return (
     <div className="p-4">

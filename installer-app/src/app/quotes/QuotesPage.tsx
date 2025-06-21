@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
+import { useNavigate } from "react-router-dom";
 import QuoteFormModal, {
   QuoteData,
 } from "../../components/modals/QuoteFormModal";
@@ -20,6 +21,7 @@ const QuotesPage: React.FC = () => {
     (QuoteData & { status?: string }) | null
   >(null);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleSave = (data: QuoteData) => {
     if (data.id) {
@@ -38,7 +40,7 @@ const QuotesPage: React.FC = () => {
     setQuotes((qs) =>
       qs.map((q) => (q.id === id ? { ...q, status: "approved" } : q)),
     );
-    console.log("createJobFromQuote", id);
+    navigate(`/install-manager/job/new?quote=${id}`);
   };
 
   return (
