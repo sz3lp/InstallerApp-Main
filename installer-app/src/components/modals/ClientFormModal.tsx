@@ -8,8 +8,9 @@ import { SZButton } from "../ui/SZButton";
 export interface Client {
   id?: string;
   name: string;
-  phone: string;
-  notes: string;
+  contact_name: string;
+  contact_email: string;
+  address: string;
 }
 
 export type ClientFormModalProps = {
@@ -25,17 +26,23 @@ const ClientFormModal: React.FC<ClientFormModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [form, setForm] = useState<Client>({ name: "", phone: "", notes: "" });
+  const [form, setForm] = useState<Client>({
+    name: "",
+    contact_name: "",
+    contact_email: "",
+    address: "",
+  });
 
   useEffect(() => {
     if (initialData) {
       setForm({
         name: initialData.name,
-        phone: initialData.phone,
-        notes: initialData.notes,
+        contact_name: initialData.contact_name,
+        contact_email: initialData.contact_email,
+        address: initialData.address,
       });
     } else {
-      setForm({ name: "", phone: "", notes: "" });
+      setForm({ name: "", contact_name: "", contact_email: "", address: "" });
     }
   }, [initialData]);
 
@@ -60,16 +67,22 @@ const ClientFormModal: React.FC<ClientFormModalProps> = ({
           onChange={(v) => handleChange("name", v)}
         />
         <SZInput
-          id="client_phone"
-          label="Phone"
-          value={form.phone}
-          onChange={(v) => handleChange("phone", v)}
+          id="contact_name"
+          label="Contact Name"
+          value={form.contact_name}
+          onChange={(v) => handleChange("contact_name", v)}
+        />
+        <SZInput
+          id="contact_email"
+          label="Contact Email"
+          value={form.contact_email}
+          onChange={(v) => handleChange("contact_email", v)}
         />
         <SZTextarea
-          id="client_notes"
-          label="Notes"
-          value={form.notes}
-          onChange={(v) => handleChange("notes", v)}
+          id="clinic_address"
+          label="Address"
+          value={form.address}
+          onChange={(v) => handleChange("address", v)}
           rows={3}
         />
       </div>

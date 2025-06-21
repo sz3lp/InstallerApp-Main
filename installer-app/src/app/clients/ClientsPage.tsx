@@ -2,40 +2,46 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
-import ClientFormModal, {
-  Client,
-} from "../../components/modals/ClientFormModal";
+import ClientFormModal, { Client } from "../../components/modals/ClientFormModal";
+import useClinics from "../../lib/hooks/useClinics";
 
-const initialClients: Client[] = [
-  { id: "1", name: "Acme Clinic", phone: "555-1234", notes: "VIP client" },
-  {
-    id: "2",
-    name: "Beta Labs",
-    phone: "555-5678",
-    notes: "Prefers morning installs",
-  },
-];
 
 const ClientsPage: React.FC = () => {
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const { clinics: clients, loading, error, addClinic, updateClinic, deleteClinic } =
+    useClinics();
   const [active, setActive] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
 
-  const handleSave = (data: Client) => {
-    if (data.id) {
-      setClients((cs) =>
-        cs.map((c) => (c.id === data.id ? { ...c, ...data } : c)),
-      );
-    } else {
-      const id = Date.now().toString();
-      setClients((cs) => [...cs, { ...data, id }]);
+  const handleSave = async (data: Client) => {
+    try {
+      if (data.id) {
+        await updateClinic(data.id, {
+          name: data.name,
+          contact_name: data.contact_name,
+          contact_email: data.contact_email,
+          address: data.address,
+        });
+      } else {
+        await addClinic({
+          name: data.name,
+          contact_name: data.contact_name,
+          contact_email: data.contact_email,
+          address: data.address,
+        });
+      }
+      setOpen(false);
+      setActive(null);
+    } catch (err) {
+      console.error("Failed to save client", err);
     }
-    setOpen(false);
-    setActive(null);
   };
 
-  const handleDelete = (id: string) => {
-    setClients((cs) => cs.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteClinic(id);
+    } catch (err) {
+      console.error("Failed to delete client", err);
+    }
   };
 
   return (
@@ -53,12 +59,15 @@ const ClientsPage: React.FC = () => {
         </SZButton>
       </div>
       <div className="overflow-x-auto">
-        <SZTable headers={["Name", "Phone", "Notes", "Actions"]}>
+        {loading && <p>Loading clients...</p>}
+        {error && <p className="text-red-600">Error: {error}</p>}
+        <SZTable headers={["Name", "Contact", "Email", "Address", "Actions"]}>
           {clients.map((c) => (
             <tr key={c.id} className="border-t">
               <td className="p-2 border">{c.name}</td>
-              <td className="p-2 border">{c.phone}</td>
-              <td className="p-2 border">{c.notes}</td>
+              <td className="p-2 border">{c.contact_name}</td>
+              <td className="p-2 border">{c.contact_email}</td>
+              <td className="p-2 border">{c.address}</td>
               <td className="p-2 border space-x-2">
                 <SZButton
                   size="sm"
