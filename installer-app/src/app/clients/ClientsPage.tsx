@@ -7,7 +7,7 @@ import useClinics from "../../lib/hooks/useClinics";
 
 
 const ClientsPage: React.FC = () => {
-  const { clinics: clients, loading, error, addClinic, updateClinic, deleteClinic } =
+  const [clients, { loading, error, createClinic, updateClinic, deleteClinic }] =
     useClinics();
   const [active, setActive] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
@@ -22,7 +22,7 @@ const ClientsPage: React.FC = () => {
           address: data.address,
         });
       } else {
-        await addClinic({
+        await createClinic({
           name: data.name,
           contact_name: data.contact_name,
           contact_email: data.contact_email,

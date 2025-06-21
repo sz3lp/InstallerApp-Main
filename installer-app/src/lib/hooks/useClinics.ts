@@ -30,7 +30,7 @@ export function useClinics() {
     setLoading(false);
   }, []);
 
-  const addClinic = useCallback(async (clinic: Omit<Client, "id">) => {
+  const createClinic = useCallback(async (clinic: Omit<Client, "id">) => {
     const { data, error } = await supabase
       .from<Client>("clinics")
       .insert(clinic)
@@ -38,6 +38,7 @@ export function useClinics() {
       .single();
     if (error) throw error;
     setClinics((cs) => [...cs, data]);
+    return data;
   }, []);
 
   const updateClinic = useCallback(async (id: string, clinic: Omit<Client, "id">) => {
@@ -49,6 +50,7 @@ export function useClinics() {
       .single();
     if (error) throw error;
     setClinics((cs) => cs.map((c) => (c.id === id ? data : c)));
+    return data;
   }, []);
 
   const deleteClinic = useCallback(async (id: string) => {
@@ -61,15 +63,16 @@ export function useClinics() {
     fetchClinics();
   }, [fetchClinics]);
 
-  return {
+  return [
     clinics,
-    loading,
-    error,
-    refresh: fetchClinics,
-    addClinic,
-    updateClinic,
-    deleteClinic,
-  };
+    {
+      loading,
+      error,
+      createClinic,
+      updateClinic,
+      deleteClinic,
+    },
+  ] as const;
 }
 
 export default useClinics;
