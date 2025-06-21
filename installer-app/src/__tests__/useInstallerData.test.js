@@ -33,11 +33,17 @@ test('useIFIScores returns mock data', () => {
   expect(result.current.data).toBeTruthy();
 });
 
-test('submitInstallerFeedback stores feedback', () => {
-  localStorage.clear();
-  submitInstallerFeedback({ hello: 'world' });
-  const stored = JSON.parse(localStorage.getItem('installerFeedbacks'));
-  expect(stored.length).toBe(1);
+test('submitInstallerFeedback posts feedback', async () => {
+  global.fetch.mockClear();
+  await submitInstallerFeedback({ hello: 'world' });
+  expect(global.fetch).toHaveBeenCalledWith(
+    '/api/feedback',
+    expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hello: 'world' }),
+    })
+  );
 });
 
 test('setAppointmentStatus updates storage', () => {

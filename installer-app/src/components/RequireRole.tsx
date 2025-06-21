@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-import useAuth from "../lib/hooks/useAuth";
+import { useAuth } from "../lib/hooks/useAuth";
 
 interface Props {
   role: string | string[];
