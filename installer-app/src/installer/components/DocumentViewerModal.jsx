@@ -8,15 +8,13 @@ const DocumentViewerModal = ({ isOpen, onClose, documents = [] }) => {
   const getUrl = (doc) => {
     if (doc.url) return doc.url;
     if (doc.path) {
-      const base = process.env.VITE_SUPABASE_URL || "";
+      const base =
+        process.env.VITE_SUPABASE_URL ||
+        process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        "";
       return `${base}/storage/v1/object/public/documents/${doc.path}`;
     }
     return "#";
-  };
-
-  const openDoc = (doc) => {
-    const url = getUrl(doc);
-    window.open(url, "_blank");
   };
 
   return (
@@ -26,10 +24,7 @@ const DocumentViewerModal = ({ isOpen, onClose, documents = [] }) => {
         {documents.map((doc) => {
           const url = getUrl(doc);
           return (
-            <div
-              key={doc.id}
-              className="bg-gray-50 rounded shadow p-3 flex items-center justify-between"
-            >
+            <div key={doc.id} className="bg-gray-50 rounded shadow p-3 space-y-2">
               <div className="flex items-center space-x-3">
                 {doc.type === "image" ? (
                   <img
@@ -42,12 +37,17 @@ const DocumentViewerModal = ({ isOpen, onClose, documents = [] }) => {
                 )}
                 <span className="font-medium">{doc.name}</span>
               </div>
-              <button
-                onClick={() => openDoc(doc)}
-                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:opacity-90 active:scale-95"
-              >
-                {doc.type === "pdf" ? "Open PDF" : "View"}
-              </button>
+              {doc.type === "image" ? (
+                <img src={url} alt={doc.name} className="max-h-60 w-full object-contain rounded" />
+              ) : (
+                <object data={url} type="application/pdf" className="w-full h-60">
+                  <p>
+                    <a href={url} target="_blank" rel="noreferrer" className="text-green-600 underline">
+                      Open PDF
+                    </a>
+                  </p>
+                </object>
+              )}
             </div>
           );
         })}
