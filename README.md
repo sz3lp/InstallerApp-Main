@@ -37,6 +37,7 @@ migrations on your Postgres database before starting the app:
 
 ```bash
 psql $DATABASE_URL -f installer-app/api/migrations/001_create_audit_log.sql
+psql $DATABASE_URL -f installer-app/api/migrations/002_create_job_materials.sql
 ```
 
 Apply any additional migration files in the folder in order when deploying a new
