@@ -6,6 +6,7 @@ export type SZInputProps = {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
+  type?: string;
   disabled?: boolean;
   error?: string;
   className?: string;
@@ -17,6 +18,7 @@ export const SZInput: React.FC<SZInputProps> = ({
   placeholder,
   value,
   onChange,
+  type = 'text',
   disabled = false,
   error,
   className = '',
@@ -38,7 +40,7 @@ export const SZInput: React.FC<SZInputProps> = ({
         </label>
       )}
       <input
-        type="text"
+        type={type}
         id={id}
         placeholder={placeholder}
         value={value}
