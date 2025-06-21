@@ -16,7 +16,8 @@ import InstallerJobPage from "./app/installer/jobs/JobPage";
 import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
-import { RequireRole } from "./components/auth/RequireAuth";
+import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
+import RequireRole from "./components/RequireRole";
 
 const ClientsPage = lazy(() => import("./app/clients/ClientsPage"));
 const QuotesPage = lazy(() => import("./app/quotes/QuotesPage"));
@@ -32,7 +33,7 @@ const App = () => (
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route element={<RequireRole role="Installer" />}>
+          <Route element={<RequireRoleOutlet role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
             <Route path="/appointments" element={<AppointmentSummaryPage />} />
             <Route path="/activity" element={<ActivitySummaryPage />} />
@@ -42,23 +43,86 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
           </Route>
-          <Route element={<RequireRole role="Admin" />}>
+          <Route element={<RequireRoleOutlet role="Admin" />}>
             <Route path="/admin/jobs/new" element={<AdminNewJob />} />
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
-          <Route element={<RequireRole role="Manager" />}>
+          <Route element={<RequireRoleOutlet role="Manager" />}>
             <Route path="/manager/review" element={<ManagerReview />} />
           </Route>
-          <Route path="/install-manager" element={<InstallManagerDashboard />} />
-          <Route path="/install-manager/job/new" element={<NewJobBuilderPage />} />
+          <Route
+            path="/install-manager"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <InstallManagerDashboard />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/install-manager/job/new"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <NewJobBuilderPage />
+              </RequireRole>
+            }
+          />
           <Route path="/feedback" element={<FeedbackPage />} />
-          <Route path="/clients" element={<ClientsPage />} />
-          <Route path="/quotes" element={<QuotesPage />} />
-          <Route path="/invoices" element={<InvoicesPage />} />
-          <Route path="/payments" element={<PaymentsPage />} />
-          <Route path="/messages" element={<MessagesPanel />} />
-          <Route path="/time-tracking" element={<TimeTrackingPanel />} />
-          <Route path="/reports" element={<ReportsPage />} />
+          <Route
+            path="/clients"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <ClientsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/quotes"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <QuotesPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/invoices"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <InvoicesPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/payments"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <PaymentsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <MessagesPanel />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/time-tracking"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <TimeTrackingPanel />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <ReportsPage />
+              </RequireRole>
+            }
+          />
         </Routes>
       </Suspense>
     </AuthProvider>
