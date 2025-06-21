@@ -126,7 +126,7 @@ const JobDetailPage = () => {
       setDocuments((d) => [...d, doc]);
       if (!isTest) {
         const { default: supabase } = await import(
-          "../../lib/supabaseClient.js"
+          "../../lib/supabaseClient"
         );
         await supabase
           .from("jobs")
