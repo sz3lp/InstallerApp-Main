@@ -17,6 +17,7 @@ const menu = {
     { label: "Invoices", path: "/invoices" },
     { label: "Payments", path: "/payments" },
     { label: "Reports", path: "/reports" },
+    { label: "Technician Pay", path: "/reports/technician-pay" },
     { label: "Settings", path: "/settings" },
   ],
   Manager: [
@@ -28,6 +29,7 @@ const menu = {
     { label: "Invoices", path: "/invoices" },
     { label: "Payments", path: "/payments" },
     { label: "Reports", path: "/reports" },
+    { label: "Technician Pay", path: "/reports/technician-pay" },
     { label: "Settings", path: "/settings" },
   ],
   Sales: [

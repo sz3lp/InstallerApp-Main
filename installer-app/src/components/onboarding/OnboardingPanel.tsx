@@ -17,7 +17,7 @@ const TASKS_BY_ROLE: Record<string, { id: string; label: string; link: string }[
   Manager: [
     { id: 'review_jobs', label: 'Review Jobs in Progress', link: '/install-manager/dashboard' },
     { id: 'approve_quotes', label: 'Approve Pending Quotes', link: '/quotes' },
-    { id: 'payroll_report', label: 'Generate Payroll Report', link: '/reports' },
+    { id: 'payroll_report', label: 'Generate Payroll Report', link: '/reports/technician-pay' },
   ],
   Installer: [
     { id: 'view_jobs', label: 'View Your Assigned Jobs', link: '/installer/dashboard' },

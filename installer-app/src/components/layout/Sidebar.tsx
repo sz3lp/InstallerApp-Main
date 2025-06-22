@@ -22,6 +22,7 @@ const adminLinks: LinkItem[] = [
   { to: "/invoices", label: "Invoices" },
   { to: "/payments", label: "Payments" },
   { to: "/reports", label: "Reports" },
+  { to: "/reports/technician-pay", label: "Technician Pay" },
   { to: "/settings", label: "Settings" },
 ];
 
@@ -34,6 +35,7 @@ const managerLinks: LinkItem[] = [
   { to: "/invoices", label: "Invoices" },
   { to: "/payments", label: "Payments" },
   { to: "/reports", label: "Reports" },
+  { to: "/reports/technician-pay", label: "Technician Pay" },
   { to: "/settings", label: "Settings" },
 ];
 
