@@ -3,7 +3,11 @@ import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
+
+import { handleLeadEvent } from "../../lib/leadEvents";
+
 import LeadHistoryModal from "./LeadHistoryModal";
+
 
 const statuses = [
   "new",
@@ -18,6 +22,8 @@ const statuses = [
 ];
 
 export default function LeadsPage() {
+
+  const { leads, createLead, updateStatus, convertToClientAndJob } = useLeads();
   const { leads, createLead, updateLeadStatus, convertLeadToClientAndJob } = useLeads();
   const [form, setForm] = useState({
     clinic_name: "",
@@ -30,6 +36,7 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [historyLead, setHistoryLead] = useState<Lead | null>(null);
 
+
   const handleAdd = async () => {
     if (!form.clinic_name) return;
     setAdding(true);
@@ -39,6 +46,16 @@ export default function LeadsPage() {
   };
 
   const changeStatus = async (lead: Lead, status: string) => {
+    if (status === "won") {
+      await convertToClientAndJob(lead);
+    }
+    await updateStatus(lead.id, status);
+    await handleLeadEvent(lead.id, status);
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Leads</h1>
     await updateLeadStatus(lead.id, status);
   };
 
@@ -75,6 +92,8 @@ export default function LeadsPage() {
       <SZButton onClick={handleAdd} isLoading={adding} disabled={!form.clinic_name}>
         Add Lead
       </SZButton>
+      <SZTable headers={["Clinic", "Contact", "Status", "Actions"]}>
+        {leads.map((lead) => (
       <SZTable headers={["Clinic", "Contact", "Status", "Updated", "Actions"]}>
         {filteredLeads.map((lead) => (
           <tr key={lead.id} className="border-t">
@@ -93,6 +112,9 @@ export default function LeadsPage() {
                 ))}
               </select>
             </td>
+
+            <td className="p-2 border">
+              <SZButton size="sm" variant="secondary" onClick={() => changeStatus(lead, "won")}>Mark Won</SZButton>
             <td className="p-2 border text-xs text-gray-500">
               {new Date(lead.updated_at).toLocaleString()}
             </td>
