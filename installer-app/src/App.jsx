@@ -36,6 +36,7 @@ const PaymentsPage = lazy(() => import("./app/payments/PaymentsPage"));
 const MessagesPanel = lazy(() => import("./app/messages/MessagesPanel"));
 const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPanel"));
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
+const TechnicianPayReportPage = lazy(() => import("./app/reports/TechnicianPayReportPage"));
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
 const App = () => {
@@ -93,6 +94,7 @@ const App = () => {
                 <Route path="/messages" element={<RequireRole role={["Manager", "Admin"]}><MessagesPanel /></RequireRole>} />
                 <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
                 <Route path="/reports" element={<RequireRole role={["Manager", "Admin"]}><ReportsPage /></RequireRole>} />
+                <Route path="/reports/technician-pay" element={<RequireRole role={["Admin", "Install Manager"]}><TechnicianPayReportPage /></RequireRole>} />
 
                 {/* Fallback for authenticated routes */}
                 <Route path="*" element={<Navigate to="/" replace />} />
