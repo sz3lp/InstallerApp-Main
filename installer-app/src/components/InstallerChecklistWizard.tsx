@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { SZModal } from "./ui/SZModal";
 import { SZButton } from "./ui/SZButton";
 import uploadDocument from "../lib/uploadDocument";
+import uploadSignature from "../lib/uploadSignature";
 import supabase from "../lib/supabaseClient";
 import { useJobs } from "../lib/hooks/useJobs";
 import { useJobMaterials } from "../lib/hooks/useJobMaterials";
@@ -34,6 +35,8 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [drawing, setDrawing] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
+  const [signedBy, setSignedBy] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +73,7 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
       case 4:
         return notes.trim() !== "";
       case 5:
-        return true;
+        return hasSignature && signedBy.trim() !== "";
       default:
         return false;
     }
@@ -93,16 +96,17 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
 
     // upload signature
     let signatureUrl: string | null = null;
-    if (canvasRef.current) {
+    if (hasSignature && canvasRef.current) {
       const blob: Blob | null = await new Promise((res) =>
         canvasRef.current?.toBlob((b) => res(b), "image/png")
       );
       if (blob) {
-        const file = new File([blob], `signature_${job.id}.png`, {
-          type: "image/png",
-        });
-        const uploaded = await uploadDocument(file, job.id, "signatures");
-        signatureUrl = uploaded?.url ?? null;
+        const file = new File(
+          [blob],
+          `signature_${job.id}_${Date.now()}.png`,
+          { type: "image/png" }
+        );
+        signatureUrl = await uploadSignature(job.id, file);
       }
     }
 
@@ -136,9 +140,9 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
     }
 
     if (signatureUrl) {
-      await supabase.from("signed_checklists").insert({
+      await supabase.from("job_signatures").insert({
         job_id: job.id,
-        installer_id: session?.user?.id,
+        signed_by: signedBy,
         signature_url: signatureUrl,
       });
     }
@@ -284,6 +288,7 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
             height={100}
             onMouseDown={(e) => {
               setDrawing(true);
+              setHasSignature(true);
               const ctx = canvasRef.current?.getContext("2d");
               if (ctx) {
                 ctx.strokeStyle = "#000";
@@ -312,10 +317,23 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
               if (ctx && canvasRef.current) {
                 ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
               }
+              setHasSignature(false);
             }}
           >
             Clear
           </button>
+          <div className="mt-2">
+            <label htmlFor="signed_by" className="block text-sm font-semibold mb-1">
+              Signed By
+            </label>
+            <input
+              id="signed_by"
+              type="text"
+              value={signedBy}
+              onChange={(e) => setSignedBy(e.target.value)}
+              className="w-full border rounded p-2 focus:outline-none focus:ring focus:ring-green-200"
+            />
+          </div>
         </div>
       )}
 
