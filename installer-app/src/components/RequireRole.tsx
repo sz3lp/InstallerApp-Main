@@ -9,16 +9,16 @@ interface Props {
 }
 
 export default function RequireRole({
-  role: required,
+  role: requiredRole,
   children,
   redirectTo = "/",
 }: Props) {
-  const { role, loading } = useAuth();
+  const { role, session, loading } = useAuth();
 
-  if (loading) return null;
+  if (loading) return <div>Loading...</div>;
 
-  const roles = Array.isArray(required) ? required : [required];
-  if (!roles.includes(role ?? "")) {
+  const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+  if (!session || !roles.includes(role ?? "")) {
     return <Navigate to={redirectTo} replace />;
   }
 

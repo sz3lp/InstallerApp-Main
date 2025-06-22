@@ -11,6 +11,7 @@ const InstallerHomePage = ({
 }) => {
   const [showDrawer, setShowDrawer] = useState(false);
   const navigate = useNavigate();
+  console.log('Rendering InstallerHomePage');
   const handleDrawer = () => setShowDrawer(true);
   const handleRefresh = () => navigate(0);
   const handleAppointmentSummary = () => navigate("/appointments");
