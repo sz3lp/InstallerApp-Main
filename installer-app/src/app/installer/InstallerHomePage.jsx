@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { FaSyncAlt, FaBriefcase, FaClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import SideDrawer from "../components/SideDrawer";
-import OpenManagerPreview from "../components/OpenManagerPreview";
+import Header from "./components/Header";
+import SideDrawer from "./components/SideDrawer";
+import OpenManagerPreview from "./components/OpenManagerPreview";
 
 const InstallerHomePage = ({
   installerEmail = "lukepreble@outlook.com",

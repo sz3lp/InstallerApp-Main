@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import JobDetailPage from '../installer/pages/JobDetailPage';
+import JobDetailPage from '../app/installer/jobs/JobDetailPage';
 
 test('renders job number from route', () => {
   render(

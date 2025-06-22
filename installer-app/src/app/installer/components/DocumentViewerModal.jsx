@@ -1,6 +1,6 @@
 import React from "react";
 import { FaFilePdf } from "react-icons/fa";
-import ModalWrapper from "../components/ModalWrapper";
+import ModalWrapper from "./ModalWrapper";
 
 const DocumentViewerModal = ({ isOpen, onClose, documents = [] }) => {
   if (!isOpen) return null;

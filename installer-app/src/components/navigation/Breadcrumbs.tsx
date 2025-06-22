@@ -1,9 +1,15 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { navLinks } from "../../navConfig";
 
 type Props = {
   names?: Record<string, string>;
 };
+
+const labelMap = navLinks.reduce<Record<string, string>>((acc, r) => {
+  acc[r.path] = r.label;
+  return acc;
+}, {});
 
 const Breadcrumbs: React.FC<Props> = ({ names = {} }) => {
   const location = useLocation();
@@ -21,7 +27,7 @@ const Breadcrumbs: React.FC<Props> = ({ names = {} }) => {
         {segments.map((seg, idx) => {
           path += `/${seg}`;
           const isLast = idx === segments.length - 1;
-          const label = names[seg] || seg;
+          const label = labelMap[path] || names[seg] || seg;
           return (
             <li key={path} className="flex items-center">
               <span className="mx-2">/</span>
