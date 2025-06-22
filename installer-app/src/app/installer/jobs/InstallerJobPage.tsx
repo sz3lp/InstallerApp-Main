@@ -9,6 +9,7 @@ import InstallerChecklistWizard from "../../../components/InstallerChecklistWiza
 import DocumentViewerModal from "../../../installer/components/DocumentViewerModal";
 import supabase from "../../../lib/supabaseClient";
 
+
 export function MaterialUsage({ jobId }: { jobId: string }) {
   const { session } = useAuth();
   const [materials, setMaterials] = useState<any[]>([]);
@@ -73,6 +74,7 @@ export function MaterialUsage({ jobId }: { jobId: string }) {
   );
 }
 
+
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useAuth();
@@ -130,7 +132,9 @@ const InstallerJobPage: React.FC = () => {
         )}
       </SZCard>
 
+
       <MaterialUsage jobId={id || ""} />
+
 
       <div className="flex flex-wrap gap-2">
         <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>
