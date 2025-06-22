@@ -21,32 +21,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
-
-      console.log('Initializing auth...');
+      console.log("Initializing auth...");
 
       const {
         data: { session: active },
       } = await supabase.auth.getSession();
+
       let current = active;
+
       if (!current) {
         const stored =
           localStorage.getItem("sb_session") ||
           sessionStorage.getItem("sb_session");
         if (stored) current = JSON.parse(stored);
       }
+
       setSession(current);
       setUser(current?.user ?? null);
+
       let currentRole: string | null = null;
       if (current?.user) {
         currentRole = await getUserRole(current.user.id);
         setRole(currentRole);
-        console.log('Loaded role', currentRole);
+        console.log("Loaded role", currentRole);
       } else {
         setRole(null);
       }
+
       setLoading(false);
-      console.log('Auth initialized', { session: current, role: currentRole });
+      console.log("Auth initialized", { session: current, role: currentRole });
     };
+
     init();
   }, []);
 
@@ -55,26 +60,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     remember: boolean = true
   ) => {
-
-    console.log('Attempting sign in', email);
+    console.log("Attempting sign in", email);
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) throw error;
+
     setSession(data.session);
     setUser(data.user);
+
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));
+
     const role = await getUserRole(data.user.id);
     setRole(role);
-    console.log('Signed in with role', role);
+    console.log("Signed in with role", role);
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    console.log('Signed out');
+    console.log("Signed out");
     setSession(null);
     setUser(null);
     setRole(null);
