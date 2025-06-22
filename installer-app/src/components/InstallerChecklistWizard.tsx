@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SZModal } from "./ui/SZModal";
 import { SZButton } from "./ui/SZButton";
 import uploadDocument from "../lib/uploadDocument";
 import supabase from "../lib/supabaseClient";
 import { useJobs } from "../lib/hooks/useJobs";
+import { useJobMaterials } from "../lib/hooks/useJobMaterials";
 import useAuth from "../lib/hooks/useAuth";
 
 export interface ChecklistWizardProps {
@@ -27,11 +28,24 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
   const [step, setStep] = useState(0);
   const [customerPresent, setCustomerPresent] = useState<string>("");
   const [absenceReason, setAbsenceReason] = useState<string>("");
-  const [materialsUsed, setMaterialsUsed] = useState<string>("");
+  const { items: jobMaterials } = useJobMaterials(job?.id || "");
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [systemVerified, setSystemVerified] = useState<boolean>(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [drawing, setDrawing] = useState(false);
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const q: Record<string, number> = {};
+      jobMaterials.forEach((m) => {
+        q[m.id] = 0;
+      });
+      setQuantities(q);
+    }
+  }, [isOpen, jobMaterials]);
 
   const allowed =
     job &&
@@ -48,13 +62,15 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
           (customerPresent === "no" && absenceReason.trim() !== "")
         );
       case 1:
-        return materialsUsed.trim() !== "";
+        return Object.values(quantities).some((q) => q > 0);
       case 2:
         return systemVerified;
       case 3:
         return !!photoFile;
       case 4:
         return notes.trim() !== "";
+      case 5:
+        return true;
       default:
         return false;
     }
@@ -71,21 +87,62 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
     setSaving(true);
     let photoUrl: string | null = null;
     if (photoFile) {
-      const uploaded = await uploadDocument(photoFile);
+      const uploaded = await uploadDocument(photoFile, job.id, "photos");
       photoUrl = uploaded?.url ?? null;
     }
+
+    // upload signature
+    let signatureUrl: string | null = null;
+    if (canvasRef.current) {
+      const blob: Blob | null = await new Promise((res) =>
+        canvasRef.current?.toBlob((b) => res(b), "image/png")
+      );
+      if (blob) {
+        const file = new File([blob], `signature_${job.id}.png`, {
+          type: "image/png",
+        });
+        const uploaded = await uploadDocument(file, job.id, "signatures");
+        signatureUrl = uploaded?.url ?? null;
+      }
+    }
+
     await supabase.from("checklists").insert({
       job_id: job.id,
       completed: true,
       responses: {
         customerPresent,
         absenceReason,
-        materialsUsed,
         systemVerified,
         photoUrl,
         notes,
       },
     });
+
+    for (const jm of jobMaterials) {
+      const qty = quantities[jm.id] || 0;
+      if (qty > 0) {
+        await supabase.from("job_quantities_completed").insert({
+          job_id: job.id,
+          material_id: jm.material_id,
+          quantity_completed: qty,
+          user_id: session?.user?.id,
+        });
+        await supabase.rpc("decrement_inventory", {
+          installer_id_input: session?.user?.id,
+          material_id_input: jm.material_id,
+          amount: qty,
+        });
+      }
+    }
+
+    if (signatureUrl) {
+      await supabase.from("signed_checklists").insert({
+        job_id: job.id,
+        installer_id: session?.user?.id,
+        signature_url: signatureUrl,
+      });
+    }
+
     await updateStatus(job.id, "needs_qa");
     setSaving(false);
     onClose();
@@ -138,17 +195,41 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
       )}
 
       {step === 1 && (
-        <div>
-          <label htmlFor="materials" className="block text-sm font-semibold mb-1">
-            Materials Used
-          </label>
-          <textarea
-            id="materials"
-            rows={4}
-            className="border rounded w-full p-2"
-            value={materialsUsed}
-            onChange={(e) => setMaterialsUsed(e.target.value)}
-          />
+        <div className="space-y-2">
+          <p className="text-sm font-semibold">Materials Used</p>
+          {jobMaterials.length === 0 ? (
+            <p>No materials assigned.</p>
+          ) : (
+            <table className="min-w-full text-sm border">
+              <thead>
+                <tr>
+                  <th className="border p-1">Material</th>
+                  <th className="border p-1">Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobMaterials.map((m) => (
+                  <tr key={m.id} className="border-t">
+                    <td className="p-1 border">{m.material_id}</td>
+                    <td className="p-1 border">
+                      <input
+                        type="number"
+                        min={0}
+                        className="border rounded px-2 py-1 w-20"
+                        value={quantities[m.id] ?? 0}
+                        onChange={(e) =>
+                          setQuantities((q) => ({
+                            ...q,
+                            [m.id]: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
 
@@ -194,6 +275,50 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
         </div>
       )}
 
+      {step === 5 && (
+        <div>
+          <p className="text-sm font-semibold mb-1">Client Signature</p>
+          <canvas
+            ref={canvasRef}
+            width={300}
+            height={100}
+            onMouseDown={(e) => {
+              setDrawing(true);
+              const ctx = canvasRef.current?.getContext("2d");
+              if (ctx) {
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+              }
+            }}
+            onMouseMove={(e) => {
+              if (!drawing) return;
+              const ctx = canvasRef.current?.getContext("2d");
+              if (ctx) {
+                ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+                ctx.stroke();
+              }
+            }}
+            onMouseUp={() => setDrawing(false)}
+            onMouseLeave={() => setDrawing(false)}
+            className="border w-full"
+          />
+          <button
+            type="button"
+            className="text-xs text-gray-500 mt-1"
+            onClick={() => {
+              const ctx = canvasRef.current?.getContext("2d");
+              if (ctx && canvasRef.current) {
+                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+              }
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       <div className="mt-6 flex justify-between">
         {step > 0 ? (
           <SZButton variant="secondary" size="sm" onClick={back}>
@@ -202,7 +327,7 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
         ) : (
           <span />
         )}
-        {step < 4 ? (
+        {step < 5 ? (
           <SZButton size="sm" onClick={next} disabled={!stepValid()}>
             Next
           </SZButton>

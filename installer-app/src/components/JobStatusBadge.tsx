@@ -9,6 +9,8 @@ export type JobStatus =
   | "rework"
   | "archived"
   | "ready_for_invoice"
+  | "invoiced"
+  | "paid"
   | "closed_pending_manager_approval"
   | "approved_ready_for_invoice_payroll"
   | "rejected_sent_back_for_revisions"
@@ -26,6 +28,8 @@ const statusMap: Record<
   rework: { label: "Rework", variant: "red" },
   archived: { label: "Archived", variant: "gray" },
   ready_for_invoice: { label: "Ready for Invoice", variant: "purple" },
+  invoiced: { label: "Invoiced", variant: "blue" },
+  paid: { label: "Paid", variant: "green" },
   closed_pending_manager_approval: {
     label: "Pending QA Approval",
     variant: "orange",
