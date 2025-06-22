@@ -41,6 +41,7 @@ import UnderConstructionPage from "./app/UnderConstructionPage";
 const ClientsPage = lazy(() => import("./app/clients/ClientsPage"));
 const QuotesPage = lazy(() => import("./app/quotes/QuotesPage"));
 const InvoicesPage = lazy(() => import("./app/invoices/InvoicesPage"));
+const InvoiceDetailPage = lazy(() => import("./app/invoices/InvoiceDetailPage"));
 const PaymentsPage = lazy(() => import("./app/payments/PaymentsPage"));
 const InvoiceGenerator = lazy(() => import("./app/install-manager/InvoiceGenerator"));
 const PaymentLogger = lazy(() => import("./app/install-manager/PaymentLogger"));
@@ -257,6 +258,7 @@ const App = () => {
                 <Route path="/sales/dashboard" element={<RequireRole role={["Sales", "Manager", "Admin"]}><SalesDashboard /></RequireRole>} />
                 <Route path="/quotes" element={<RequireRole role={["Manager", "Admin"]}><QuotesPage /></RequireRole>} />
                 <Route path="/invoices" element={<RequireRole role={["Manager", "Admin"]}><InvoicesPage /></RequireRole>} />
+                <Route path="/invoices/:id" element={<RequireRole role={["Admin", "Finance"]}><InvoiceDetailPage /></RequireRole>} />
                 <Route path="/payments" element={<RequireRole role={["Manager", "Admin"]}><PaymentsPage /></RequireRole>} />
                 <Route path="/messages" element={<RequireRole role={["Manager", "Admin"]}><MessagesPanel /></RequireRole>} />
                 <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
