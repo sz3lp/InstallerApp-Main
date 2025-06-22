@@ -3,7 +3,6 @@ import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
-import { handleLeadEvent } from "../../lib/leadEvents";
 import LeadHistoryModal from "./LeadHistoryModal";
 
 const statuses = [
@@ -19,7 +18,7 @@ const statuses = [
 ];
 
 export default function LeadsPage() {
-  const { leads, createLead, updateStatus, convertToClientAndJob } = useLeads();
+  const { leads, createLead, updateLeadStatus } = useLeads();
   const [form, setForm] = useState({
     clinic_name: "",
     contact_name: "",
@@ -40,11 +39,7 @@ export default function LeadsPage() {
   };
 
   const changeStatus = async (lead: Lead, status: string) => {
-    if (status === "won") {
-      await convertToClientAndJob(lead);
-    }
-    await updateStatus(lead.id, status);
-    await handleLeadEvent(lead.id, status);
+    await updateLeadStatus(lead.id, status);
   };
 
   const filteredLeads =
