@@ -1,19 +1,22 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import InstallerHomePage from "./installer/pages/InstallerHomePage";
-import AppointmentSummaryPage from "./installer/pages/AppointmentSummaryPage";
-import ActivitySummaryPage from "./installer/pages/ActivitySummaryPage";
+import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPage";
+import ActivityLogPage from "./app/activity/ActivityLogPage";
 import JobDetailPage from "./installer/pages/JobDetailPage";
 import IFIDashboard from "./installer/pages/IFIDashboard";
 import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
-import AdminNewJob from "./app/admin/jobs/NewJobPage";
+import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
-import InstallerJobPage from "./app/installer/jobs/JobPage";
-import ManagerReview from "./app/manager/ReviewPage";
+import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
+import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
+import InventoryPage from "./app/installer/InventoryPage";
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
@@ -37,13 +40,16 @@ const App = () => (
 
           <Route element={<RequireRoleOutlet role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
-            <Route path="/appointments" element={<AppointmentSummaryPage />} />
-            <Route path="/activity" element={<ActivitySummaryPage />} />
+            <Route path="/appointments" element={<InstallerAppointmentPage />} />
+            <Route path="/activity" element={<ActivityLogPage />} />
             <Route path="/ifi" element={<IFIDashboard />} />
             <Route path="/job/:jobId" element={<JobDetailPage />} />
             <Route path="/mock-jobs" element={<MockJobsPage />} />
+            <Route path="/installer" element={<InstallerDashboard />} />
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
+            <Route path="/installer/profile" element={<InstallerProfilePage />} />
+            <Route path="/installer/inventory" element={<InventoryPage />} />
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -51,9 +57,26 @@ const App = () => (
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
 
-          <Route element={<RequireRoleOutlet role="Manager" />}>
-            <Route path="/manager/review" element={<ManagerReview />} />
-          </Route>
+        <Route element={<RequireRoleOutlet role="Manager" />}>
+          <Route path="/manager/review" element={<ManagerReview />} />
+        </Route>
+
+        <Route
+          path="/manager/archived"
+          element={
+            <RequireRole role={["Manager", "Admin"]}>
+              <ArchivedJobsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/archived"
+          element={
+            <RequireRole role={["Manager", "Admin"]}>
+              <ArchivedJobsPage />
+            </RequireRole>
+          }
+        />
 
           <Route
             path="/install-manager"
