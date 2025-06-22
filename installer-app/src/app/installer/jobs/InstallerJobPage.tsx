@@ -8,7 +8,12 @@ import MaterialsModal from "./MaterialsModal";
 import InstallerChecklistWizard from "../../../components/InstallerChecklistWizard";
 import DocumentViewerModal from "../../../installer/components/DocumentViewerModal";
 import supabase from "../../../lib/supabaseClient";
-export function MaterialUsage({ jobId }: { jobId: string }) {
+export const MaterialUsage = React.memo(function MaterialUsage({
+  jobId,
+}: {
+  jobId: string;
+}) {
+  console.log("MaterialUsage mounted");
   const { session } = useAuth();
   const [materials, setMaterials] = useState<any[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -70,7 +75,7 @@ export function MaterialUsage({ jobId }: { jobId: string }) {
       <SZButton onClick={logUsage}>Log Usage</SZButton>
     </div>
   );
-}
+});
 
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,7 +106,10 @@ const InstallerJobPage: React.FC = () => {
 
   const startJob = async () => {
     if (!job) return;
-    await supabase.from("jobs").update({ status: "in_progress" }).eq("id", job.id);
+    await supabase
+      .from("jobs")
+      .update({ status: "in_progress" })
+      .eq("id", job.id);
     refresh();
   };
 
@@ -129,31 +137,35 @@ const InstallerJobPage: React.FC = () => {
         )}
       </SZCard>
 
-
-      <MaterialUsage jobId={id || ""} />
-
-
-
-      <MaterialUsage jobId={id || ""} />
-
-
-
+      {/* Render once to avoid duplicate logging */}
       <MaterialUsage jobId={id || ""} />
 
       <div className="flex flex-wrap gap-2">
-        <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>
+        <SZButton
+          onClick={() => setShowDocs(true)}
+          disabled={docs.length === 0}
+        >
           View Documents
         </SZButton>
-        <SZButton onClick={() => setShowMaterials(true)}>Log Materials Used</SZButton>
+        <SZButton onClick={() => setShowMaterials(true)}>
+          Log Materials Used
+        </SZButton>
         <SZButton onClick={startJob} disabled={job.status !== "assigned"}>
           Mark Job Started
         </SZButton>
-        <SZButton onClick={() => setShowChecklist(true)} disabled={job.status !== "in_progress"}>
+        <SZButton
+          onClick={() => setShowChecklist(true)}
+          disabled={job.status !== "in_progress"}
+        >
           Mark Job Complete
         </SZButton>
       </div>
 
-      <MaterialsModal isOpen={showMaterials} onClose={() => setShowMaterials(false)} jobId={id || null} />
+      <MaterialsModal
+        isOpen={showMaterials}
+        onClose={() => setShowMaterials(false)}
+        jobId={id || null}
+      />
       <InstallerChecklistWizard
         isOpen={showChecklist}
         onClose={() => {
@@ -162,7 +174,11 @@ const InstallerJobPage: React.FC = () => {
         }}
         job={job}
       />
-      <DocumentViewerModal isOpen={showDocs} onClose={() => setShowDocs(false)} documents={docs} />
+      <DocumentViewerModal
+        isOpen={showDocs}
+        onClose={() => setShowDocs(false)}
+        documents={docs}
+      />
     </div>
   );
 };
