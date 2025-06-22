@@ -2,26 +2,26 @@ import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import ClientFormModal, { Client } from "../../components/modals/ClientFormModal";
-import useClinics from "../../lib/hooks/useClinics";
+import useClients from "../../lib/hooks/useClients";
 
 
 const ClientsPage: React.FC = () => {
-  const [clients, { loading, error, createClinic, updateClinic, deleteClinic }] =
-    useClinics();
+  const [clients, { loading, error, createClient, updateClient, deleteClient }] =
+    useClients();
   const [active, setActive] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
 
   const handleSave = async (data: Client) => {
     try {
       if (data.id) {
-        await updateClinic(data.id, {
+        await updateClient(data.id, {
           name: data.name,
           contact_name: data.contact_name,
           contact_email: data.contact_email,
           address: data.address,
         });
       } else {
-        await createClinic({
+        await createClient({
           name: data.name,
           contact_name: data.contact_name,
           contact_email: data.contact_email,
@@ -37,7 +37,7 @@ const ClientsPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteClinic(id);
+      await deleteClient(id);
     } catch (err) {
       console.error("Failed to delete client", err);
     }

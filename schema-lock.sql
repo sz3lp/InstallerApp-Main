@@ -10,13 +10,13 @@ CREATE TABLE public.checklists (
   CONSTRAINT checklists_pkey PRIMARY KEY (id),
   CONSTRAINT checklists_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
 );
-CREATE TABLE public.clinics (
+CREATE TABLE public.clients (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   name text NOT NULL DEFAULT gen_random_uuid(),
   contact_name text,
   contact_email text,
   address text,
-  CONSTRAINT clinics_pkey PRIMARY KEY (id)
+  CONSTRAINT clients_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.documents (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),

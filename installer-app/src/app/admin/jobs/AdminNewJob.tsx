@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import { SZTable } from "../../../components/ui/SZTable";
-import useClinics from "../../../lib/hooks/useClinics";
+import useClients from "../../../lib/hooks/useClients";
 import useInstallers from "../../../lib/hooks/useInstallers";
 import useMaterials from "../../../lib/hooks/useMaterials";
 import supabase from "../../../lib/supabaseClient";
@@ -15,7 +15,7 @@ interface MaterialRow {
 
 const AdminNewJob: React.FC = () => {
   const navigate = useNavigate();
-  const [clinics] = useClinics();
+  const [clients] = useClients();
   const { installers } = useInstallers();
   const { materials } = useMaterials();
 
@@ -42,12 +42,12 @@ const AdminNewJob: React.FC = () => {
     setSubmitting(true);
     setError(null);
     try {
-      const clinic = clinics.find((c) => c.id === clinicId);
+      const client = clients.find((c) => c.id === clinicId);
       const materialsData = rows
         .filter((r) => r.material_id)
         .map((r) => ({ material_id: r.material_id, quantity: r.quantity }));
       const { data, error } = await supabase.rpc("create_job_with_materials", {
-        p_clinic_name: clinic?.name ?? "",
+        p_clinic_name: client?.name ?? "",
         p_address: address,
         p_start_time: startDate,
         p_installer: installerId,
@@ -77,7 +77,7 @@ const AdminNewJob: React.FC = () => {
             onChange={(e) => setClinicId(e.target.value)}
           >
             <option value="">Select</option>
-            {clinics.map((c) => (
+            {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
