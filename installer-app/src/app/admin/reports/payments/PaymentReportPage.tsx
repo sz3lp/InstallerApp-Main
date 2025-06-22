@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import RequireRole from "../../../components/RequireRole";
+import RequireRole from "../../../../components/RequireRole";
 import PaymentFilterPanel, { PaymentFilters } from "./PaymentFilterPanel";
 import PaymentSummaryPanel from "./PaymentSummaryPanel";
 import PaymentReportTable from "./PaymentReportTable";

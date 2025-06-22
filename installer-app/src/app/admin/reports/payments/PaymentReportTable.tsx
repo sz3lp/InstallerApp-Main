@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SZTable } from "../../../components/ui/SZTable";
+import { SZTable } from "../../../../components/ui/SZTable";
 import { PaymentReportRow } from "./usePaymentReport";
 import { FaExclamationTriangle } from "react-icons/fa";
 

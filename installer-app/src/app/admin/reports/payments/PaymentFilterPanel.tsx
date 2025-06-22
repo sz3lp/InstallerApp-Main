@@ -2,8 +2,8 @@ import React from "react";
 import FilterPanel, {
   FilterDefinition,
   AppliedFilters,
-} from "../../../components/ui/filters/FilterPanel";
-import useClients from "../../../lib/hooks/useClients";
+} from "../../../../components/ui/filters/FilterPanel";
+import useClients from "../../../../lib/hooks/useClients";
 
 export interface PaymentFilters extends AppliedFilters {
   date?: { start: string; end: string };
