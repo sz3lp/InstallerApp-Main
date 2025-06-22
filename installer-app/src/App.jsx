@@ -1,7 +1,12 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import GlobalLayout from "./components/navigation/GlobalLayout";
-import InstallerHomePage from "./installer/pages/InstallerHomePage";
+import InstallerHomePage from ".//installer/pages/InstallerHomePage";
 import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPage";
 import ActivityLogPage from "./app/activity/ActivityLogPage";
 import JobDetailPage from "./installer/pages/JobDetailPage";
@@ -17,14 +22,18 @@ import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
-import QAReviewPanel from "./app/manager/QAReviewPanel";
+import QAReviewDashboardPage from "./app/manager/QAReviewDashboardPage";
+import QAReviewDetailPage from "./app/manager/QAReviewDetailPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
-import { RequireRole as RequireRoleOutlet, RequireAuth as RequireAuthOutlet } from "./components/auth/RequireAuth";
+import {
+  RequireRole as RequireRoleOutlet,
+  RequireAuth as RequireAuthOutlet,
+} from "./components/auth/RequireAuth";
 import RequireRole from "./components/RequireRole";
 import AppLayout from "./components/layout/AppLayout";
 import UnderConstructionPage from "./app/UnderConstructionPage";
@@ -37,6 +46,7 @@ const MessagesPanel = lazy(() => import("./app/messages/MessagesPanel"));
 const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPanel"));
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
 const TechnicianPayReportPage = lazy(() => import("./app/reports/TechnicianPayReportPage"));
+const InvoiceAgingPage = lazy(() => import("./app/reports/InvoiceAgingPage"));
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
 const App = () => {
@@ -74,7 +84,8 @@ const App = () => {
 
                 {/* Manager Routes */}
                 <Route element={<RequireRoleOutlet role="Manager" />}>
-                  <Route path="/manager/qa" element={<QAReviewPanel />} />
+                  <Route path="/manager/qa" element={<QAReviewDashboardPage />} />
+                  <Route path="/manager/qa/job/:jobId" element={<QAReviewDetailPage />} />
                   <Route path="/manager/review" element={<ManagerReview />} />
                 </Route>
 
@@ -95,6 +106,7 @@ const App = () => {
                 <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
                 <Route path="/reports" element={<RequireRole role={["Manager", "Admin"]}><ReportsPage /></RequireRole>} />
                 <Route path="/reports/technician-pay" element={<RequireRole role={["Admin", "Install Manager"]}><TechnicianPayReportPage /></RequireRole>} />
+                <Route path="/reports/invoice-aging" element={<RequireRole role={["Manager", "Admin"]}><InvoiceAgingPage /></RequireRole>} />
 
                 {/* Fallback for authenticated routes */}
                 <Route path="*" element={<Navigate to="/" replace />} />
