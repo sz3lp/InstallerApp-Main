@@ -9,6 +9,7 @@ import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
+import QuoteBuilderPage from "./app/install-manager/quotes/QuoteBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
@@ -97,6 +98,14 @@ const App = () => (
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <NewJobBuilderPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/install-manager/quotes/new"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <QuoteBuilderPage />
               </RequireRole>
             }
           />

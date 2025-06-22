@@ -4,6 +4,7 @@ export const navLinks = [
   { path: '/activity', label: 'Activity Summary', roles: ['Installer'] },
   { path: '/ifi', label: 'IFI Dashboard', roles: ['Installer'] },
   { path: '/install-manager', label: 'Install Manager Dashboard', roles: ['Admin', 'Manager'] },
+  { path: '/install-manager/quotes/new', label: 'Create Quote', roles: ['Admin', 'Manager'] },
   { path: '/feedback', label: 'Feedback', roles: ['Installer'] },
   { path: '/clients', label: 'Clients', roles: ['Admin', 'Manager'] },
   { path: '/crm/leads', label: 'Leads', roles: ['Sales', 'Manager', 'Admin'] },
