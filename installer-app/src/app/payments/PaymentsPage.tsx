@@ -3,49 +3,23 @@ import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import { SZTable } from "../../components/ui/SZTable";
 import ModalWrapper from "../../installer/components/ModalWrapper";
-
-interface Payment {
-  id: string;
-  invoiceId: string;
-  amount: number;
-  method: string;
-  timestamp: string;
-}
-
-const initialPayments: Payment[] = [
-  {
-    id: "1",
-    invoiceId: "INV-1",
-    amount: 500,
-    method: "card",
-    timestamp: "2024-05-01 10:00",
-  },
-];
-
-const invoices = ["INV-1", "INV-2"];
+import usePayments from "../../lib/hooks/usePayments";
+import useInvoices from "../../lib/hooks/useInvoices";
 
 const PaymentsPage: React.FC = () => {
-  const [payments, setPayments] = useState<Payment[]>(initialPayments);
+  const [payments, { createPayment }] = usePayments();
+  const [invoices] = useInvoices();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    invoiceId: invoices[0],
-    amount: "",
-    method: "",
-  });
+  const [form, setForm] = useState({ invoiceId: "", amount: "", method: "" });
 
-  const handleSave = () => {
-    setPayments((ps) => [
-      ...ps,
-      {
-        id: Date.now().toString(),
-        invoiceId: form.invoiceId,
-        amount: Number(form.amount),
-        method: form.method,
-        timestamp: new Date().toLocaleString(),
-      },
-    ]);
+  const handleSave = async () => {
+    await createPayment({
+      invoice_id: form.invoiceId,
+      amount: Number(form.amount),
+      method: form.method,
+    });
     setOpen(false);
-    setForm({ invoiceId: invoices[0], amount: "", method: "" });
+    setForm({ invoiceId: "", amount: "", method: "" });
   };
 
   return (
@@ -61,44 +35,28 @@ const PaymentsPage: React.FC = () => {
           <tr key={p.id} className="border-t">
             <td className="p-2 border">${p.amount.toFixed(2)}</td>
             <td className="p-2 border">{p.method}</td>
-            <td className="p-2 border">{p.timestamp}</td>
-            <td className="p-2 border">{p.invoiceId}</td>
+            <td className="p-2 border">{new Date(p.received_at).toLocaleString()}</td>
+            <td className="p-2 border">{p.invoice_id}</td>
           </tr>
         ))}
       </SZTable>
       <ModalWrapper isOpen={open} onClose={() => setOpen(false)}>
         <h2 className="text-lg font-semibold mb-4">Log Payment</h2>
         <div className="space-y-2">
-          <SZInput
-            id="pay_amount"
-            label="Amount"
-            value={form.amount}
-            onChange={(v) => setForm((f) => ({ ...f, amount: v }))}
-          />
-          <SZInput
-            id="pay_method"
-            label="Method"
-            value={form.method}
-            onChange={(v) => setForm((f) => ({ ...f, method: v }))}
-          />
+          <SZInput id="pay_amount" label="Amount" value={form.amount} onChange={(v) => setForm((f) => ({ ...f, amount: v }))} />
+          <SZInput id="pay_method" label="Method" value={form.method} onChange={(v) => setForm((f) => ({ ...f, method: v }))} />
           <div>
-            <label
-              htmlFor="pay_invoice"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Invoice
-            </label>
+            <label htmlFor="pay_invoice" className="block text-sm font-medium text-gray-700">Invoice</label>
             <select
               id="pay_invoice"
               className="border rounded px-3 py-2 w-full"
               value={form.invoiceId}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, invoiceId: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, invoiceId: e.target.value }))}
             >
+              <option value="">Select</option>
               {invoices.map((inv) => (
-                <option key={inv} value={inv}>
-                  {inv}
+                <option key={inv.id} value={inv.id}>
+                  {inv.id}
                 </option>
               ))}
             </select>

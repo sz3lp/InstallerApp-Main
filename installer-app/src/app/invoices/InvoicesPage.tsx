@@ -1,64 +1,69 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
-
-interface Invoice {
-  id: string;
-  client: string;
-  amount: number;
-  status: "paid" | "unpaid";
-}
-
-const initialInvoices: Invoice[] = [
-  { id: "INV-1", client: "Acme Clinic", amount: 500, status: "unpaid" },
-  { id: "INV-2", client: "Beta Labs", amount: 750, status: "paid" },
-];
+import useInvoices from "../../lib/hooks/useInvoices";
+import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 
 const InvoicesPage: React.FC = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
-  const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [invoices, { createInvoice, updateInvoice }] = useInvoices();
+  const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
+  const [open, setOpen] = useState(false);
 
-  const markPaid = (id: string) => {
-    setInvoices((inv) =>
-      inv.map((i) => (i.id === id ? { ...i, status: "paid" } : i)),
-    );
+  const markPaid = async (id: string) => {
+    await updateInvoice(id, { status: "paid", paid_at: new Date().toISOString() });
   };
 
-  const filtered = invoices.filter((i) =>
-    filter === "all" ? true : i.status === filter,
-  );
+  const filtered = invoices.filter((i) => (filter === "all" ? true : i.status === filter));
+
+  const handleSave = async (data: InvoiceData) => {
+    await createInvoice({
+      client_id: data.client_id,
+      job_id: data.job_id ?? null,
+      quote_id: data.quote_id ?? null,
+      amount: data.amount,
+      due_date: data.due_date ?? null,
+    });
+    setOpen(false);
+  };
 
   return (
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Invoices</h1>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as any)}
-          className="border rounded px-3 py-2"
-        >
-          <option value="all">All</option>
-          <option value="paid">Paid</option>
-          <option value="unpaid">Unpaid</option>
-        </select>
+        <div className="flex gap-2 items-center">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="all">All</option>
+            <option value="paid">Paid</option>
+            <option value="partially_paid">Partially Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+          <SZButton size="sm" onClick={() => setOpen(true)}>
+            New Invoice
+          </SZButton>
+        </div>
       </div>
       <SZTable headers={["Invoice", "Client", "Amount", "Status", "Actions"]}>
         {filtered.map((inv) => (
           <tr key={inv.id} className="border-t">
             <td className="p-2 border">{inv.id}</td>
-            <td className="p-2 border">{inv.client}</td>
+            <td className="p-2 border">{inv.client_name}</td>
             <td className="p-2 border">${inv.amount.toFixed(2)}</td>
             <td className="p-2 border">{inv.status}</td>
             <td className="p-2 border">
-              {inv.status === "unpaid" && (
+              {inv.status !== "paid" && (
                 <SZButton size="sm" onClick={() => markPaid(inv.id)}>
-                  Mark as Paid
+                  Mark Paid
                 </SZButton>
               )}
             </td>
           </tr>
         ))}
       </SZTable>
+      <InvoiceFormModal isOpen={open} onClose={() => setOpen(false)} onSave={handleSave} />
     </div>
   );
 };

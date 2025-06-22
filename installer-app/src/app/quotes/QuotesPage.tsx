@@ -1,36 +1,39 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
-import QuoteFormModal, {
-  QuoteData,
-} from "../../components/modals/QuoteFormModal";
+import QuoteFormModal, { QuoteData } from "../../components/modals/QuoteFormModal";
 import { useJobs } from "../../lib/hooks/useJobs";
-
-const initialQuotes: QuoteData[] = [
-  { id: "1", client: "Acme Clinic", lines: [], total: 1500 },
-  { id: "2", client: "Beta Labs", lines: [], total: 2300 },
-];
+import useQuotes from "../../lib/hooks/useQuotes";
 
 const QuotesPage: React.FC = () => {
-  const [quotes, setQuotes] = useState(
-    initialQuotes.map((q) => ({ ...q, status: "pending" })) as (QuoteData & {
-      status: string;
-    })[],
-  );
+  const [quotes, { createQuote, updateQuote, deleteQuote }] = useQuotes();
   const [active, setActive] = useState<
     (QuoteData & { status?: string }) | null
   >(null);
   const [open, setOpen] = useState(false);
   const { createJob } = useJobs();
 
-  const handleSave = (data: QuoteData) => {
+  const handleSave = async (data: QuoteData) => {
     if (data.id) {
-      setQuotes((qs) =>
-        qs.map((q) => (q.id === data.id ? { ...q, ...data } : q)),
-      );
+      await updateQuote(data.id, {
+        client_id: data.client_id,
+        items: data.lines.map((l) => ({
+          description: l.material,
+          quantity: l.qty,
+          unit_price: l.price,
+          total: l.qty * l.price,
+        })),
+      });
     } else {
-      const id = Date.now().toString();
-      setQuotes((qs) => [...qs, { ...data, id, status: "pending" }]);
+      await createQuote({
+        client_id: data.client_id,
+        items: data.lines.map((l) => ({
+          description: l.material,
+          quantity: l.qty,
+          unit_price: l.price,
+          total: l.qty * l.price,
+        })),
+      });
     }
     setOpen(false);
     setActive(null);
@@ -40,13 +43,17 @@ const QuotesPage: React.FC = () => {
     const quote = quotes.find((q) => q.id === id);
     if (!quote) return;
     await createJob({
-      clinic_name: quote.client,
+      clinic_name: quote.client_name ?? "",
       contact_name: "",
       contact_phone: "",
+      quote_id: quote.id,
     });
-    setQuotes((qs) =>
-      qs.map((q) => (q.id === id ? { ...q, status: "approved" } : q)),
-    );
+    await updateQuote(id, {
+      client_id: quote.client_id ?? "",
+      status: "approved",
+      title: quote.title ?? null,
+      items: [],
+    });
   };
 
   return (
@@ -66,15 +73,15 @@ const QuotesPage: React.FC = () => {
       <SZTable headers={["Client", "Total", "Status", "Actions"]}>
         {quotes.map((q) => (
           <tr key={q.id} className="border-t">
-            <td className="p-2 border">{q.client}</td>
+            <td className="p-2 border">{q.client_name}</td>
             <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
-            <td className="p-2 border">{(q as any).status}</td>
+            <td className="p-2 border">{q.status}</td>
             <td className="p-2 border space-x-2">
-              {(q as any).status === "pending" && (
+              {q.status === "draft" || q.status === "pending" ? (
                 <SZButton size="sm" onClick={() => approve(q.id!)}>
                   Approve
                 </SZButton>
-              )}
+              ) : null}
               <SZButton
                 size="sm"
                 variant="secondary"
@@ -84,6 +91,13 @@ const QuotesPage: React.FC = () => {
                 }}
               >
                 Edit
+              </SZButton>
+              <SZButton
+                size="sm"
+                variant="destructive"
+                onClick={() => deleteQuote(q.id)}
+              >
+                Delete
               </SZButton>
             </td>
           </tr>

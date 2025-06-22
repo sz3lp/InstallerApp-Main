@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../installer/components/ModalWrapper";
 import { SZInput } from "../ui/SZInput";
 import { SZButton } from "../ui/SZButton";
+import useClinics from "../../lib/hooks/useClinics";
 
 export interface ServiceLine {
   id: string;
@@ -12,7 +13,8 @@ export interface ServiceLine {
 
 export interface QuoteData {
   id?: string;
-  client: string;
+  client_id: string;
+  client_name?: string;
   lines: ServiceLine[];
   total?: number;
 }
@@ -24,7 +26,7 @@ export type QuoteFormModalProps = {
   initialData?: QuoteData | null;
 };
 
-const mockClients = ["Acme Clinic", "Beta Labs"];
+
 
 const blankLine: ServiceLine = { id: "", material: "", qty: 1, price: 0 };
 
@@ -34,17 +36,18 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [client, setClient] = useState("");
+  const [clinics] = useClinics();
+  const [clientId, setClientId] = useState("");
   const [lines, setLines] = useState<ServiceLine[]>([{ ...blankLine }]);
 
   useEffect(() => {
     if (initialData) {
-      setClient(initialData.client);
+      setClientId(initialData.client_id);
       setLines(
         initialData.lines.length ? initialData.lines : [{ ...blankLine }],
       );
     } else {
-      setClient("");
+      setClientId("");
       setLines([{ ...blankLine }]);
     }
   }, [initialData]);
@@ -68,7 +71,8 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
   const total = lines.reduce((sum, l) => sum + l.qty * l.price, 0);
 
   const handleSave = () => {
-    onSave({ id: initialData?.id, client, lines, total });
+    const clinic = clinics.find((c) => c.id === clientId);
+    onSave({ id: initialData?.id, client_id: clientId, client_name: clinic?.name, lines, total });
   };
 
   return (
@@ -87,13 +91,13 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
           <select
             id="quote_client"
             className="border rounded px-3 py-2 w-full"
-            value={client}
-            onChange={(e) => setClient(e.target.value)}
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
           >
             <option value="">Select</option>
-            {mockClients.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {clinics.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
           </select>

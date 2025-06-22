@@ -9,6 +9,7 @@ export interface Job {
   assigned_to: string | null;
   status: string;
   created_at: string;
+  quote_id?: string | null;
 }
 
 export function useJobs() {
@@ -21,7 +22,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from<Job>("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at",
+        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -39,7 +40,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from<Job>("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at",
+        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
       )
       .eq("assigned_to", userId)
       .order("created_at", { ascending: false });
@@ -54,7 +55,11 @@ export function useJobs() {
   }, []);
 
   const createJob = useCallback(
-    async (job: Omit<Job, "id" | "status" | "assigned_to" | "created_at">) => {
+    async (
+      job: Omit<Job, "id" | "status" | "assigned_to" | "created_at"> & {
+        quote_id?: string;
+      },
+    ) => {
       const { data, error } = await supabase
         .from<Job>("jobs")
         .insert({ ...job })
@@ -81,6 +86,42 @@ export function useJobs() {
 
   const updateStatus = async (jobId: string, newStatus: string) => {
     await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
+
+    if (newStatus === "complete") {
+      const { data: job } = await supabase
+        .from("jobs")
+        .select("id, quote_id")
+        .eq("id", jobId)
+        .single();
+      if (job?.quote_id) {
+        const { data: quote } = await supabase
+          .from("quotes")
+          .select("id, client_id, quote_items(quantity, unit_price, total)")
+          .eq("id", job.quote_id)
+          .single();
+        if (quote) {
+          const total = (quote.quote_items ?? []).reduce(
+            (s: number, it: any) => s + (it.total ?? it.quantity * it.unit_price),
+            0,
+          );
+          const { data: existing } = await supabase
+            .from("invoices")
+            .select("id")
+            .eq("job_id", jobId)
+            .maybeSingle();
+          if (!existing) {
+            await supabase.from("invoices").insert({
+              job_id: jobId,
+              quote_id: quote.id,
+              client_id: quote.client_id,
+              amount: total,
+              status: "unpaid",
+            });
+          }
+        }
+      }
+    }
+
     await fetchJobs();
   };
 
