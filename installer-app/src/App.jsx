@@ -16,18 +16,9 @@ import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
 import QAReviewPanel from "./app/manager/QAReviewPanel";
 import ManagerReview from "./app/manager/ManagerReview";
-import ArchivedJobsPage from "./app/manager/ArchivedJobsPage";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
-import ManagerReview from "./app/manager/ManagerReview";
-import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
-import ManagerReview from "./app/manager/ManagerReview";
-import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
-import ManagerReview from "./app/manager/ManagerReview";
-import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
-const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
-import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
@@ -63,7 +54,7 @@ const App = () => (
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
-
+            <Route path="/feedback" element={<FeedbackPage />} />
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -72,31 +63,26 @@ const App = () => (
           </Route>
 
           <Route element={<RequireRoleOutlet role="Manager" />}>
-            <Route path="/manager/review" element={<QAReviewPanel />} />
+            <Route path="/manager/qa" element={<QAReviewPanel />} />
+            <Route path="/manager/review" element={<ManagerReview />} />
           </Route>
-        <Route element={<RequireRoleOutlet role="Manager" />}>
-          <Route path="/manager/review" element={<ManagerReview />} />
-        </Route>
 
-        <Route
-          path="/manager/archived"
-          element={
-            <RequireRole role={["Manager", "Admin"]}>
-              <ArchivedJobsPage />
-            </RequireRole>
-          }
-        />
-
-
-        <Route
-          path="/archived"
-          element={
-            <RequireRole role={["Manager", "Admin"]}>
-              <ArchivedJobsPage />
-            </RequireRole>
-          }
-        />
-
+          <Route
+            path="/manager/archived"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <ArchivedJobsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/archived"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <ArchivedJobsPage />
+              </RequireRole>
+            }
+          />
 
           <Route
             path="/install-manager"
@@ -115,27 +101,10 @@ const App = () => (
             }
           />
           <Route
-          <Route
-            path="/crm/leads"
-            element={
-              <RequireRole role={["Sales", "Manager", "Admin"]}>
-                <LeadsPage />
-              </RequireRole>
-            }
-          />
             path="/install-manager/job/:id"
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <UnderConstructionPage />
-              </RequireRole>
-            }
-          />
-
-          <Route
-            path="/feedback"
-            element={
-              <RequireRole role={["Installer", "Manager", "Admin"]}>
-                <FeedbackPage />
               </RequireRole>
             }
           />
@@ -206,8 +175,8 @@ const App = () => (
           />
         </Routes>
       </Suspense>
-    </AuthProvider>
-  </Router>
+      </AuthProvider>
+    </Router>
 );
 
 export default App;
