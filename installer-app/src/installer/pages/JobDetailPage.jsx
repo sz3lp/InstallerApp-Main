@@ -1,19 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import InstallerChecklistWizard from "../components/InstallerChecklistWizard";
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import useInstallerAuth from "../hooks/useInstallerAuth";
 import DocumentViewerModal from "../components/DocumentViewerModal";
 import Header from "../components/Header";
 import SideDrawer from "../components/SideDrawer";
-import uploadDocument from "../../lib/uploadDocument";
 
 const JobDetailPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const { jobId } = useParams();
-  const navigate = useNavigate();
-  const [showWizard, setShowWizard] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
-  const startTimeRef = useRef(Date.now());
 
   const { installerId } = useInstallerAuth();
 
@@ -119,34 +114,6 @@ const JobDetailPage = () => {
     0,
   );
 
-  const handlePhotoUpload = async (file) => {
-    if (!file) return null;
-    try {
-      const doc = await uploadDocument(file);
-      setDocuments((d) => [...d, doc]);
-      if (!isTest) {
-        const { default: supabase } = await import(
-          "../../lib/supabaseClient"
-        );
-        await supabase
-          .from("jobs")
-          .update({ documents: [...documents, doc] })
-          .eq("id", jobId);
-      }
-      return doc;
-    } catch (err) {
-      console.error("Upload failed", err);
-      return null;
-    }
-  };
-
-  const submitChecklist = async (id, payload) => {
-    await fetch(`/api/jobs/${id}/checklist`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  };
 
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
@@ -163,22 +130,7 @@ const JobDetailPage = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
       <SideDrawer isOpen={showDrawer} onClose={handleDrawerClose} />
 
-      <InstallerChecklistWizard
-        isOpen={showWizard}
-        onClose={() => setShowWizard(false)}
-        onSubmit={async (data) => {
-          const uploaded = await handlePhotoUpload(data.photo);
-          await submitChecklist(jobId, {
-            installerId,
-            checklistResults: data,
-            photos: uploaded?.url ? [uploaded.url] : [],
-            timeStarted: new Date(startTimeRef.current).toISOString(),
-            timeCompleted: new Date().toISOString(),
-          });
-          navigate("/appointments");
-        }}
-        job={job}
-      />
+
 
       <DocumentViewerModal
         isOpen={showDocuments}
@@ -261,15 +213,12 @@ const JobDetailPage = () => {
         </div>
 
         <div className="absolute bottom-4 right-4 space-x-2">
-          <button
-            onClick={() => {
-              startTimeRef.current = Date.now();
-              setShowWizard(true);
-            }}
+          <Link
+            to={`/job/${jobId}/checklist`}
             className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"
           >
             Checklist
-          </button>
+          </Link>
           <button
             onClick={() => setShowDocuments(true)}
             className="bg-green-600 text-white px-4 py-2 rounded hover:opacity-90 active:scale-95"

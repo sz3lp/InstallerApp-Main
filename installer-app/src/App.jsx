@@ -4,6 +4,7 @@ import InstallerHomePage from "./installer/pages/InstallerHomePage";
 import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPage";
 import ActivityLogPage from "./app/activity/ActivityLogPage";
 import JobDetailPage from "./installer/pages/JobDetailPage";
+import InstallerChecklistWizard from "./installer/checklist/InstallerChecklistWizard";
 import IFIDashboard from "./installer/pages/IFIDashboard";
 import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/activity" element={<ActivityLogPage />} />
             <Route path="/ifi" element={<IFIDashboard />} />
             <Route path="/job/:jobId" element={<JobDetailPage />} />
+            <Route path="/job/:jobId/checklist/*" element={<InstallerChecklistWizard />} />
             <Route path="/mock-jobs" element={<MockJobsPage />} />
             <Route path="/installer" element={<InstallerDashboard />} />
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
