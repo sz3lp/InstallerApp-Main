@@ -73,6 +73,7 @@ export function MaterialUsage({ jobId }: { jobId: string }) {
 }
 
 
+
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useAuth();
@@ -129,7 +130,6 @@ const InstallerJobPage: React.FC = () => {
           </p>
         )}
       </SZCard>
-
 
 
       <MaterialUsage jobId={id || ""} />

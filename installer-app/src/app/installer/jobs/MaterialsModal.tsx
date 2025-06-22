@@ -11,6 +11,7 @@ import { SZModal } from "../../../components/ui/SZModal";
 import { SZTable } from "../../../components/ui/SZTable";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 
+
 export type MaterialsModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -26,9 +27,6 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
   const { session } = useAuth();
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
-
-
-
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
   const { items, fetchItems } = useJobMaterials(jobId || "");
