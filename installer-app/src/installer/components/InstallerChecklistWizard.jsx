@@ -1,5 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useChecklist } from "../../lib/hooks/useChecklist";
+import { useJobs } from "../../lib/hooks/useJobs";
 
 const inventoryList = [
   "PIR Motion Detector",
@@ -10,6 +12,15 @@ const inventoryList = [
 
 const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
   const [step, setStep] = useState(0);
+  const { items, toggleItem } = useChecklist(job?.id || "");
+  const { updateStatus } = useJobs();
+
+  // Jump to the first incomplete step when loading existing checklist items
+  useEffect(() => {
+    if (!items.length) return;
+    const idx = items.findIndex((i) => !i.completed);
+    setStep(idx === -1 ? items.length : idx);
+  }, [items]);
   const [photos, setPhotos] = useState({});
   const handlePhotoUpload = (stepId, file) => {
     setPhotos((prev) => ({ ...prev, [stepId]: file }));
@@ -96,12 +107,22 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
     return true;
   };
 
-  const nextStep = () => {
-    if (stepValid()) setStep((prev) => prev + 1);
+  const nextStep = async () => {
+    if (!stepValid()) return;
+    const item = items[step];
+    if (item && !item.completed) {
+      await toggleItem(item.id, true);
+    }
+    setStep((prev) => prev + 1);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!stepValid()) return;
+    const item = items[step];
+    if (item && !item.completed) {
+      await toggleItem(item.id, true);
+    }
+    if (job?.id) await updateStatus(job.id, "needs_qa");
     onSubmit({
       customerPresent,
       absenceReason,
@@ -320,7 +341,6 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
           </div>
         )}
 
-        {/* Update step === 2 to include step photo upload and step === 3 to remove separate photo */}
         {/* Buttons */}
         <div className="flex justify-between mt-6">
           {step > 0 ? (
