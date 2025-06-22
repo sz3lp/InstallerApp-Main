@@ -6,6 +6,11 @@ import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 import useAuth from "../../../lib/hooks/useAuth";
 import uploadDocument from "../../../lib/uploadDocument";
 import supabase from "../../../lib/supabaseClient";
+import React from "react";
+import { SZModal } from "../../../components/ui/SZModal";
+import { SZTable } from "../../../components/ui/SZTable";
+import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
+
 
 export type MaterialsModalProps = {
   isOpen: boolean;
@@ -18,9 +23,11 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
   onClose,
   jobId,
 }) => {
+
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
-
+  const { items, fetchItems } = useJobMaterials(jobId || "");
+  const { session } = useAuth();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [saving, setSaving] = useState(false);
@@ -118,6 +125,36 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           ))}
         </SZTable>
       )}
+
+
+      )}
+
+
+      )}
+
+      )
+       
+  const { items, updateUsed } = useJobMaterials(jobId || "");
+
+  return (
+    <SZModal isOpen={isOpen} onClose={onClose} title="Log Materials Used">
+      <SZTable headers={["Material", "Qty", "Used"]}>
+        {items.map((m) => (
+          <tr key={m.id} className="border-t">
+            <td className="p-2 border">{m.material_id}</td>
+            <td className="p-2 border text-right">{m.quantity}</td>
+            <td className="p-2 border">
+              <input
+                type="number"
+                value={m.used_quantity}
+                className="border rounded px-2 py-1 w-16"
+                onChange={(e) => updateUsed(m.id, Number(e.target.value))}
+              />
+            </td>
+          </tr>
+        ))}
+      </SZTable>
+
     </SZModal>
   );
 };

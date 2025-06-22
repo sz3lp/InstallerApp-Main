@@ -9,6 +9,71 @@ import InstallerChecklistWizard from "../../../components/InstallerChecklistWiza
 import DocumentViewerModal from "../../../installer/components/DocumentViewerModal";
 import supabase from "../../../lib/supabaseClient";
 
+export function MaterialUsage({ jobId }: { jobId: string }) {
+  const { session } = useAuth();
+  const [materials, setMaterials] = useState<any[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [qty, setQty] = useState<number>(1);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("installer_inventory")
+        .select("material_id, quantity, material(name)")
+        .eq("installer_id", session?.user?.id);
+      setMaterials(data ?? []);
+    };
+    if (session?.user?.id) fetch();
+  }, [session]);
+
+  const logUsage = async () => {
+    if (!selected || !qty) return;
+    await supabase.from("job_materials_used").insert({
+      job_id: jobId,
+      material_id: selected,
+      quantity: qty,
+      installer_id: session?.user?.id,
+      used_at: new Date().toISOString(),
+    });
+
+    await supabase.rpc("decrement_inventory", {
+      installer_id_input: session?.user?.id,
+      material_id_input: selected,
+      amount: qty,
+    });
+
+    alert("Usage logged");
+  };
+
+  return (
+    <div className="space-y-2">
+      <label htmlFor="material">Material</label>
+      <select
+        id="material"
+        value={selected ?? ""}
+        onChange={(e) => setSelected(e.target.value)}
+        className="border p-1 rounded"
+      >
+        <option value="">Select Material</option>
+        {materials.map((m) => (
+          <option key={m.material_id} value={m.material_id}>
+            {m.material.name} — {m.quantity} in stock
+          </option>
+        ))}
+      </select>
+      <input
+        type="number"
+        value={qty}
+        min={1}
+        className="border p-1 w-24"
+        onChange={(e) => setQty(parseInt(e.target.value))}
+      />
+      <SZButton onClick={logUsage}>Log Usage</SZButton>
+    </div>
+  );
+}
+
+
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useAuth();
@@ -65,6 +130,21 @@ const InstallerJobPage: React.FC = () => {
           </p>
         )}
       </SZCard>
+
+
+
+      <MaterialUsage jobId={id || ""} />
+
+
+
+      <MaterialUsage jobId={id || ""} />
+
+
+
+      <MaterialUsage jobId={id || ""} />
+
+
+
 
       <div className="flex flex-wrap gap-2">
         <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>
