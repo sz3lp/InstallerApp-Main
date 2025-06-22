@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ModalWrapper from '../components/ModalWrapper';
+import ModalWrapper from './ModalWrapper';
 
 const checklistItems = [
   'Mount hardware',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import MockJobsPage from '../installer/pages/MockJobsPage';
+import MockJobsPage from '../app/installer/jobs/MockJobsPage';
 
 test('lists mock jobs', () => {
   render(
