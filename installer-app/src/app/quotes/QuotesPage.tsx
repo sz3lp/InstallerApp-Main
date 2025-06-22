@@ -4,6 +4,7 @@ import { SZTable } from "../../components/ui/SZTable";
 import QuoteFormModal, {
   QuoteData,
 } from "../../components/modals/QuoteFormModal";
+import { useJobs } from "../../lib/hooks/useJobs";
 
 const initialQuotes: QuoteData[] = [
   { id: "1", client: "Acme Clinic", lines: [], total: 1500 },
@@ -20,6 +21,7 @@ const QuotesPage: React.FC = () => {
     (QuoteData & { status?: string }) | null
   >(null);
   const [open, setOpen] = useState(false);
+  const { createJob } = useJobs();
 
   const handleSave = (data: QuoteData) => {
     if (data.id) {
@@ -34,11 +36,17 @@ const QuotesPage: React.FC = () => {
     setActive(null);
   };
 
-  const approve = (id: string) => {
+  const approve = async (id: string) => {
+    const quote = quotes.find((q) => q.id === id);
+    if (!quote) return;
+    await createJob({
+      clinic_name: quote.client,
+      contact_name: "",
+      contact_phone: "",
+    });
     setQuotes((qs) =>
       qs.map((q) => (q.id === id ? { ...q, status: "approved" } : q)),
     );
-    console.log("createJobFromQuote", id);
   };
 
   return (

@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { navLinks } from '../../navConfig';
+import { useAuth } from '../../lib/hooks/useAuth';
 
 const SideDrawer = ({ isOpen, onClose }) => {
+  const { role } = useAuth();
   if (!isOpen) return null;
   return (
     <>
@@ -15,7 +17,9 @@ const SideDrawer = ({ isOpen, onClose }) => {
           Close
         </button>
         <ul className="space-y-2">
-          {navLinks.map((link) => (
+          {navLinks
+            .filter((link) => !link.roles || link.roles.includes(role))
+            .map((link) => (
             <li key={link.path}>
               {link.path.startsWith('/') ? (
                 <NavLink
