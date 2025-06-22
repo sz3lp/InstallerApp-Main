@@ -17,7 +17,7 @@ This document compares the current repository implementation against the canonic
 | Inventory | 7 | Install Manager receives low‑stock alerts | ❌ | No alert system |
 | Inventory | 8 | Installer views materials for assigned jobs | ✅ | `JobDetailPage` shows job materials |
 | Inventory | 9 | Install Manager adjusts on‑hand quantities after jobs | ⚠️ | Materials usage tracked per job but no global inventory update |
-| Quoting & Job Creation | 10 | Sales Rep creates client lead | ✅ | `ClientsPage` creates clinics via Supabase |
+| Quoting & Job Creation | 10 | Sales Rep creates client lead | ✅ | `ClientsPage` creates clients via Supabase |
 | Quoting & Job Creation | 11 | Sales Rep selects rooms & sensors per room | ⚠️ | Quote form and job builder allow manual entry only |
 | Quoting & Job Creation | 12 | Pricing rules/margins applied | ❌ | No pricing logic |
 | Quoting & Job Creation | 13 | Sales Manager reviews and approves quotes | ⚠️ | Approve button only updates local state |

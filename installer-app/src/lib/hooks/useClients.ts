@@ -9,70 +9,70 @@ export interface Client {
   address: string;
 }
 
-export function useClinics() {
-  const [clinics, setClinics] = useState<Client[]>([]);
+export function useClients() {
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClinics = useCallback(async () => {
+  const fetchClients = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from<Client>("clinics")
+      .from<Client>("clients")
       .select("id, name, contact_name, contact_email, address")
       .order("name", { ascending: true });
     if (error) {
       setError(error.message);
-      setClinics([]);
+      setClients([]);
     } else {
-      setClinics(data ?? []);
+      setClients(data ?? []);
       setError(null);
     }
     setLoading(false);
   }, []);
 
-  const createClinic = useCallback(async (clinic: Omit<Client, "id">) => {
+  const createClient = useCallback(async (client: Omit<Client, "id">) => {
     const { data, error } = await supabase
-      .from<Client>("clinics")
-      .insert(clinic)
+      .from<Client>("clients")
+      .insert(client)
       .select()
       .single();
     if (error) throw error;
-    setClinics((cs) => [...cs, data]);
+    setClients((cs) => [...cs, data]);
     return data;
   }, []);
 
-  const updateClinic = useCallback(async (id: string, clinic: Omit<Client, "id">) => {
+  const updateClient = useCallback(async (id: string, client: Omit<Client, "id">) => {
     const { data, error } = await supabase
-      .from<Client>("clinics")
-      .update(clinic)
+      .from<Client>("clients")
+      .update(client)
       .eq("id", id)
       .select()
       .single();
     if (error) throw error;
-    setClinics((cs) => cs.map((c) => (c.id === id ? data : c)));
+    setClients((cs) => cs.map((c) => (c.id === id ? data : c)));
     return data;
   }, []);
 
-  const deleteClinic = useCallback(async (id: string) => {
-    const { error } = await supabase.from("clinics").delete().eq("id", id);
+  const deleteClient = useCallback(async (id: string) => {
+    const { error } = await supabase.from("clients").delete().eq("id", id);
     if (error) throw error;
-    setClinics((cs) => cs.filter((c) => c.id !== id));
+    setClients((cs) => cs.filter((c) => c.id !== id));
   }, []);
 
   useEffect(() => {
-    fetchClinics();
-  }, [fetchClinics]);
+    fetchClients();
+  }, [fetchClients]);
 
   return [
-    clinics,
+    clients,
     {
       loading,
       error,
-      createClinic,
-      updateClinic,
-      deleteClinic,
+      createClient,
+      updateClient,
+      deleteClient,
     },
   ] as const;
 }
 
-export default useClinics;
+export default useClients;

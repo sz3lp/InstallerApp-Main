@@ -12,7 +12,7 @@ jest.mock('../lib/supabaseClient', () => ({
 }));
 
 const supabase = require('../lib/supabaseClient').default;
-const useClinics = require('../lib/hooks/useClinics').default;
+const useClients = require('../lib/hooks/useClients').default;
 
 beforeEach(() => {
   mockFrom.mockImplementation(() => ({
@@ -35,18 +35,18 @@ function flush() {
   return new Promise(process.nextTick);
 }
 
-test('fetches clinics on load', async () => {
-  const { result } = renderHook(() => useClinics());
+test('fetches clients on load', async () => {
+  const { result } = renderHook(() => useClients());
   await act(async () => { await flush(); });
-  expect(mockFrom).toHaveBeenCalledWith('clinics');
+  expect(mockFrom).toHaveBeenCalledWith('clients');
   expect(result.current[0].length).toBe(1);
 });
 
-test('createClinic calls insert', async () => {
-  const { result } = renderHook(() => useClinics());
+test('createClient calls insert', async () => {
+  const { result } = renderHook(() => useClients());
   await act(async () => { await flush(); });
   await act(async () => {
-    await result.current[1].createClinic({ name: 'New', contact_name: 'n', contact_email: 'n@example.com', address: 'B' });
+    await result.current[1].createClient({ name: 'New', contact_name: 'n', contact_email: 'n@example.com', address: 'B' });
   });
   expect(mockInsert).toHaveBeenCalled();
 });
