@@ -16,6 +16,19 @@ import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/manager/ArchivedJobsPage";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+import InventoryPage from "./app/installer/InventoryPage";
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+
+
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+import JobHistoryPage from "./app/installer/JobHistoryPage";
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
+import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
@@ -29,6 +42,7 @@ const PaymentsPage = lazy(() => import("./app/payments/PaymentsPage"));
 const MessagesPanel = lazy(() => import("./app/messages/MessagesPanel"));
 const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPanel"));
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
+const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
 const App = () => (
   <Router>
@@ -48,6 +62,9 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
+            <Route path="/installer/inventory" element={<InventoryPage />} />
+            <Route path="/installer/history" element={<JobHistoryPage />} />
+
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -61,6 +78,14 @@ const App = () => (
 
         <Route
           path="/manager/archived"
+          element={
+            <RequireRole role={["Manager", "Admin"]}>
+              <ArchivedJobsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/archived"
           element={
             <RequireRole role={["Manager", "Admin"]}>
               <ArchivedJobsPage />
@@ -85,6 +110,14 @@ const App = () => (
             }
           />
           <Route
+          <Route
+            path="/crm/leads"
+            element={
+              <RequireRole role={["Sales", "Manager", "Admin"]}>
+                <LeadsPage />
+              </RequireRole>
+            }
+          />
             path="/install-manager/job/:id"
             element={
               <RequireRole role={["Manager", "Admin"]}>
@@ -107,6 +140,14 @@ const App = () => (
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <ClientsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/crm/leads"
+            element={
+              <RequireRole role={["Sales", "Manager", "Admin"]}>
+                <LeadsPage />
               </RequireRole>
             }
           />
