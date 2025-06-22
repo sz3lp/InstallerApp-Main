@@ -10,17 +10,21 @@ export async function getUserRole(userId: string): Promise<string | null> {
     {
       headers: {
         apikey: SUPABASE_ANON_KEY,
-        Authorization: session ? `Bearer ${session.access_token}` : undefined,
-        Accept: 'application/json',
-      },
-    }
-  );
+        Authorization: session ? `Bearer ${session.access_token}` : undefined,import supabase from "./supabaseClient";
 
-  if (!res.ok) {
-    console.error('Failed to fetch user role', await res.text());
+export async function getUserRole(userId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Failed to fetch user role", error);
     return null;
   }
 
-  const data = await res.json();
-  return data?.[0]?.role ?? null;
+  return data?.role ?? null;
 }
+
+     
