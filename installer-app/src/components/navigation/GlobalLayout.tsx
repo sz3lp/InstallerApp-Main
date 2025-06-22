@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Breadcrumbs from "./Breadcrumbs";
+import OnboardingPanel from "../onboarding/OnboardingPanel";
 
 const GlobalLayout: React.FC = () => {
   const [open, setOpen] = useState(true);
@@ -25,6 +26,7 @@ const GlobalLayout: React.FC = () => {
         <Header onToggleSidebar={toggle} />
         <Breadcrumbs />
         <main className="flex-1 overflow-y-auto p-4 bg-gray-100">
+          <OnboardingPanel />
           <Outlet />
         </main>
       </div>

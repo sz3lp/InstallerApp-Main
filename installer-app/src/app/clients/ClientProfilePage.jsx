@@ -7,18 +7,23 @@ import { useJobs } from '../../lib/hooks/useJobs';
 import useInvoices from '../../lib/hooks/useInvoices';
 import usePayments from '../../lib/hooks/usePayments';
 import { SZTable } from '../../components/ui/SZTable';
+import { LoadingState, EmptyState, ErrorState } from '../../components/ui/state';
 
 export default function ClientProfilePage() {
   const { role } = useAuth();
   const { id } = useParams();
-  const [clients] = useClients();
-  const [quotes] = useQuotes();
-  const { jobs } = useJobs();
-  const [invoices] = useInvoices();
-  const [payments] = usePayments();
+  const [clients, { loading: clientsLoading, error: clientsError }] = useClients();
+  const [quotes, { loading: quotesLoading, error: quotesError }] = useQuotes();
+  const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
+  const [invoices, { loading: invoicesLoading, error: invoicesError }] = useInvoices();
+  const [payments, { loading: paymentsLoading, error: paymentsError }] = usePayments();
   const client = clients.find(c => c.id === id);
 
   if (!role) return null;
+  if (clientsLoading || quotesLoading || jobsLoading || invoicesLoading || paymentsLoading)
+    return <LoadingState type="detail" />;
+  if (clientsError || quotesError || jobsError || invoicesError || paymentsError)
+    return <ErrorState message={clientsError || quotesError || jobsError || invoicesError || paymentsError} />;
   if (!client) return <div className="p-4">Client not found</div>;
 
   const clientQuotes = quotes.filter(q => q.client_id === id);
@@ -36,49 +41,65 @@ export default function ClientProfilePage() {
       </div>
       <section>
         <h2 className="font-semibold">Quotes</h2>
-        <SZTable headers={["Title", "Status", "Total"]}>
-          {clientQuotes.map(q => (
-            <tr key={q.id} className="border-t">
-              <td className="p-2 border">{q.title}</td>
-              <td className="p-2 border">{q.status}</td>
-              <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
-            </tr>
-          ))}
-        </SZTable>
+        {clientQuotes.length === 0 ? (
+          <EmptyState title="No Quotes" />
+        ) : (
+          <SZTable headers={["Title", "Status", "Total"]}>
+            {clientQuotes.map(q => (
+              <tr key={q.id} className="border-t">
+                <td className="p-2 border">{q.title}</td>
+                <td className="p-2 border">{q.status}</td>
+                <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
+              </tr>
+            ))}
+          </SZTable>
+        )}
       </section>
       <section>
         <h2 className="font-semibold">Jobs</h2>
-        <SZTable headers={["Clinic", "Status"]}>
-          {clientJobs.map(j => (
-            <tr key={j.id} className="border-t">
-              <td className="p-2 border">{j.clinic_name}</td>
-              <td className="p-2 border">{j.status}</td>
-            </tr>
-          ))}
-        </SZTable>
+        {clientJobs.length === 0 ? (
+          <EmptyState title="No Jobs" />
+        ) : (
+          <SZTable headers={["Clinic", "Status"]}>
+            {clientJobs.map(j => (
+              <tr key={j.id} className="border-t">
+                <td className="p-2 border">{j.clinic_name}</td>
+                <td className="p-2 border">{j.status}</td>
+              </tr>
+            ))}
+          </SZTable>
+        )}
       </section>
       <section>
         <h2 className="font-semibold">Invoices</h2>
-        <SZTable headers={["Amount", "Status"]}>
-          {clientInvoices.map(i => (
-            <tr key={i.id} className="border-t">
-              <td className="p-2 border">${i.amount.toFixed(2)}</td>
-              <td className="p-2 border">{i.status}</td>
-            </tr>
-          ))}
-        </SZTable>
+        {clientInvoices.length === 0 ? (
+          <EmptyState title="No Invoices" />
+        ) : (
+          <SZTable headers={["Amount", "Status"]}>
+            {clientInvoices.map(i => (
+              <tr key={i.id} className="border-t">
+                <td className="p-2 border">${i.amount.toFixed(2)}</td>
+                <td className="p-2 border">{i.status}</td>
+              </tr>
+            ))}
+          </SZTable>
+        )}
       </section>
       <section>
         <h2 className="font-semibold">Payments</h2>
-        <SZTable headers={["Amount", "Method", "Date"]}>
-          {clientPayments.map(p => (
-            <tr key={p.id} className="border-t">
-              <td className="p-2 border">${p.amount.toFixed(2)}</td>
-              <td className="p-2 border">{p.method}</td>
-              <td className="p-2 border">{new Date(p.received_at).toLocaleDateString()}</td>
-            </tr>
-          ))}
-        </SZTable>
+        {clientPayments.length === 0 ? (
+          <EmptyState title="No Payments" />
+        ) : (
+          <SZTable headers={["Amount", "Method", "Date"]}>
+            {clientPayments.map(p => (
+              <tr key={p.id} className="border-t">
+                <td className="p-2 border">${p.amount.toFixed(2)}</td>
+                <td className="p-2 border">{p.method}</td>
+                <td className="p-2 border">{new Date(p.received_at).toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </SZTable>
+        )}
       </section>
     </div>
   );

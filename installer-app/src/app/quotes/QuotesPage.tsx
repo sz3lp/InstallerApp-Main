@@ -4,9 +4,13 @@ import { SZTable } from "../../components/ui/SZTable";
 import QuoteFormModal, { QuoteData } from "../../components/modals/QuoteFormModal";
 import { useJobs } from "../../lib/hooks/useJobs";
 import useQuotes from "../../lib/hooks/useQuotes";
+import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
 
 const QuotesPage: React.FC = () => {
-  const [quotes, { createQuote, updateQuote, deleteQuote }] = useQuotes();
+  const [
+    quotes,
+    { loading, error, fetchQuotes, createQuote, updateQuote, deleteQuote },
+  ] = useQuotes();
   const [active, setActive] = useState<
     (QuoteData & { status?: string }) | null
   >(null);
@@ -70,39 +74,54 @@ const QuotesPage: React.FC = () => {
           New Quote
         </SZButton>
       </div>
-      <SZTable headers={["Client", "Total", "Status", "Actions"]}>
-        {quotes.map((q) => (
-          <tr key={q.id} className="border-t">
-            <td className="p-2 border">{q.client_name}</td>
-            <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
-            <td className="p-2 border">{q.status}</td>
-            <td className="p-2 border space-x-2">
-              {q.status === "draft" || q.status === "pending" ? (
-                <SZButton size="sm" onClick={() => approve(q.id!)}>
-                  Approve
+      {loading && <LoadingState type="list" />}
+      {error && <ErrorState message={error} onRetry={fetchQuotes} />}
+      {!loading && !error && quotes.length === 0 && (
+        <EmptyState
+          title="No Quotes Found"
+          description="You haven\u2019t created any quotes yet."
+          actionLabel="Create Quote"
+          onAction={() => {
+            setActive(null);
+            setOpen(true);
+          }}
+        />
+      )}
+      {!loading && !error && quotes.length > 0 && (
+        <SZTable headers={["Client", "Total", "Status", "Actions"]}>
+          {quotes.map((q) => (
+            <tr key={q.id} className="border-t">
+              <td className="p-2 border">{q.client_name}</td>
+              <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
+              <td className="p-2 border">{q.status}</td>
+              <td className="p-2 border space-x-2">
+                {q.status === "draft" || q.status === "pending" ? (
+                  <SZButton size="sm" onClick={() => approve(q.id!)}>
+                    Approve
+                  </SZButton>
+                ) : null}
+                <SZButton
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setActive(q);
+                    setOpen(true);
+                  }}
+                >
+                  Edit
                 </SZButton>
-              ) : null}
-              <SZButton
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  setActive(q);
-                  setOpen(true);
-                }}
-              >
-                Edit
-              </SZButton>
-              <SZButton
-                size="sm"
-                variant="destructive"
-                onClick={() => deleteQuote(q.id)}
-              >
-                Delete
-              </SZButton>
-            </td>
-          </tr>
-        ))}
-      </SZTable>
+                <SZButton
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => deleteQuote(q.id)}
+                >
+                  Delete
+                </SZButton>
+              </td>
+            </tr>
+          ))}
+        </SZTable>
+      )}
       <QuoteFormModal
         isOpen={open}
         onClose={() => setOpen(false)}

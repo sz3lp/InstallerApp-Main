@@ -3,9 +3,13 @@ import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
+import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
 
 const InvoicesPage: React.FC = () => {
-  const [invoices, { createInvoice, updateInvoice }] = useInvoices();
+  const [
+    invoices,
+    { loading, error, fetchInvoices, createInvoice, updateInvoice },
+  ] = useInvoices();
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
   const [open, setOpen] = useState(false);
 
@@ -46,23 +50,30 @@ const InvoicesPage: React.FC = () => {
           </SZButton>
         </div>
       </div>
-      <SZTable headers={["Invoice", "Client", "Amount", "Status", "Actions"]}>
-        {filtered.map((inv) => (
-          <tr key={inv.id} className="border-t">
-            <td className="p-2 border">{inv.id}</td>
-            <td className="p-2 border">{inv.client_name}</td>
-            <td className="p-2 border">${inv.amount.toFixed(2)}</td>
-            <td className="p-2 border">{inv.status}</td>
-            <td className="p-2 border">
-              {inv.status !== "paid" && (
-                <SZButton size="sm" onClick={() => markPaid(inv.id)}>
-                  Mark Paid
-                </SZButton>
-              )}
-            </td>
-          </tr>
-        ))}
-      </SZTable>
+      {loading && <LoadingState type="list" />}
+      {error && <ErrorState message={error} onRetry={fetchInvoices} />}
+      {!loading && !error && filtered.length === 0 && (
+        <EmptyState title="No Invoices" description="No invoices found for this filter." />
+      )}
+      {!loading && !error && filtered.length > 0 && (
+        <SZTable headers={["Invoice", "Client", "Amount", "Status", "Actions"]}>
+          {filtered.map((inv) => (
+            <tr key={inv.id} className="border-t">
+              <td className="p-2 border">{inv.id}</td>
+              <td className="p-2 border">{inv.client_name}</td>
+              <td className="p-2 border">${inv.amount.toFixed(2)}</td>
+              <td className="p-2 border">{inv.status}</td>
+              <td className="p-2 border">
+                {inv.status !== "paid" && (
+                  <SZButton size="sm" onClick={() => markPaid(inv.id)}>
+                    Mark Paid
+                  </SZButton>
+                )}
+              </td>
+            </tr>
+          ))}
+        </SZTable>
+      )}
       <InvoiceFormModal isOpen={open} onClose={() => setOpen(false)} onSave={handleSave} />
     </div>
   );
