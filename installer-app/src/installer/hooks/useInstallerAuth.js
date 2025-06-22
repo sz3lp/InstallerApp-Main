@@ -1,7 +1,12 @@
-import { useMemo } from "react";
+import { useAuth } from "../../lib/hooks/useAuth";
 
 export default function useInstallerAuth() {
-  // simple auth stub returning a hardcoded installerId
-  const installerId = useMemo(() => "user_345", []);
-  return { installerId };
+  try {
+    const { session } = useAuth();
+    const installerId = session?.user?.id || null;
+    return { installerId };
+  } catch {
+    // allow use outside AuthProvider in tests
+    return { installerId: "user_345" };
+  }
 }

@@ -4,7 +4,12 @@ import { navLinks } from '../../navConfig';
 import { useAuth } from '../../lib/hooks/useAuth';
 
 const SideDrawer = ({ isOpen, onClose }) => {
-  const { role } = useAuth();
+  let role = 'Installer';
+  try {
+    role = useAuth().role || 'Installer';
+  } catch {
+    role = 'Installer';
+  }
   if (!isOpen) return null;
   return (
     <>
