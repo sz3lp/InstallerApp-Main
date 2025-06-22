@@ -1,392 +1,118 @@
-[
-  {
-    "table_name": "jobs",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "checklists",
-    "column_name": "job_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "checklists",
-    "column_name": "completed",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "users",
-    "column_name": "active",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "created_at",
-    "data_type": "timestamp without time zone"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "job_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "material_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "quantity",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "sale_price",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "unit_material_cost",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "unit_labor_cost",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "documents",
-    "column_name": "uploaded_at",
-    "data_type": "timestamp without time zone"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "date",
-    "data_type": "date"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "documents",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "due_date",
-    "data_type": "date"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "created_at",
-    "data_type": "timestamp without time zone"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "install_date",
-    "data_type": "date"
-  },
-  {
-    "table_name": "clinics",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "clinics",
-    "column_name": "name",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "installers",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "checklists",
-    "column_name": "timestamp",
-    "data_type": "timestamp without time zone"
-  },
-  {
-    "table_name": "documents",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "installers",
-    "column_name": "active",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "users",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "quantity",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "scheduled_date",
-    "data_type": "date"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "score",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "signature_captured",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "unit_labor_cost",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "unit_material_cost",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_checklists",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "job_checklists",
-    "column_name": "job_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "base_cost",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_checklists",
-    "column_name": "completed",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "checklists",
-    "column_name": "id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "sale_price",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "default_pay_rate",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "documents",
-    "column_name": "job_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "default_sale_price",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "job_checklists",
-    "column_name": "notes",
-    "data_type": "text"
-  },
-  {
-    "table_name": "checklists",
-    "column_name": "step_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "documents",
-    "column_name": "name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "documents",
-    "column_name": "url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "installers",
-    "column_name": "name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "installers",
-    "column_name": "email",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "email",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "full_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "role",
-    "data_type": "text"
-  },
-  {
-    "table_name": "job_materials",
-    "column_name": "install_location",
-    "data_type": "text"
-  },
-  {
-    "table_name": "clinics",
-    "column_name": "contact_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "clinics",
-    "column_name": "contact_email",
-    "data_type": "text"
-  },
-  {
-    "table_name": "clinics",
-    "column_name": "address",
-    "data_type": "text"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "sku",
-    "data_type": "text"
-  },
-  {
-    "table_name": "materials",
-    "column_name": "category",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "clinic_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "contact_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "contact_phone",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "status",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "address",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "assigned_to",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "type",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "checklist_status",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "client_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "contact_email",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "customer_name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "find",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "installer",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "issues",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "job_number",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "location",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "map",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "notes",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "photo",
-    "data_type": "text"
-  },
-  {
-    "table_name": "jobs",
-    "column_name": "public_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "job_checklists",
-    "column_name": "step_name",
-    "data_type": "text"
-  }
-]
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.checklists (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid,
+  step_name text,
+  completed boolean DEFAULT false,
+  timestamp timestamp without time zone DEFAULT now(),
+  CONSTRAINT checklists_pkey PRIMARY KEY (id),
+  CONSTRAINT checklists_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
+);
+CREATE TABLE public.clinics (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL DEFAULT gen_random_uuid(),
+  contact_name text,
+  contact_email text,
+  address text,
+  CONSTRAINT clinics_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.documents (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid,
+  name text,
+  url text,
+  uploaded_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT documents_pkey PRIMARY KEY (id),
+  CONSTRAINT documents_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
+);
+CREATE TABLE public.installers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  email text,
+  active boolean,
+  CONSTRAINT installers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.job_checklists (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  job_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  step_name text,
+  completed boolean,
+  notes text,
+  CONSTRAINT job_checklists_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.job_materials (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  job_id uuid NOT NULL,
+  material_id uuid NOT NULL,
+  quantity numeric NOT NULL DEFAULT 1,
+  sale_price numeric NOT NULL,
+  unit_material_cost numeric NOT NULL,
+  unit_labor_cost numeric NOT NULL,
+  install_location text,
+  created_at timestamp without time zone NOT NULL DEFAULT now(),
+  CONSTRAINT job_materials_pkey PRIMARY KEY (id),
+  CONSTRAINT job_materials_material_id_fkey FOREIGN KEY (material_id) REFERENCES public.materials(id),
+  CONSTRAINT job_materials_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
+);
+CREATE TABLE public.jobs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  clinic_name text,
+  contact_name text,
+  contact_phone text,
+  status text,
+  created_at timestamp without time zone DEFAULT now(),
+  address text,
+  assigned_to text,
+  type text,
+  checklist_status text,
+  client_name text,
+  contact_email text,
+  customer_name text,
+  date date,
+  documents jsonb,
+  due_date date,
+  find text,
+  install_date date,
+  installer text,
+  issues text,
+  job_number text,
+  location text,
+  map text,
+  notes text,
+  photo text,
+  public_url text,
+  quantity numeric,
+  scheduled_date date,
+  score numeric,
+  signature_captured boolean,
+  unit_labor_cost numeric,
+  unit_material_cost numeric,
+  CONSTRAINT jobs_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.materials (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  sku text,
+  base_cost numeric,
+  sale_price numeric,
+  default_pay_rate numeric,
+  category text,
+  default_sale_price numeric,
+  CONSTRAINT materials_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.user_roles (
+  user_id uuid NOT NULL,
+  role text NOT NULL CHECK (role = ANY (ARRAY['Installer'::text, 'Admin'::text, 'Manager'::text])),
+  CONSTRAINT user_roles_pkey PRIMARY KEY (user_id),
+  CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  email text NOT NULL DEFAULT ''::text UNIQUE,
+  full_name text,
+  role text DEFAULT 'TRUE'::text,
+  active boolean NOT NULL,
+  CONSTRAINT users_pkey PRIMARY KEY (id, active)
+);
