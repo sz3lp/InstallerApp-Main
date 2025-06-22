@@ -7,7 +7,7 @@ type AuthContextType = {
   user: any;
   role: string | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -21,10 +21,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session: active } } = await supabase.auth.getSession();
+      const {
+        data: { session: active },
+      } = await supabase.auth.getSession();
       let current = active;
       if (!current) {
-        const stored = localStorage.getItem("sb_session");
+        const stored =
+          localStorage.getItem("sb_session") ||
+          sessionStorage.getItem("sb_session");
         if (stored) current = JSON.parse(stored);
       }
       setSession(current);
@@ -40,12 +44,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const signIn = async (
+    email: string,
+    password: string,
+    remember: boolean = true
+  ) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) throw error;
     setSession(data.session);
     setUser(data.user);
-    localStorage.setItem("sb_session", JSON.stringify(data.session));
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem("sb_session", JSON.stringify(data.session));
     const role = await getUserRole(data.user.id);
     setRole(role);
   };
@@ -56,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setRole(null);
     localStorage.removeItem("sb_session");
+    sessionStorage.removeItem("sb_session");
   };
 
   return (
