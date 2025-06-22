@@ -128,6 +128,9 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
 
       )}
 
+
+      )}
+
       )
        
   const { items, updateUsed } = useJobMaterials(jobId || "");
