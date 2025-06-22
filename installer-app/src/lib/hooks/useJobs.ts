@@ -96,39 +96,8 @@ export function useJobs() {
   const updateStatus = async (jobId: string, newStatus: string) => {
     await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
 
-    if (newStatus === "complete") {
-      const { data: job } = await supabase
-        .from("jobs")
-        .select("id, quote_id")
-        .eq("id", jobId)
-        .single();
-      if (job?.quote_id) {
-        const { data: quote } = await supabase
-          .from("quotes")
-          .select("id, client_id, quote_items(quantity, unit_price, total)")
-          .eq("id", job.quote_id)
-          .single();
-        if (quote) {
-          const total = (quote.quote_items ?? []).reduce(
-            (s: number, it: any) => s + (it.total ?? it.quantity * it.unit_price),
-            0,
-          );
-          const { data: existing } = await supabase
-            .from("invoices")
-            .select("id")
-            .eq("job_id", jobId)
-            .maybeSingle();
-          if (!existing) {
-            await supabase.from("invoices").insert({
-              job_id: jobId,
-              quote_id: quote.id,
-              client_id: quote.client_id,
-              amount: total,
-              status: "unpaid",
-            });
-          }
-        }
-      }
+    if (newStatus === "ready_for_invoice") {
+      await supabase.rpc("generate_invoice_for_job", { p_job_id: jobId });
     }
 
     await fetchJobs();

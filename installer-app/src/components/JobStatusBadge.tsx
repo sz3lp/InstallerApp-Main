@@ -8,6 +8,7 @@ export type JobStatus =
   | "complete"
   | "rework"
   | "archived"
+  | "ready_for_invoice"
   | "unassigned";
 
 const statusMap: Record<
@@ -20,6 +21,7 @@ const statusMap: Record<
   complete: { label: "Complete", variant: "green" },
   rework: { label: "Rework", variant: "red" },
   archived: { label: "Archived", variant: "gray" },
+  ready_for_invoice: { label: "Ready for Invoice", variant: "purple" },
   unassigned: { label: "Unassigned", variant: "gray" },
 };
 
