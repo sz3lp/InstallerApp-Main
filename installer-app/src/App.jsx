@@ -36,10 +36,12 @@ const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPan
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
-const App = () => (
-  <Router>
-    <AuthProvider>
-      <Suspense fallback={<div>Loading...</div>}>
+const App = () => {
+  console.log('Rendering App with routing');
+  return (
+    <Router>
+      <AuthProvider>
+        <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
@@ -197,6 +199,7 @@ const App = () => (
       </Suspense>
       </AuthProvider>
     </Router>
-);
+  );
+};
 
 export default App;

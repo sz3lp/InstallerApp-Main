@@ -21,6 +21,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
+
+      console.log('Initializing auth...');
+
       const {
         data: { session: active },
       } = await supabase.auth.getSession();
@@ -36,10 +39,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (current?.user) {
         const role = await getUserRole(current.user.id);
         setRole(role);
+        console.log('Loaded role', role);
       } else {
         setRole(null);
       }
       setLoading(false);
+      console.log('Auth initialized', { session: current, role });
     };
     init();
   }, []);
@@ -49,6 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     remember: boolean = true
   ) => {
+
+    console.log('Attempting sign in', email);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -60,10 +68,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     storage.setItem("sb_session", JSON.stringify(data.session));
     const role = await getUserRole(data.user.id);
     setRole(role);
+    console.log('Signed in with role', role);
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    console.log('Signed out');
     setSession(null);
     setUser(null);
     setRole(null);

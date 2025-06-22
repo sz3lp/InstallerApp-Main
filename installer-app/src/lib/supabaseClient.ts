@@ -11,8 +11,9 @@ const supabaseAnonKey =
   process.env.VITE_SUPABASE_API_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase credentials', { supabaseUrl, supabaseAnonKey });
   throw new Error(
-    "Supabase environment variables are missing. Check your .env.local file."
+    'Supabase environment variables are missing. Check your .env.local file.'
   );
 }
 
