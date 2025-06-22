@@ -58,5 +58,11 @@ export const navLinks = [
     roles: ["Admin", "Manager"],
   },
   { path: "/reports", label: "Reports", roles: ["Admin", "Manager"] },
+  {
+    path: "/admin/reports/payments",
+    label: "Payment Reports",
+    roles: ["Admin", "Finance"],
+  },
+
   { path: "#", label: "MyLearning - SentientZone", roles: ["Installer"] },
 ];
