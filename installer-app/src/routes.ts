@@ -10,6 +10,7 @@ import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import AdminDashboard from "./app/admin/AdminDashboard";
+import AdminUserListPage from "./app/admin/users/AdminUserListPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
@@ -125,6 +126,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminDashboard),
     role: "Admin",
     label: "Admin Dashboard",
+  },
+  {
+    path: "/admin/users",
+    element: React.createElement(AdminUserListPage),
+    role: "Admin",
+    label: "User Management",
   },
   {
     path: "/admin/jobs/new",
