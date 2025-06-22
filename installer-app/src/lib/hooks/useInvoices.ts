@@ -6,7 +6,14 @@ export interface Invoice {
   job_id: string | null;
   quote_id: string | null;
   client_id: string | null;
-  amount: number;
+  subtotal: number;
+  discount_type: string | null;
+  discount_amount: number;
+  tax_rate: number;
+  tax_amount: number;
+  total_fees: number;
+  invoice_total: number;
+  amount: number; // alias for invoice_total for older components
   status: string;
   issued_at: string;
   due_date: string | null;
@@ -25,15 +32,17 @@ export function useInvoices() {
     const { data, error } = await supabase
       .from("invoices")
       .select(
-        "id, job_id, quote_id, client_id, amount, status, issued_at, due_date, paid_at, clients(name), jobs(clinic_name)"
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, status, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)"
       )
-      .order("issued_at", { ascending: false });
+      .order("invoice_date", { ascending: false });
     if (error) {
       setError(error.message);
       setInvoices([]);
     } else {
       const list = (data ?? []).map((i: any) => ({
         ...i,
+        issued_at: i.invoice_date,
+        amount: i.invoice_total,
         client_name: i.clients?.name ?? null,
         job_name: i.jobs?.clinic_name ?? null,
       }));
@@ -45,18 +54,25 @@ export function useInvoices() {
 
   const createInvoice = useCallback(
     async (
-      invoice: Omit<Invoice, "id" | "status" | "issued_at" | "paid_at" | "client_name" | "job_name"> & { status?: string }
+      invoice: Omit<Invoice, "id" | "issued_at" | "paid_at" | "client_name" | "job_name" | "amount"> & { status?: string }
     ) => {
+      const insertData = {
+        job_id: invoice.job_id ?? null,
+        quote_id: invoice.quote_id ?? null,
+        client_id: invoice.client_id ?? null,
+        subtotal: invoice.subtotal,
+        discount_type: invoice.discount_type,
+        discount_amount: invoice.discount_amount,
+        tax_rate: invoice.tax_rate,
+        tax_amount: invoice.tax_amount,
+        total_fees: invoice.total_fees,
+        invoice_total: invoice.invoice_total,
+        due_date: invoice.due_date ?? null,
+        status: invoice.status ?? "unpaid",
+      };
       const { data, error } = await supabase
         .from("invoices")
-        .insert({
-          job_id: invoice.job_id ?? null,
-          quote_id: invoice.quote_id ?? null,
-          client_id: invoice.client_id ?? null,
-          amount: invoice.amount,
-          due_date: invoice.due_date ?? null,
-          status: invoice.status ?? "unpaid",
-        })
+        .insert(insertData)
         .select()
         .single();
       if (error) throw error;
@@ -73,7 +89,7 @@ export function useInvoices() {
   const updateInvoice = useCallback(
     async (
       id: string,
-      invoice: Partial<Omit<Invoice, "id" | "issued_at" | "client_name" | "job_name">>
+      invoice: Partial<Omit<Invoice, "id" | "issued_at" | "client_name" | "job_name" | "amount">>
     ) => {
       const { data, error } = await supabase
         .from("invoices")

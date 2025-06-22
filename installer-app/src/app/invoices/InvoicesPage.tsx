@@ -34,7 +34,13 @@ const InvoicesPage: React.FC = () => {
       client_id: data.client_id,
       job_id: data.job_id ?? null,
       quote_id: data.quote_id ?? null,
-      amount: data.amount,
+      subtotal: data.subtotal,
+      discount_type: data.discount_type,
+      discount_amount: data.discount_amount,
+      tax_rate: data.tax_rate,
+      tax_amount: data.tax_amount,
+      total_fees: data.total_fees,
+      invoice_total: data.invoice_total,
       due_date: data.due_date ?? null,
     });
     setOpen(false);

@@ -34,7 +34,21 @@ export default function InvoiceBuilderPage() {
   if (role !== 'InstallManager' && role !== 'Admin') return <div className="p-4">Access denied</div>;
 
   const save = async () => {
-    await createInvoice({ job_id: jobId, client_id: clientId, amount: Number(amount), issued_at: new Date().toISOString(), status: 'draft' });
+    const amt = Number(amount);
+    await createInvoice({
+      job_id: jobId,
+      client_id: clientId,
+      quote_id: undefined,
+      subtotal: amt,
+      discount_type: 'flat',
+      discount_amount: 0,
+      tax_rate: 0,
+      tax_amount: 0,
+      total_fees: 0,
+      invoice_total: amt,
+      due_date: undefined,
+      status: 'draft'
+    });
     alert('Invoice saved');
   };
 
