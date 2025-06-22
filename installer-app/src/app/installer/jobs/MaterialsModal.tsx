@@ -13,6 +13,7 @@ import { SZTable } from "../../../components/ui/SZTable";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 
 
+
 export type MaterialsModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -124,6 +125,9 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
             </tr>
           ))}
         </SZTable>
+
+      )}
+
       )
        
   const { items, updateUsed } = useJobMaterials(jobId || "");
@@ -146,6 +150,7 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           </tr>
         ))}
       </SZTable>
+
 
     </SZModal>
   );

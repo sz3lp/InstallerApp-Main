@@ -32,6 +32,7 @@ const PaymentsPage = lazy(() => import("./app/payments/PaymentsPage"));
 const MessagesPanel = lazy(() => import("./app/messages/MessagesPanel"));
 const TimeTrackingPanel = lazy(() => import("./app/time-tracking/TimeTrackingPanel"));
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
+const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
 const App = () => (
   <Router>
@@ -53,7 +54,6 @@ const App = () => (
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
-
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -121,6 +121,14 @@ const App = () => (
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <ClientsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/crm/leads"
+            element={
+              <RequireRole role={["Sales", "Manager", "Admin"]}>
+                <LeadsPage />
               </RequireRole>
             }
           />
