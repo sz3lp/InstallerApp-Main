@@ -42,7 +42,7 @@ export default function usePaymentReport(filters: PaymentReportFilters) {
       if (filters.date?.end) query = query.lte('payment_date', filters.date.end);
       if (filters.method) query = query.eq('payment_method', filters.method);
       if (filters.client) query = query.eq('client_id', filters.client);
-      if (filters.status && filters.status.length > 0) query = query.in('invoices.status', filters.status);
+      if (filters.status && filters.status.length > 0) query = query.in('invoices.payment_status', filters.status);
       if (filters.amount?.min) query = query.gte('amount', Number(filters.amount.min));
       if (filters.amount?.max) query = query.lte('amount', Number(filters.amount.max));
       const { data, error } = await query;
@@ -60,7 +60,7 @@ export default function usePaymentReport(filters: PaymentReportFilters) {
           job_id: p.job_id,
           client_id: p.client_id,
           logged_by_user_id: p.logged_by_user_id,
-          invoice_status: p.invoices?.status ?? null,
+          invoice_status: p.invoices?.payment_status ?? null,
           invoice_amount: p.invoices?.amount ?? null,
           client_name: p.clients?.name ?? null,
           job_name: p.jobs?.name ?? null,

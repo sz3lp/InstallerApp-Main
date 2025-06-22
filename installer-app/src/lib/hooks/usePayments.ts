@@ -9,6 +9,7 @@ export interface Payment {
   amount: number;
   payment_method: string | null;
   reference_number: string | null;
+  note: string | null;
   payment_date: string;
   logged_by_user_id: string | null;
 }
@@ -23,7 +24,7 @@ export function usePayments(invoiceId?: string) {
     let query = supabase
       .from("payments")
       .select(
-        "id, invoice_id, job_id, client_id, amount, payment_method, reference_number, payment_date, logged_by_user_id",
+        "id, invoice_id, job_id, client_id, amount, payment_method, reference_number, note, payment_date, logged_by_user_id",
       )
       .order("payment_date", { ascending: false });
     if (invoiceId) query = query.eq("invoice_id", invoiceId);
@@ -78,7 +79,12 @@ export function usePayments(invoiceId?: string) {
         else if (totalPaid > 0) status = "partially_paid";
         await supabase
           .from("invoices")
-          .update({ status, paid_at: status === "paid" ? new Date().toISOString() : null })
+          .update({
+            payment_status: status,
+            amount_paid: totalPaid,
+            payment_method: payment.payment_method,
+            paid_at: status === "paid" ? new Date().toISOString() : null,
+          })
           .eq("id", payment.invoice_id);
       }
 

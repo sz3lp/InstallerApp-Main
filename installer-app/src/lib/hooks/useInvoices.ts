@@ -14,7 +14,9 @@ export interface Invoice {
   total_fees: number;
   invoice_total: number;
   amount: number; // alias for invoice_total for older components
-  status: string;
+  payment_status: string;
+  amount_paid: number;
+  payment_method: string | null;
   issued_at: string;
   due_date: string | null;
   paid_at: string | null;
@@ -32,7 +34,7 @@ export function useInvoices() {
     const { data, error } = await supabase
       .from("invoices")
       .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, status, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)"
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)"
       )
       .order("invoice_date", { ascending: false });
     if (error) {
@@ -45,6 +47,9 @@ export function useInvoices() {
         amount: i.invoice_total,
         client_name: i.clients?.name ?? null,
         job_name: i.jobs?.clinic_name ?? null,
+        amount_paid: i.amount_paid ?? 0,
+        payment_status: i.payment_status ?? "unpaid",
+        payment_method: i.payment_method ?? null,
       }));
       setInvoices(list);
       setError(null);
@@ -68,7 +73,9 @@ export function useInvoices() {
         total_fees: invoice.total_fees,
         invoice_total: invoice.invoice_total,
         due_date: invoice.due_date ?? null,
-        status: invoice.status ?? "unpaid",
+        payment_status: invoice.payment_status ?? "unpaid",
+        amount_paid: invoice.amount_paid ?? 0,
+        payment_method: invoice.payment_method ?? null,
       };
       const { data, error } = await supabase
         .from("invoices")
@@ -80,6 +87,9 @@ export function useInvoices() {
         ...data,
         client_name: (data as any).clients?.name ?? null,
         job_name: (data as any).jobs?.clinic_name ?? null,
+        amount_paid: (data as any).amount_paid ?? 0,
+        payment_status: (data as any).payment_status ?? "unpaid",
+        payment_method: (data as any).payment_method ?? null,
       }, ...list]);
       return data as Invoice;
     },

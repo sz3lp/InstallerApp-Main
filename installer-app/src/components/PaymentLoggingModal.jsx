@@ -22,9 +22,10 @@ export default function PaymentLoggingModal({ invoiceId = null, jobId = null, cl
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('Cash');
   const [reference, setReference] = useState('');
+  const [note, setNote] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
 
-  if (!['Admin', 'Manager', 'Sales', 'Installer'].includes(role)) return null;
+  if (!['Admin', 'Finance'].includes(role)) return null;
   const save = async () => {
     await createPayment({
       invoice_id: type === 'invoice' ? selectedInvoice || null : null,
@@ -33,6 +34,7 @@ export default function PaymentLoggingModal({ invoiceId = null, jobId = null, cl
       amount: Number(amount),
       payment_method: method,
       reference_number: reference || null,
+      note: note || null,
       payment_date: date,
     });
     onClose();
@@ -128,6 +130,7 @@ export default function PaymentLoggingModal({ invoiceId = null, jobId = null, cl
         </select>
       </div>
       <SZInput id="ref" label="Reference #" value={reference} onChange={setReference} />
+      <SZInput id="note" label="Note" value={note} onChange={setNote} />
       <div className="my-2">
         <label htmlFor="date" className="block text-sm font-medium">Payment Date</label>
         <input

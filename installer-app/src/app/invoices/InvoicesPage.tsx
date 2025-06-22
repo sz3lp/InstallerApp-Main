@@ -5,6 +5,7 @@ import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
 import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
+import { ROUTES } from "../../routes";
 
 const InvoicesPage: React.FC = () => {
   const [
@@ -16,7 +17,7 @@ const InvoicesPage: React.FC = () => {
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
 
   const markPaid = async (id: string) => {
-    await updateInvoice(id, { status: "paid", paid_at: new Date().toISOString() });
+    await updateInvoice(id, { payment_status: "paid", paid_at: new Date().toISOString() });
   };
 
   const openPaymentModal = (id: string) => {
@@ -27,7 +28,7 @@ const InvoicesPage: React.FC = () => {
     setPaymentInvoiceId(null);
   };
 
-  const filtered = invoices.filter((i) => (filter === "all" ? true : i.status === filter));
+  const filtered = invoices.filter((i) => (filter === "all" ? true : i.payment_status === filter));
 
   const handleSave = async (data: InvoiceData) => {
     await createInvoice({
@@ -72,15 +73,18 @@ const InvoicesPage: React.FC = () => {
         <EmptyState title="No Invoices" description="No invoices found for this filter." />
       )}
       {!loading && !error && filtered.length > 0 && (
-        <SZTable headers={["Invoice", "Client", "Amount", "Status", "Actions"]}>
+        <SZTable headers={["Invoice", "Client", "Amount", "Paid", "Status", "Actions"]}>
           {filtered.map((inv) => (
             <tr key={inv.id} className="border-t">
-              <td className="p-2 border">{inv.id}</td>
+              <td className="p-2 border">
+                <a className="text-blue-600 underline" href={ROUTES.INVOICE_DETAIL.replace(':id', inv.id)}>{inv.id}</a>
+              </td>
               <td className="p-2 border">{inv.client_name}</td>
               <td className="p-2 border">${inv.amount.toFixed(2)}</td>
-              <td className="p-2 border">{inv.status}</td>
+              <td className="p-2 border">${inv.amount_paid?.toFixed(2) ?? '0.00'}</td>
+              <td className="p-2 border">{inv.payment_status}</td>
               <td className="p-2 border">
-                {inv.status !== "paid" && (
+                {inv.payment_status !== "paid" && (
                   <SZButton size="sm" onClick={() => markPaid(inv.id)}>
                     Mark Paid
                   </SZButton>
