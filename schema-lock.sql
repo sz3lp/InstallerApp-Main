@@ -122,3 +122,12 @@ CREATE TABLE public.user_settings (
   onboarding_completed_tasks jsonb DEFAULT '[]',
   onboarding_dismissed_at timestamp with time zone
 );
+CREATE TABLE public.job_qa_reviews (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid REFERENCES public.jobs(id) ON DELETE CASCADE,
+  reviewer_user_id uuid REFERENCES auth.users(id),
+  review_action text CHECK (review_action IN ('approve','reject','hold')),
+  review_comments text,
+  reviewed_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT job_qa_reviews_pkey PRIMARY KEY (id)
+);

@@ -8,6 +8,7 @@ import { useInstallers } from "../../../lib/hooks/useInstallers";
 import supabase from "../../../lib/supabaseClient";
 import JobAttachmentsPanel from "../../../components/JobAttachmentsPanel";
 import UploadClosingPackage from "../../../components/UploadClosingPackage";
+import useInvoices from "../../../lib/hooks/useInvoices";
 
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const JobDetailPage: React.FC = () => {
     id || "",
   );
   const { installers } = useInstallers();
+  const [, { generateFromJob }] = useInvoices();
   const [materials, setMaterials] = useState<{ id: string; name: string }[]>(
     [],
   );
@@ -23,6 +25,7 @@ const JobDetailPage: React.FC = () => {
   const [installerId, setInstallerId] = useState(job?.assigned_to || "");
   const [newMaterial, setNewMaterial] = useState("");
   const [newQty, setNewQty] = useState(1);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     async function loadMaterials() {
@@ -52,6 +55,19 @@ const JobDetailPage: React.FC = () => {
     if (!job?.id) return;
     await updateStatus(job.id, "archived");
     alert("Job archived.");
+  };
+
+  const handleGenerateInvoice = async () => {
+    if (!job?.id) return;
+    setGenerating(true);
+    try {
+      await generateFromJob(job.id);
+      alert("Invoice generated.");
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   if (!job) return <p className="p-4">Job not found</p>;
@@ -142,6 +158,11 @@ const JobDetailPage: React.FC = () => {
       </SZTable>
 
       <JobAttachmentsPanel jobId={job.id} />
+      {job.status === "ready_for_invoice" && (
+        <SZButton onClick={handleGenerateInvoice} isLoading={generating}>
+          Generate Invoice
+        </SZButton>
+      )}
       {job.status === "archived" && (
         <UploadClosingPackage jobId={job.id} />
       )}

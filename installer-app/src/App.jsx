@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import GlobalLayout from "./components/navigation/GlobalLayout";
-import InstallerHomePage from "./installer/pages/InstallerHomePage";
+import InstallerHomePage from ".//installer/pages/InstallerHomePage";
 import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPage";
 import ActivityLogPage from "./app/activity/ActivityLogPage";
 import JobDetailPage from "./installer/pages/JobDetailPage";
@@ -22,7 +22,8 @@ import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
-import QAReviewPanel from "./app/manager/QAReviewPanel";
+import QAReviewDashboardPage from "./app/manager/QAReviewDashboardPage";
+import QAReviewDetailPage from "./app/manager/QAReviewDetailPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
@@ -46,6 +47,8 @@ const TimeTrackingPanel = lazy(
   () => import("./app/time-tracking/TimeTrackingPanel"),
 );
 const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
+const TechnicianPayReportPage = lazy(() => import("./app/reports/TechnicianPayReportPage"));
+const InvoiceAgingPage = lazy(() => import("./app/reports/InvoiceAgingPage"));
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 const PaymentReportPage = lazy(
   () => import("./app/admin/reports/payments/PaymentReportPage"),
@@ -104,7 +107,8 @@ const App = () => {
 
                 {/* Manager Routes */}
                 <Route element={<RequireRoleOutlet role="Manager" />}>
-                  <Route path="/manager/qa" element={<QAReviewPanel />} />
+                  <Route path="/manager/qa" element={<QAReviewDashboardPage />} />
+                  <Route path="/manager/qa/job/:jobId" element={<QAReviewDetailPage />} />
                   <Route path="/manager/review" element={<ManagerReview />} />
                 </Route>
 
@@ -237,6 +241,25 @@ const App = () => {
                     </RequireRole>
                   }
                 />
+
+                <Route path="/manager/archived" element={<RequireRole role={["Manager", "Admin"]}><ArchivedJobsPage /></RequireRole>} />
+                <Route path="/archived" element={<RequireRole role={["Manager", "Admin"]}><ArchivedJobsPage /></RequireRole>} />
+                <Route path="/install-manager" element={<RequireRole role={["Manager", "Admin"]}><InstallManagerDashboard /></RequireRole>} />
+                <Route path="/install-manager/dashboard" element={<RequireRole role={["Manager", "Admin"]}><InstallManagerDashboard /></RequireRole>} />
+                <Route path="/install-manager/job/new" element={<RequireRole role={["Manager", "Admin"]}><NewJobBuilderPage /></RequireRole>} />
+                <Route path="/install-manager/job/:id" element={<RequireRole role={["Manager", "Admin"]}><UnderConstructionPage /></RequireRole>} />
+                <Route path="/clients" element={<RequireRole role={["Manager", "Admin"]}><ClientsPage /></RequireRole>} />
+                <Route path="/crm/leads" element={<RequireRole role={["Sales", "Manager", "Admin"]}><LeadsPage /></RequireRole>} />
+                <Route path="/sales/dashboard" element={<RequireRole role={["Sales", "Manager", "Admin"]}><SalesDashboard /></RequireRole>} />
+                <Route path="/quotes" element={<RequireRole role={["Manager", "Admin"]}><QuotesPage /></RequireRole>} />
+                <Route path="/invoices" element={<RequireRole role={["Manager", "Admin"]}><InvoicesPage /></RequireRole>} />
+                <Route path="/payments" element={<RequireRole role={["Manager", "Admin"]}><PaymentsPage /></RequireRole>} />
+                <Route path="/messages" element={<RequireRole role={["Manager", "Admin"]}><MessagesPanel /></RequireRole>} />
+                <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
+                <Route path="/reports" element={<RequireRole role={["Manager", "Admin"]}><ReportsPage /></RequireRole>} />
+                <Route path="/reports/technician-pay" element={<RequireRole role={["Admin", "Install Manager"]}><TechnicianPayReportPage /></RequireRole>} />
+                <Route path="/reports/invoice-aging" element={<RequireRole role={["Manager", "Admin"]}><InvoiceAgingPage /></RequireRole>} />
+
 
                 {/* Fallback for authenticated routes */}
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -96,11 +96,34 @@ export function useInvoices() {
     setInvoices((list) => list.filter((inv) => inv.id !== id));
   }, []);
 
+  const generateFromJob = useCallback(
+    async (jobId: string) => {
+      const { data, error } = await supabase
+        .rpc("generate_invoice_for_job", { p_job_id: jobId })
+        .single();
+      if (error) throw error;
+      await fetchInvoices();
+      return data?.id as string;
+    },
+    [fetchInvoices],
+  );
+
   useEffect(() => {
     fetchInvoices();
   }, [fetchInvoices]);
 
-  return [invoices, { loading, error, fetchInvoices, createInvoice, updateInvoice, deleteInvoice }] as const;
+  return [
+    invoices,
+    {
+      loading,
+      error,
+      fetchInvoices,
+      createInvoice,
+      updateInvoice,
+      deleteInvoice,
+      generateFromJob,
+    },
+  ] as const;
 }
 
 export default useInvoices;

@@ -8,6 +8,11 @@ export type JobStatus =
   | "complete"
   | "rework"
   | "archived"
+  | "ready_for_invoice"
+  | "closed_pending_manager_approval"
+  | "approved_ready_for_invoice_payroll"
+  | "rejected_sent_back_for_revisions"
+  | "on_hold_qa_review"
   | "unassigned";
 
 const statusMap: Record<
@@ -20,6 +25,24 @@ const statusMap: Record<
   complete: { label: "Complete", variant: "green" },
   rework: { label: "Rework", variant: "red" },
   archived: { label: "Archived", variant: "gray" },
+  ready_for_invoice: { label: "Ready for Invoice", variant: "purple" },
+  closed_pending_manager_approval: {
+    label: "Pending QA Approval",
+    variant: "orange",
+  },
+  approved_ready_for_invoice_payroll: {
+    label: "Approved",
+    variant: "green",
+  },
+  rejected_sent_back_for_revisions: {
+    label: "Rejected",
+    variant: "red",
+  },
+  on_hold_qa_review: {
+    label: "On Hold",
+    variant: "yellow",
+  },
+
   unassigned: { label: "Unassigned", variant: "gray" },
 };
 
