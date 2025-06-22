@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import useAssignedJobs from "../hooks/useAssignedJobs";
+import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
 
 const statusStyles = {
   assigned: "bg-gray-400",
@@ -17,10 +18,10 @@ export default function JobListPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Assigned Jobs</h1>
 
-      {loading && <p>Loading jobs...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && (
+      {loading && <LoadingState type="list" />}
+      {error && <ErrorState message={error} />}
+      {!loading && !error && jobs.length === 0 && <EmptyState title="No Jobs" />}
+      {!loading && !error && jobs.length > 0 && (
         <ul className="space-y-4">
           {jobs.map((job) => (
             <li
