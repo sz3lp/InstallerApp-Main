@@ -5,7 +5,6 @@ import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
 import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
-import { ROUTES } from "../../routes";
 
 const InvoicesPage: React.FC = () => {
   const [
@@ -77,7 +76,7 @@ const InvoicesPage: React.FC = () => {
           {filtered.map((inv) => (
             <tr key={inv.id} className="border-t">
               <td className="p-2 border">
-                <a className="text-blue-600 underline" href={ROUTES.INVOICE_DETAIL.replace(':id', inv.id)}>{inv.id}</a>
+                <a className="text-blue-600 underline" href={`/invoices/${inv.id}`}>{inv.id}</a>
               </td>
               <td className="p-2 border">{inv.client_name}</td>
               <td className="p-2 border">${inv.amount.toFixed(2)}</td>
