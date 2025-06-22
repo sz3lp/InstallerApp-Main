@@ -15,10 +15,10 @@ const JobDetailPage = () => {
   const [showDocuments, setShowDocuments] = useState(false);
   const startTimeRef = useRef(Date.now());
 
-  const { session, isAuthorized, loading } = useAuth();
+  const { session, isAuthorized, loading: authLoading } = useAuth();
   const installerId = session?.user?.id || "";
 
-  if (loading) return null;
+  if (authLoading) return null;
   if (!session) return <Navigate to="/login" replace />;
   if (!isAuthorized("Installer")) return <Navigate to="/unauthorized" replace />;
 
@@ -53,7 +53,7 @@ const JobDetailPage = () => {
     : null;
 
   const [job, setJob] = useState(initialJob);
-  const [loading, setLoading] = useState(!isTest);
+  const [jobLoading, setJobLoading] = useState(!isTest);
   const [error, setError] = useState(null);
   const [documents, setDocuments] = useState(initialJob?.documents ?? []);
 
@@ -77,7 +77,7 @@ const JobDetailPage = () => {
       } catch (e) {
         setError("Failed to load job");
       } finally {
-        setLoading(false);
+        setJobLoading(false);
       }
     }
 
@@ -156,7 +156,7 @@ const JobDetailPage = () => {
   const handleDrawerOpen = () => setShowDrawer(true);
   const handleDrawerClose = () => setShowDrawer(false);
 
-  if (loading) {
+  if (jobLoading) {
     return <p className="p-4">Loading job...</p>;
   }
 
