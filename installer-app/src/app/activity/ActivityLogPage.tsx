@@ -59,7 +59,7 @@ const ActivityLogPage: React.FC = () => {
           {jobs.map((j) => (
             <tr key={j.id} className="border-t">
               <td className="p-2 border">{j.id}</td>
-              <td className="p-2 border">{j.clinic_name}</td>
+              <td className="p-2 border">{j.client_name}</td>
               <td className="p-2 border">
                 {j.completed_at ? formatDate(j.completed_at) : "-"}
               </td>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
+import useClients from "../../../lib/hooks/useClients";
 
 interface Material {
   id: string;
@@ -20,7 +21,7 @@ interface MaterialRow {
 }
 
 const initialJob = {
-  clinic_name: "",
+  client_id: "",
   contact_name: "",
   contact_phone: "",
   contact_email: "",
@@ -30,6 +31,7 @@ const initialJob = {
 
 const NewJobBuilderPage: React.FC = () => {
   const navigate = useNavigate();
+  const [clients] = useClients();
   const [job, setJob] = useState(initialJob);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [rows, setRows] = useState<MaterialRow[]>([
@@ -90,7 +92,7 @@ const NewJobBuilderPage: React.FC = () => {
   }, 0);
 
   const handleSubmit = async () => {
-    if (!job.clinic_name || !job.contact_name || !job.address) return;
+    if (!job.client_id || !job.contact_name || !job.address) return;
     setSubmitting(true);
     const { data, error } = await supabase.from("jobs").insert(job).select();
     if (error || !data) {
@@ -125,7 +127,24 @@ const NewJobBuilderPage: React.FC = () => {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Job Info</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SZInput id="clinic_name" label="Clinic Name" value={job.clinic_name} onChange={(v) => handleJobChange("clinic_name", v)} />
+          <div>
+            <label className="block text-sm font-medium text-gray-700" htmlFor="client">
+              Client
+            </label>
+            <select
+              id="client"
+              className="block w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={job.client_id}
+              onChange={(e) => handleJobChange("client_id", e.target.value)}
+            >
+              <option value="">Select</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <SZInput id="contact_name" label="Contact Name" value={job.contact_name} onChange={(v) => handleJobChange("contact_name", v)} />
           <SZInput id="contact_phone" label="Contact Phone" value={job.contact_phone} onChange={(v) => handleJobChange("contact_phone", v)} />
           <SZInput id="contact_email" label="Contact Email" value={job.contact_email} onChange={(v) => handleJobChange("contact_email", v)} />

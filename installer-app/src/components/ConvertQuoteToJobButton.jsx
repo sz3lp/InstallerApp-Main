@@ -17,7 +17,6 @@ export default function ConvertQuoteToJobButton({ quote }) {
     await createJob({
       client_id: quote.client_id,
       quote_id: quote.id,
-      clinic_name: quote.client_name || '',
       contact_name: '',
       contact_phone: '',
       address: '',

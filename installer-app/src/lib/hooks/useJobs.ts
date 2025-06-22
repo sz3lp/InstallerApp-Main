@@ -3,7 +3,8 @@ import supabase from "../supabaseClient";
 
 export interface Job {
   id: string;
-  clinic_name: string;
+  client_id: string | null;
+  client_name?: string | null;
   contact_name: string;
   contact_phone: string;
   assigned_to: string | null;
@@ -20,16 +21,20 @@ export function useJobs() {
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from<Job>("jobs")
+      .from("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
+        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)"
       )
       .order("created_at", { ascending: false });
     if (error) {
       setError(error.message);
       setJobs([]);
     } else {
-      setJobs(data ?? []);
+      const list = (data ?? []).map((j: any) => ({
+        ...j,
+        client_name: j.clients?.name ?? null,
+      }));
+      setJobs(list);
       setError(null);
     }
     setLoading(false);
@@ -38,9 +43,9 @@ export function useJobs() {
   const fetchMyJobs = useCallback(async (userId: string) => {
     setLoading(true);
     const { data, error } = await supabase
-      .from<Job>("jobs")
+      .from("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
+        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)"
       )
       .eq("assigned_to", userId)
       .order("created_at", { ascending: false });
@@ -48,7 +53,11 @@ export function useJobs() {
       setError(error.message);
       setJobs([]);
     } else {
-      setJobs(data ?? []);
+      const list = (data ?? []).map((j: any) => ({
+        ...j,
+        client_name: j.clients?.name ?? null,
+      }));
+      setJobs(list);
       setError(null);
     }
     setLoading(false);
