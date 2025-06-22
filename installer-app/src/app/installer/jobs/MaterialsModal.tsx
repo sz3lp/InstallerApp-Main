@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { SZModal } from "../../../components/ui/SZModal";
 import { SZTable } from "../../../components/ui/SZTable";
@@ -11,8 +10,6 @@ import React from "react";
 import { SZModal } from "../../../components/ui/SZModal";
 import { SZTable } from "../../../components/ui/SZTable";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
-
-
 
 export type MaterialsModalProps = {
   isOpen: boolean;
@@ -28,7 +25,6 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
 
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
-
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [saving, setSaving] = useState(false);
@@ -125,6 +121,8 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
             </tr>
           ))}
         </SZTable>
+      )}
+
 
       )}
 
@@ -153,6 +151,7 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           </tr>
         ))}
       </SZTable>
+
 
 
     </SZModal>
