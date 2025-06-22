@@ -18,6 +18,7 @@ import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
@@ -99,6 +100,14 @@ const App = () => (
             }
           />
           <Route
+          <Route
+            path="/crm/leads"
+            element={
+              <RequireRole role={["Sales", "Manager", "Admin"]}>
+                <LeadsPage />
+              </RequireRole>
+            }
+          />
             path="/install-manager/job/:id"
             element={
               <RequireRole role={["Manager", "Admin"]}>
