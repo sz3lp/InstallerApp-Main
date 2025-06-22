@@ -36,15 +36,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       setSession(current);
       setUser(current?.user ?? null);
+      let currentRole: string | null = null;
       if (current?.user) {
-        const role = await getUserRole(current.user.id);
-        setRole(role);
-        console.log('Loaded role', role);
+        currentRole = await getUserRole(current.user.id);
+        setRole(currentRole);
+        console.log('Loaded role', currentRole);
       } else {
         setRole(null);
       }
       setLoading(false);
-      console.log('Auth initialized', { session: current, role });
+      console.log('Auth initialized', { session: current, role: currentRole });
     };
     init();
   }, []);
