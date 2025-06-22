@@ -18,6 +18,7 @@ import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
+import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
