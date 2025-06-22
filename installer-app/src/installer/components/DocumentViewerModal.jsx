@@ -11,6 +11,7 @@ const DocumentViewerModal = ({ isOpen, onClose, documents = [] }) => {
       const base =
         process.env.VITE_SUPABASE_URL ||
         process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        process.env.SUPABASE_URL ||
         "";
       return `${base}/storage/v1/object/public/documents/${doc.path}`;
     }

@@ -76,8 +76,10 @@ index.html             // Vite HTML entry
 
 Required:
 - `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_API_KEY`
+- `VITE_SUPABASE_API_KEY` or `VITE_SUPABASE_ANON_KEY`
 
-Optional (for compatibility only; Vite uses VITE_ prefix):
+Optional (for compatibility only; values fall back automatically):
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
