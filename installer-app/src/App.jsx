@@ -63,7 +63,6 @@ const App = () => (
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
-
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>

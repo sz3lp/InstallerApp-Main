@@ -74,7 +74,6 @@ export function MaterialUsage({ jobId }: { jobId: string }) {
 }
 
 
-
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useAuth();
@@ -132,7 +131,6 @@ const InstallerJobPage: React.FC = () => {
         )}
       </SZCard>
 
-
       <MaterialUsage jobId={id || ""} />
 
 
@@ -142,7 +140,6 @@ const InstallerJobPage: React.FC = () => {
 
 
       <MaterialUsage jobId={id || ""} />
-
 
       <div className="flex flex-wrap gap-2">
         <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>
