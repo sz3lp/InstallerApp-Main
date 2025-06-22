@@ -10,6 +10,7 @@ import FeedbackReviewPanel from "./FeedbackReviewPanel";
 import { useNavigate } from "react-router-dom";
 import UploadDocsModal from "./UploadDocsModal";
 import AssignInventoryModal from "./AssignInventoryModal";
+import JobCloseoutPanel from "./JobCloseoutPanel";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
@@ -18,6 +19,7 @@ export default function InstallManagerDashboard() {
   const [deleteJob, setDeleteJob] = useState(null);
   const [uploadJobId, setUploadJobId] = useState(null);
   const [inventoryJobId, setInventoryJobId] = useState(null);
+  const [closeoutJobId, setCloseoutJobId] = useState(null);
 
   const handleView = (id) => navigate(`/install-manager/job/${id}`);
   const handleEdit = (job) => setEditJob(job);
@@ -65,6 +67,15 @@ export default function InstallManagerDashboard() {
                   >
                     Assign Inventory
                   </SZButton>
+                  {job.status === "complete" && (
+                    <SZButton
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setCloseoutJobId(job.id)}
+                    >
+                      Closeout
+                    </SZButton>
+                  )}
                   <SZButton
                     size="sm"
                     variant="destructive"
@@ -113,6 +124,14 @@ export default function InstallManagerDashboard() {
         jobId={inventoryJobId}
         isOpen={!!inventoryJobId}
         onClose={() => setInventoryJobId(null)}
+      />
+      <JobCloseoutPanel
+        jobId={closeoutJobId}
+        isOpen={!!closeoutJobId}
+        onClose={() => {
+          setCloseoutJobId(null);
+          refresh();
+        }}
       />
       <h2 className="text-xl font-bold mt-8 mb-4">QA Review</h2>
       <QAReviewPanel />
