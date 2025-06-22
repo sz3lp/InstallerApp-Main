@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-import useAuth from "../lib/hooks/useAuth";
+import { useAuth } from "../lib/hooks/useAuth";
 
 interface Props {
   role: string | string[];
@@ -8,7 +8,11 @@ interface Props {
   redirectTo?: string;
 }
 
-export default function RequireRole({ role: required, children, redirectTo = "/" }: Props) {
+export default function RequireRole({
+  role: required,
+  children,
+  redirectTo = "/",
+}: Props) {
   const { role, loading } = useAuth();
 
   if (loading) return null;
