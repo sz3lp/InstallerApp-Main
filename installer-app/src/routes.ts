@@ -1,0 +1,25 @@
+export const ROUTES = {
+  LOGIN: '/login',
+  HOME: '/',
+  APPOINTMENTS: '/appointments',
+  ACTIVITY: '/activity',
+  IFI: '/ifi',
+  INSTALLER_DASHBOARD: '/installer/dashboard',
+  INSTALL_MANAGER_ROOT: '/install-manager',
+  INSTALL_MANAGER_DASHBOARD: '/install-manager/dashboard',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  SALES_DASHBOARD: '/sales/dashboard',
+  FEEDBACK: '/feedback',
+  CLIENTS: '/clients',
+  LEADS: '/crm/leads',
+  QUOTES: '/quotes',
+  INVOICES: '/invoices',
+  PAYMENTS: '/payments',
+  MESSAGES: '/messages',
+  TIME_TRACKING: '/time-tracking',
+  REPORTS: '/reports',
+  TECH_PAY_REPORT: '/reports/technician-pay',
+  PAYMENT_REPORTS: '/admin/reports/payments',
+} as const;
+
+export type RoutePath = typeof ROUTES[keyof typeof ROUTES];
