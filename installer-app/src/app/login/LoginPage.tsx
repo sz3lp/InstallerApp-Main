@@ -8,20 +8,28 @@ const LoginPage: React.FC = () => {
   const { signIn, role, session, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session && role === "Installer") {
-      navigate("/installer", { replace: true });
+    if (session && role) {
+      if (role === "Admin") navigate("/admin/dashboard", { replace: true });
+      else if (role === "Installer")
+        navigate("/installer/dashboard", { replace: true });
+      else if (role === "Manager")
+        navigate("/install-manager/dashboard", { replace: true });
+      else if (role === "Sales")
+        navigate("/sales/dashboard", { replace: true });
+      else navigate("/", { replace: true });
     }
   }, [session, role, navigate]);
 
   const handleLogin = async () => {
     setError(null);
     try {
-      await signIn(email, password);
+      await signIn(email, password, remember);
     } catch (err: any) {
       setError(err.message);
       setShowToast(true);
@@ -40,6 +48,22 @@ const LoginPage: React.FC = () => {
         value={password}
         onChange={setPassword}
       />
+      <div className="flex items-center justify-between">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          <span className="text-sm">Remember Me</span>
+        </label>
+        <a
+          href="/forgot-password"
+          className="text-sm text-green-700 hover:underline"
+        >
+          Forgot Password?
+        </a>
+      </div>
       {showToast && error && (
         <div className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded">
           {error}
