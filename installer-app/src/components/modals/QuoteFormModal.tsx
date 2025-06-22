@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../installer/components/ModalWrapper";
 import { SZInput } from "../ui/SZInput";
 import { SZButton } from "../ui/SZButton";
-import useClinics from "../../lib/hooks/useClinics";
+import useClients from "../../lib/hooks/useClients";
 
 export interface ServiceLine {
   id: string;
@@ -36,7 +36,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [clinics] = useClinics();
+  const [clients] = useClients();
   const [clientId, setClientId] = useState("");
   const [lines, setLines] = useState<ServiceLine[]>([{ ...blankLine }]);
 
@@ -71,8 +71,8 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
   const total = lines.reduce((sum, l) => sum + l.qty * l.price, 0);
 
   const handleSave = () => {
-    const clinic = clinics.find((c) => c.id === clientId);
-    onSave({ id: initialData?.id, client_id: clientId, client_name: clinic?.name, lines, total });
+    const client = clients.find((c) => c.id === clientId);
+    onSave({ id: initialData?.id, client_id: clientId, client_name: client?.name, lines, total });
   };
 
   return (
@@ -95,7 +95,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({
             onChange={(e) => setClientId(e.target.value)}
           >
             <option value="">Select</option>
-            {clinics.map((c) => (
+            {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

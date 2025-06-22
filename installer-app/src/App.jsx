@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import GlobalLayout from "./components/navigation/GlobalLayout";
 import InstallerHomePage from "./installer/pages/InstallerHomePage";
 import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPage";
 import ActivityLogPage from "./app/activity/ActivityLogPage";
@@ -23,7 +24,7 @@ import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
-import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
+import { RequireRole as RequireRoleOutlet, RequireAuth as RequireAuthOutlet } from "./components/auth/RequireAuth";
 import RequireRole from "./components/RequireRole";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 
@@ -44,6 +45,9 @@ const App = () => {
         <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+
+          <Route element={<RequireAuthOutlet />}> 
+            <Route element={<GlobalLayout />}>
 
           <Route element={<RequireRoleOutlet role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
@@ -195,6 +199,8 @@ const App = () => {
             }
           />
           <Route path="*" element={<Navigate to="/login" replace />} />
+            </Route>
+          </Route>
         </Routes>
       </Suspense>
       </AuthProvider>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useAuth from '../../lib/hooks/useAuth';
-import useClinics from '../../lib/hooks/useClinics';
+import useClients from '../../lib/hooks/useClients';
 import useQuotes from '../../lib/hooks/useQuotes';
 import { useJobs } from '../../lib/hooks/useJobs';
 import useInvoices from '../../lib/hooks/useInvoices';
@@ -11,7 +11,7 @@ import { SZTable } from '../../components/ui/SZTable';
 export default function ClientProfilePage() {
   const { role } = useAuth();
   const { id } = useParams();
-  const [clients] = useClinics();
+  const [clients] = useClients();
   const [quotes] = useQuotes();
   const { jobs } = useJobs();
   const [invoices] = useInvoices();

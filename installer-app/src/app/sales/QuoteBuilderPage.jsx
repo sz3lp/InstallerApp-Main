@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import useAuth from '../../lib/hooks/useAuth';
-import useClinics from '../../lib/hooks/useClinics';
+import useClients from '../../lib/hooks/useClients';
 import supabase from '../../lib/supabaseClient';
 import { SZInput } from '../../components/ui/SZInput';
 import { SZButton } from '../../components/ui/SZButton';
 
 export default function QuoteBuilderPage() {
   const { role, user } = useAuth();
-  const [clients] = useClinics();
+  const [clients] = useClients();
   const [clientId, setClientId] = useState('');
   const [items, setItems] = useState([{ description: '', quantity: 1, unit_price: 0 }]);
   const [tax, setTax] = useState(0);

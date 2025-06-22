@@ -21,7 +21,7 @@ This document maps current code in the **SentientZone Installer & Manager** repo
 - `LeadsPage.tsx` with `useLeads` hook supports lead creation and status updates via Supabase. History modal uses `lead_status_history`. ✅
 - Conversion of lead to client/job implemented in `leadEvents.ts` and called from `useLeads` but event functions mostly log to console. ⚠️
 - No Kanban pipeline or dedicated lead form route. ❌
-- `ClientsPage.tsx` provides CRUD for clinics stored in `clinics` table. ✅
+- `ClientsPage.tsx` provides CRUD for clients stored in `clients` table. ✅
 
 ### ERP – Quotes, Invoices, Payments
 

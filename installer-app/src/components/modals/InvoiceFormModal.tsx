@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../installer/components/ModalWrapper";
 import { SZButton } from "../ui/SZButton";
 import { SZInput } from "../ui/SZInput";
-import useClinics from "../../lib/hooks/useClinics";
+import useClients from "../../lib/hooks/useClients";
 import { useJobs } from "../../lib/hooks/useJobs";
 import useQuotes from "../../lib/hooks/useQuotes";
 
@@ -23,7 +23,7 @@ type Props = {
 };
 
 const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData }) => {
-  const [clinics] = useClinics();
+  const [clients] = useClients();
   const { jobs } = useJobs();
   const [quotes] = useQuotes();
 
@@ -88,7 +88,7 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
           <label htmlFor="inv_client" className="block text-sm font-medium text-gray-700">Client</label>
           <select id="inv_client" className="border rounded px-3 py-2 w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select</option>
-            {clinics.map((c) => (
+            {clients.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
