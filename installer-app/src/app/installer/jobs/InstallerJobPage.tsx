@@ -131,9 +131,6 @@ const InstallerJobPage: React.FC = () => {
       </SZCard>
 
 
-      <MaterialUsage jobId={id || ""} />
-
-
 
       <MaterialUsage jobId={id || ""} />
 
@@ -143,6 +140,7 @@ const InstallerJobPage: React.FC = () => {
 
 
 
+      <MaterialUsage jobId={id || ""} />
 
       <div className="flex flex-wrap gap-2">
         <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>

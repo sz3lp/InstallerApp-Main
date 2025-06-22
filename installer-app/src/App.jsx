@@ -20,8 +20,6 @@ import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
-
-
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
@@ -64,7 +62,6 @@ const App = () => (
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
-
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -84,6 +81,7 @@ const App = () => (
             </RequireRole>
           }
         />
+
         <Route
           path="/archived"
           element={
