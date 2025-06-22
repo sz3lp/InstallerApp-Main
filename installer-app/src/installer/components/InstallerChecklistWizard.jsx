@@ -2,13 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useChecklist } from "../../lib/hooks/useChecklist";
 import { useJobs } from "../../lib/hooks/useJobs";
+import useMaterials from "../../lib/hooks/useMaterials";
+import useJobQuantities from "../../lib/hooks/useJobQuantities";
 
-const inventoryList = [
-  "PIR Motion Detector",
-  "DHT22 Sensor",
-  "Relay Block",
-  "Power Supply",
-];
 
 const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
   const [step, setStep] = useState(0);
@@ -51,13 +47,9 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
     return obj;
   });
 
-  const [materialsUsed, setMaterialsUsed] = useState(() => {
-    const obj = {};
-    inventoryList.forEach((item) => {
-      obj[item] = 0;
-    });
-    return obj;
-  });
+  const [materialRows, setMaterialRows] = useState([{ material_id: "", quantity: "" }]);
+  const { materials } = useMaterials();
+  const { logQuantity } = useJobQuantities();
   const [fullName, setFullName] = useState("");
   const [paymentCollected, setPaymentCollected] = useState("");
   const [confirm, setConfirm] = useState(false);
@@ -101,7 +93,9 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
         return true;
       });
     if (step === 2)
-      return inventoryList.every((item) => materialsUsed[item] !== "");
+      return materialRows.every(
+        (r) => r.material_id && r.quantity !== "" && Number(r.quantity) > 0,
+      );
     if (step === 3)
       return fullName.trim() !== "" && paymentCollected && confirm;
     return true;
@@ -122,12 +116,23 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
     if (item && !item.completed) {
       await toggleItem(item.id, true);
     }
-    if (job?.id) await updateStatus(job.id, "needs_qa");
+    if (job?.id) {
+      for (const row of materialRows) {
+        if (row.material_id && row.quantity) {
+          try {
+            await logQuantity(job.id, row.material_id, Number(row.quantity));
+          } catch (err) {
+            console.error("Failed to log material", err);
+          }
+        }
+      }
+      await updateStatus(job.id, "needs_qa");
+    }
     onSubmit({
       customerPresent,
       absenceReason,
       installCounts,
-      materialsUsed,
+      materialLogs: materialRows,
       photo: photos,
       fullName,
       paymentCollected,
@@ -235,33 +240,75 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
 
         {step === 2 && (
           <div className="space-y-4">
-            {inventoryList.map((item) => (
-              <div key={item}>
-                <label
-                  className="block text-sm font-semibold mb-1"
-                  htmlFor={item}
-                >
-                  {item}
-                </label>
-                <input
-                  id={item}
-                  type="number"
-                  value={materialsUsed[item]}
-                  onChange={(e) =>
-                    setMaterialsUsed((prev) => ({
-                      ...prev,
-                      [item]: e.target.value,
-                    }))
+            {materialRows.map((row, idx) => (
+              <div key={idx} className="flex items-end gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-semibold mb-1" htmlFor={`mat-${idx}`}>
+                    Material
+                  </label>
+                  <select
+                    id={`mat-${idx}`}
+                    value={row.material_id}
+                    onChange={(e) =>
+                      setMaterialRows((rows) =>
+                        rows.map((r, i) =>
+                          i === idx ? { ...r, material_id: e.target.value } : r
+                        )
+                      )
+                    }
+                    className="w-full border rounded p-2 focus:outline-none focus:ring focus:ring-green-200"
+                  >
+                    <option value="">Select material</option>
+                    {materials.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1" htmlFor={`qty-${idx}`}>
+                    Qty
+                  </label>
+                  <input
+                    id={`qty-${idx}`}
+                    type="number"
+                    value={row.quantity}
+                    onChange={(e) =>
+                      setMaterialRows((rows) =>
+                        rows.map((r, i) =>
+                          i === idx ? { ...r, quantity: e.target.value } : r
+                        )
+                      )
+                    }
+                    className="w-24 border rounded p-2 focus:outline-none focus:ring focus:ring-green-200"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMaterialRows((rows) => rows.filter((_, i) => i !== idx))
                   }
-                  className="w-full border rounded p-2 focus:outline-none focus:ring focus:ring-green-200"
-                />
+                  className="text-red-600 text-sm pb-2"
+                >
+                  Remove
+                </button>
               </div>
             ))}
+            <button
+              type="button"
+              onClick={() =>
+                setMaterialRows((rows) => [
+                  ...rows,
+                  { material_id: "", quantity: "" },
+                ])
+              }
+              className="text-sm text-blue-600"
+            >
+              Add Material
+            </button>
             <div>
-              <label
-                className="block text-sm font-semibold mb-1"
-                htmlFor="step-photo"
-              >
+              <label className="block text-sm font-semibold mb-1" htmlFor="step-photo">
                 Upload Photo
               </label>
               <input

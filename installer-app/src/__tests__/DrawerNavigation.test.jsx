@@ -23,7 +23,7 @@ test('navigates via side drawer links', async () => {
   // open drawer
   await userEvent.click(screen.getByLabelText(/open menu/i));
   // click Activity Summary link
-  const link = await screen.findByRole('link', { name: 'Activity Summary' });
+  const [link] = await screen.findAllByRole('link', { name: 'Activity Summary' });
   await userEvent.click(link);
   expect(await screen.findByText('Activity Summary')).toBeInTheDocument();
 });
