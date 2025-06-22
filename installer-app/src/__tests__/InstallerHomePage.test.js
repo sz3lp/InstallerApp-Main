@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import InstallerHomePage from '../installer/pages/InstallerHomePage';
+import InstallerHomePage from '../app/installer/InstallerHomePage';
 
 test('renders welcome heading', () => {
   render(

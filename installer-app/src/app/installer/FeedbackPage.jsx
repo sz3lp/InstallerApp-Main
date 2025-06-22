@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
-import SideDrawer from '../components/SideDrawer';
-import InstallerFeedbackForm from '../components/InstallerFeedbackForm';
+import Header from './components/Header';
+import SideDrawer from './components/SideDrawer';
+import InstallerFeedbackForm from './components/InstallerFeedbackForm';
 
 const FeedbackPage = () => {
   const [showDrawer, setShowDrawer] = useState(false);

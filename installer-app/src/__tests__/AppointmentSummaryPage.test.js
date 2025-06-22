@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import AppointmentSummaryPage from '../installer/pages/AppointmentSummaryPage';
+import AppointmentSummaryPage from '../app/installer/appointments/AppointmentSummaryPage';
 
 test('shows job cards with status badge', () => {
   const jobs = [
