@@ -14,9 +14,9 @@ const PaymentsPage: React.FC = () => {
 
   const handleSave = async () => {
     await createPayment({
-      invoice_id: form.invoiceId,
+      invoice_id: form.invoiceId || null,
       amount: Number(form.amount),
-      method: form.method,
+      payment_method: form.method,
     });
     setOpen(false);
     setForm({ invoiceId: "", amount: "", method: "" });
@@ -30,12 +30,12 @@ const PaymentsPage: React.FC = () => {
           Log Payment
         </SZButton>
       </div>
-      <SZTable headers={["Amount", "Method", "Timestamp", "Invoice"]}>
+      <SZTable headers={["Amount", "Method", "Date", "Invoice"]}>
         {payments.map((p) => (
           <tr key={p.id} className="border-t">
             <td className="p-2 border">${p.amount.toFixed(2)}</td>
-            <td className="p-2 border">{p.method}</td>
-            <td className="p-2 border">{new Date(p.received_at).toLocaleString()}</td>
+            <td className="p-2 border">{p.payment_method}</td>
+            <td className="p-2 border">{new Date(p.payment_date).toLocaleString()}</td>
             <td className="p-2 border">{p.invoice_id}</td>
           </tr>
         ))}
@@ -44,7 +44,23 @@ const PaymentsPage: React.FC = () => {
         <h2 className="text-lg font-semibold mb-4">Log Payment</h2>
         <div className="space-y-2">
           <SZInput id="pay_amount" label="Amount" value={form.amount} onChange={(v) => setForm((f) => ({ ...f, amount: v }))} />
-          <SZInput id="pay_method" label="Method" value={form.method} onChange={(v) => setForm((f) => ({ ...f, method: v }))} />
+          <div>
+            <label htmlFor="pay_method" className="block text-sm font-medium text-gray-700">Method</label>
+            <select
+              id="pay_method"
+              className="border rounded px-3 py-2 w-full"
+              value={form.method}
+              onChange={(e) => setForm((f) => ({ ...f, method: e.target.value }))}
+            >
+              <option value="Cash">Cash</option>
+              <option value="Check">Check</option>
+              <option value="Credit Card (Manual Entry)">Credit Card (Manual Entry)</option>
+              <option value="Credit Card (POS/Gateway)">Credit Card (POS/Gateway)</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Client Portal">Client Portal</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
           <div>
             <label htmlFor="pay_invoice" className="block text-sm font-medium text-gray-700">Invoice</label>
             <select

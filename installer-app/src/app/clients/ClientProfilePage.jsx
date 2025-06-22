@@ -94,8 +94,8 @@ export default function ClientProfilePage() {
             {clientPayments.map(p => (
               <tr key={p.id} className="border-t">
                 <td className="p-2 border">${p.amount.toFixed(2)}</td>
-                <td className="p-2 border">{p.method}</td>
-                <td className="p-2 border">{new Date(p.received_at).toLocaleDateString()}</td>
+                <td className="p-2 border">{p.payment_method}</td>
+                <td className="p-2 border">{new Date(p.payment_date).toLocaleDateString()}</td>
               </tr>
             ))}
           </SZTable>
