@@ -1,0 +1,25 @@
+import { ROUTES } from './routes';
+
+export const navLinks = [
+  { path: ROUTES.HOME, label: 'Home', roles: ['Installer'] },
+  { path: ROUTES.APPOINTMENTS, label: 'Appointment Summary', roles: ['Installer'] },
+  { path: ROUTES.ACTIVITY, label: 'Activity Summary', roles: ['Installer'] },
+  { path: ROUTES.IFI, label: 'IFI Dashboard', roles: ['Installer'] },
+  { path: ROUTES.INSTALLER_DASHBOARD, label: 'Installer Dashboard', roles: ['Installer'] },
+  { path: ROUTES.INSTALL_MANAGER_DASHBOARD, label: 'Install Manager Dashboard', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.ADMIN_DASHBOARD, label: 'Admin Dashboard', roles: ['Admin'] },
+  { path: ROUTES.SALES_DASHBOARD, label: 'Sales Dashboard', roles: ['Sales', 'Manager', 'Admin'] },
+  { path: ROUTES.INSTALL_MANAGER_ROOT, label: 'Install Manager Dashboard', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.FEEDBACK, label: 'Feedback', roles: ['Installer'] },
+  { path: ROUTES.CLIENTS, label: 'Clients', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.LEADS, label: 'Leads', roles: ['Sales', 'Manager', 'Admin'] },
+  { path: ROUTES.QUOTES, label: 'Quotes', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.INVOICES, label: 'Invoices', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.PAYMENTS, label: 'Payments', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.MESSAGES, label: 'Messages', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.TIME_TRACKING, label: 'Time Tracking', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.REPORTS, label: 'Reports', roles: ['Admin', 'Manager'] },
+  { path: ROUTES.TECH_PAY_REPORT, label: 'Technician Pay', roles: ['Admin', 'Install Manager'] },
+  { path: ROUTES.PAYMENT_REPORTS, label: 'Payment Reports', roles: ['Admin', 'Finance'] },
+  { path: '#', label: 'MyLearning - SentientZone', roles: ['Installer'] },
+];

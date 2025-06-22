@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { SZModal } from "../../components/ui/SZModal";
 import { SZInput } from "../../components/ui/SZInput";
 import { SZButton } from "../../components/ui/SZButton";
+import useInstallers from "../../lib/hooks/useInstallers";
 import supabase from "../../lib/supabaseClient";
 import type { Job } from "../../components/JobCard";
 
@@ -24,6 +25,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
     status: "",
     scheduled_date: "",
   });
+  const { installers } = useInstallers();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,12 +78,24 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
           value={form.address}
           onChange={(v) => handleChange("address", v)}
         />
-        <SZInput
-          id="edit_assigned_to"
-          label="Assigned To"
-          value={form.assigned_to}
-          onChange={(v) => handleChange("assigned_to", v)}
-        />
+        <div>
+          <label htmlFor="edit_assigned_to" className="block text-sm font-medium text-gray-700">
+            Assign Installer
+          </label>
+          <select
+            id="edit_assigned_to"
+            className="border rounded px-3 py-2 w-full"
+            value={form.assigned_to}
+            onChange={(e) => handleChange("assigned_to", e.target.value)}
+          >
+            <option value="">Select</option>
+            {installers.map((inst) => (
+              <option key={inst.id} value={inst.id}>
+                {inst.full_name || inst.id}
+              </option>
+            ))}
+          </select>
+        </div>
         <SZInput
           id="edit_status"
           label="Status"

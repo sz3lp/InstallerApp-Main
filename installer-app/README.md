@@ -57,7 +57,7 @@ index.html             // Vite HTML entry
 
 ## Extending the App
 - Components live under `src/components` and pages under `src/pages`.
-- Add new routes by editing `src/navConfig.js` and `src/App.jsx`.
+- Add new routes by editing `src/routes.ts` and wiring them in `src/App.jsx`.
 - Replace the mock logic in `src/hooks/useInstallerData.js` with real API calls or Firebase queries.
 
 ## Production Checklist
@@ -65,7 +65,7 @@ index.html             // Vite HTML entry
 - ✅ Prettier formatting and ESLint linting scripts
 - ✅ Tailwind integrated via PostCSS (no CDN usage)
 - ✅ Mock data persisted to localStorage
-- ✅ Routes and navigation centralized in `src/navConfig.js`
+- ✅ Routes and navigation centralized using `src/routes.ts`
 
 ## Roadmap
 - Swap mock data for backend integration (Firebase or REST APIs)
