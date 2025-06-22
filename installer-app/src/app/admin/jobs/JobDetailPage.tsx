@@ -6,6 +6,7 @@ import { useJobs } from "../../../lib/hooks/useJobs";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 import { useInstallers } from "../../../lib/hooks/useInstallers";
 import supabase from "../../../lib/supabaseClient";
+import JobAttachmentsPanel from "../../../components/JobAttachmentsPanel";
 import UploadClosingPackage from "../../../components/UploadClosingPackage";
 
 const JobDetailPage: React.FC = () => {
@@ -139,6 +140,11 @@ const JobDetailPage: React.FC = () => {
           </tr>
         ))}
       </SZTable>
+
+      <JobAttachmentsPanel jobId={job.id} />
+      {job.status === "archived" && (
+        <UploadClosingPackage jobId={job.id} />
+      )}
       <UploadClosingPackage jobId={job.id} />
       <SZButton onClick={handleArchive} disabled={job.status !== "complete"}>
         Archive Job

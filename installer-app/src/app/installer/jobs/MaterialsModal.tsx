@@ -26,6 +26,11 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
 
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
+
+
+
+  const { items, fetchItems } = useJobMaterials(jobId || "");
+  const { session } = useAuth();
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
   const { items, fetchItems } = useJobMaterials(jobId || "");

@@ -29,7 +29,6 @@ import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 import ManagerReview from "./app/manager/ReviewPage";
-
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
@@ -85,7 +84,6 @@ const App = () => (
             </RequireRole>
           }
         />
-
         <Route
           path="/archived"
           element={
@@ -94,7 +92,6 @@ const App = () => (
             </RequireRole>
           }
         />
-
 
           <Route
             path="/install-manager"

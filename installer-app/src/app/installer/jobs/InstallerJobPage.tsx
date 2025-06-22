@@ -8,7 +8,6 @@ import MaterialsModal from "./MaterialsModal";
 import InstallerChecklistWizard from "../../../components/InstallerChecklistWizard";
 import DocumentViewerModal from "../../../installer/components/DocumentViewerModal";
 import supabase from "../../../lib/supabaseClient";
-
 export function MaterialUsage({ jobId }: { jobId: string }) {
   const { session } = useAuth();
   const [materials, setMaterials] = useState<any[]>([]);
@@ -72,6 +71,7 @@ export function MaterialUsage({ jobId }: { jobId: string }) {
     </div>
   );
 }
+
 
 const InstallerJobPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
