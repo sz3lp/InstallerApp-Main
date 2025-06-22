@@ -1034,3 +1034,31 @@ Create performance dashboard with:
 - Tailwind + Chart.js
 ```
 
+```codex
+# Prompt: Invoice Status Tracker & Aging Buckets
+
+## Context
+With payment logging and invoices in place, finance needs real-time visibility into outstanding accounts receivable and how long each invoice has been overdue.
+
+## Objective
+Provide an AR aging report with:
+- `ARAgingReportPage` at `/admin/reports/ar-aging`
+- Query `invoices` with `due_date` to calculate `days overdue` and remaining `balance_due`
+- Group totals for buckets: 0-30, 31-60, 61-90, 91+ days
+- Table columns: invoice ID, client, invoice date, due date, status, balance due, linked job, assigned salesperson, last payment method
+- Filters for client, status, balance range, date range, and salesperson
+- Highlight invoices over 90 days with urgency badges
+- Export filtered results to CSV or PDF
+
+## Acceptance Criteria
+- [✓] Table lists unpaid invoices with correct days overdue
+- [✓] Aging bucket summary shows total balance and invoice count
+- [✓] Filters, sorting, and search update the table
+- [✓] CSV or PDF export downloads the current view
+
+## Constraints
+- Supabase queries on `invoices`, `clients`, `jobs`, `users`, and `payments`
+- Read-only access; no editing from this page
+- Admin, Finance, and Sales Manager roles
+- Tailwind DataTable styling
+```
