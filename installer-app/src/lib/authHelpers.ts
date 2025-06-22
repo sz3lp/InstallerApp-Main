@@ -5,12 +5,12 @@ export async function getUserRole(userId: string): Promise<string | null> {
     .from("users")
     .select("role")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Failed to fetch user role", error);
     return null;
   }
 
-  return data?.role?.toLowerCase() ?? null;
+  return data?.role ?? null;
 }
