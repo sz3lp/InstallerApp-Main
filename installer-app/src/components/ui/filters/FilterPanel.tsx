@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ModalWrapper from "../../installer/components/ModalWrapper";
+import ModalWrapper from "../../../installer/components/ModalWrapper";
 import { SZButton } from "../SZButton";
 import { SZCheckbox } from "../SZCheckbox";
 import MultiCheckboxFilter, { Option as MCOption } from "./MultiCheckboxFilter";
