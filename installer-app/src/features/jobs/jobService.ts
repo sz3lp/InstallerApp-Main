@@ -44,3 +44,26 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
     documents: data.documents || [],
   } as JobDetail;
 }
+
+export interface QAJobListItem {
+  id: string;
+  address: string;
+  assigned_to: string | null;
+  status: string;
+  scheduled_date: string;
+  documents: any[] | null;
+}
+
+export async function getJobsNeedingQA(): Promise<QAJobListItem[]> {
+  const { data, error } = await supabase
+    .from<QAJobListItem>("jobs")
+    .select(
+      "id, address, assigned_to, status, scheduled_date, documents(id, name, url, path, type)"
+    )
+    .eq("status", "needs_qa");
+  if (error) {
+    console.error("Failed to fetch QA jobs", error);
+    throw error;
+  }
+  return data ?? [];
+}
