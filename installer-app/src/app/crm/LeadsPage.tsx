@@ -18,7 +18,7 @@ const statuses = [
 ];
 
 export default function LeadsPage() {
-  const { leads, createLead, updateLeadStatus } = useLeads();
+  const { leads, createLead, updateLeadStatus, convertLeadToClientAndJob } = useLeads();
   const [form, setForm] = useState({
     clinic_name: "",
     contact_name: "",
@@ -97,7 +97,23 @@ export default function LeadsPage() {
               {new Date(lead.updated_at).toLocaleString()}
             </td>
             <td className="p-2 border space-x-2">
-              <SZButton size="sm" variant="secondary" onClick={() => changeStatus(lead, "won")}>Mark Won</SZButton>
+              {lead.status !== "won" ? (
+                <SZButton
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => changeStatus(lead, "won")}
+                >
+                  Mark Won
+                </SZButton>
+              ) : (
+                <SZButton
+                  size="sm"
+                  variant="primary"
+                  onClick={() => convertLeadToClientAndJob(lead.id)}
+                >
+                  Convert
+                </SZButton>
+              )}
               <SZButton size="sm" variant="secondary" onClick={() => setHistoryLead(lead)}>
                 History
               </SZButton>

@@ -71,8 +71,15 @@ export default function useLeads() {
       setLeads((ls) => ls.map((l) => (l.id === id ? data : l)));
       if (status === "appointment_scheduled") await callCreateCalendarInvite(id);
       if (status === "proposal_sent") await callGenerateProposalDocument(id);
-      if (status === "won") await callConvertLeadToClientAndJob(id);
       return data;
+    },
+    [allowed],
+  );
+
+  const convertLeadToClientAndJob = useCallback(
+    async (id: string) => {
+      if (!allowed) throw new Error("Unauthorized");
+      await callConvertLeadToClientAndJob(id);
     },
     [allowed],
   );
@@ -87,6 +94,7 @@ export default function useLeads() {
     fetchLeads,
     createLead,
     updateLeadStatus,
+    convertLeadToClientAndJob,
   } as const;
 }
 
