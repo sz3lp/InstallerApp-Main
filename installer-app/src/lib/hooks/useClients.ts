@@ -7,6 +7,9 @@ export interface Client {
   contact_name: string;
   contact_email: string;
   address: string;
+  phone?: string;
+  status?: string;
+  created_at?: string;
 }
 
 export function useClients() {
@@ -18,7 +21,9 @@ export function useClients() {
     setLoading(true);
     const { data, error } = await supabase
       .from<Client>("clients")
-      .select("id, name, contact_name, contact_email, address")
+      .select(
+        "id, name, contact_name, contact_email, address, phone, status, created_at",
+      )
       .order("name", { ascending: true });
     if (error) {
       setError(error.message);
@@ -41,17 +46,20 @@ export function useClients() {
     return data;
   }, []);
 
-  const updateClient = useCallback(async (id: string, client: Omit<Client, "id">) => {
-    const { data, error } = await supabase
-      .from<Client>("clients")
-      .update(client)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
-    setClients((cs) => cs.map((c) => (c.id === id ? data : c)));
-    return data;
-  }, []);
+  const updateClient = useCallback(
+    async (id: string, client: Omit<Client, "id">) => {
+      const { data, error } = await supabase
+        .from<Client>("clients")
+        .update(client)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      setClients((cs) => cs.map((c) => (c.id === id ? data : c)));
+      return data;
+    },
+    [],
+  );
 
   const deleteClient = useCallback(async (id: string) => {
     const { error } = await supabase.from("clients").delete().eq("id", id);
