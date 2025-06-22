@@ -27,3 +27,6 @@ if (typeof global.fetch === 'undefined') {
     })
   );
 }
+
+process.env.VITE_SUPABASE_URL ||= 'http://localhost';
+process.env.VITE_SUPABASE_ANON_KEY ||= 'anon';
