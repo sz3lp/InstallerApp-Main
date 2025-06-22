@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import useInstallerAuth from "./useInstallerAuth";
+import supabase from "../../lib/supabaseClient";
 
 export default function useAssignedJobs() {
   const { installerId } = useInstallerAuth();
@@ -9,20 +10,26 @@ export default function useAssignedJobs() {
 
   useEffect(() => {
     async function fetchJobs() {
+      if (!installerId) return;
       setLoading(true);
       setError(null);
-      try {
-        const res = await fetch(`/api/jobs?assignedTo=${installerId}`);
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        setJobs(data);
-      } catch (err) {
+      const { data, error } = await supabase
+        .from("jobs")
+        .select("id, clinic_name, status")
+        .eq("assigned_to", installerId)
+        .order("created_at", { ascending: false });
+      if (error) {
         setError("Failed to load jobs");
-      } finally {
-        setLoading(false);
+        setJobs([]);
+      } else {
+        const mapped = (data || []).map((j) => ({
+          id: j.id,
+          clientName: j.clinic_name,
+          status: j.status,
+        }));
+        setJobs(mapped);
       }
+      setLoading(false);
     }
     fetchJobs();
   }, [installerId]);
