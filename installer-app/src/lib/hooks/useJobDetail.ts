@@ -3,7 +3,8 @@ import supabase from "../supabaseClient";
 
 export interface JobDetail {
   id: string;
-  clinic_name: string;
+  client_id: string | null;
+  client_name?: string | null;
   address: string;
   notes: string | null;
   status: string;
@@ -24,7 +25,7 @@ export default function useJobDetail(jobId: string | null) {
     setLoading(true);
     const { data, error } = await supabase
       .from("jobs")
-      .select("id, clinic_name, address, notes, status, assigned_to")
+      .select("id, client_id, address, notes, status, assigned_to, clients(name)")
       .eq("id", jobId)
       .single();
     if (error) {
@@ -32,7 +33,10 @@ export default function useJobDetail(jobId: string | null) {
       setJob(null);
     } else {
       setError(null);
-      setJob(data as JobDetail);
+      setJob({
+        ...(data as any),
+        client_name: (data as any).clients?.name ?? null,
+      } as JobDetail);
     }
     setLoading(false);
   }, [jobId]);

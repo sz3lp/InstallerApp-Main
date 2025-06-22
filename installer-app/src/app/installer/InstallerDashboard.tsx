@@ -25,7 +25,7 @@ const InstallerDashboard: React.FC = () => {
               to={`/installer/jobs/${j.id}`}
               className="text-blue-600 underline"
             >
-              {j.clinic_name}
+              {j.client_name}
             </Link>
           </li>
         ))}

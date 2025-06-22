@@ -26,6 +26,7 @@ import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet, RequireAuth as RequireAuthOutlet } from "./components/auth/RequireAuth";
 import RequireRole from "./components/RequireRole";
+import AppLayout from "./components/layout/AppLayout";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 
 const ClientsPage = lazy(() => import("./app/clients/ClientsPage"));
@@ -38,171 +39,70 @@ const ReportsPage = lazy(() => import("./app/reports/ReportsPage"));
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 
 const App = () => {
-  console.log('Rendering App with routing');
   return (
     <Router>
       <AuthProvider>
         <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route element={<RequireAuthOutlet />}>
+              <Route element={<GlobalLayout />}>
+                {/* Installer Routes */}
+                <Route element={<RequireRoleOutlet role="Installer" />}>
+                  <Route path="/" element={<InstallerHomePage />} />
+                  <Route path="/appointments" element={<InstallerAppointmentPage />} />
+                  <Route path="/activity" element={<ActivityLogPage />} />
+                  <Route path="/ifi" element={<IFIDashboard />} />
+                  <Route path="/job/:jobId" element={<JobDetailPage />} />
+                  <Route path="/mock-jobs" element={<MockJobsPage />} />
+                  <Route path="/installer" element={<InstallerDashboard />} />
+                  <Route path="/installer/dashboard" element={<InstallerDashboard />} />
+                  <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
+                  <Route path="/installer/profile" element={<InstallerProfilePage />} />
+                  <Route path="/installer/inventory" element={<InventoryPage />} />
+                  <Route path="/installer/history" element={<JobHistoryPage />} />
+                  <Route path="/feedback" element={<FeedbackPage />} />
+                </Route>
 
-          <Route element={<RequireAuthOutlet />}> 
-            <Route element={<GlobalLayout />}>
+                {/* Admin Routes */}
+                <Route element={<RequireRoleOutlet role="Admin" />}>
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/jobs/new" element={<AdminNewJob />} />
+                  <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
+                </Route>
 
-          <Route element={<RequireRoleOutlet role="Installer" />}>
-            <Route path="/" element={<InstallerHomePage />} />
-            <Route path="/appointments" element={<InstallerAppointmentPage />} />
-            <Route path="/activity" element={<ActivityLogPage />} />
-            <Route path="/ifi" element={<IFIDashboard />} />
-            <Route path="/job/:jobId" element={<JobDetailPage />} />
-            <Route path="/mock-jobs" element={<MockJobsPage />} />
-            <Route path="/installer" element={<InstallerDashboard />} />
-            <Route path="/installer/dashboard" element={<InstallerDashboard />} />
-            <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
-            <Route path="/installer/profile" element={<InstallerProfilePage />} />
-            <Route path="/installer/inventory" element={<InventoryPage />} />
-            <Route path="/installer/history" element={<JobHistoryPage />} />
-            <Route path="/feedback" element={<FeedbackPage />} />
-          </Route>
+                {/* Manager Routes */}
+                <Route element={<RequireRoleOutlet role="Manager" />}>
+                  <Route path="/manager/qa" element={<QAReviewPanel />} />
+                  <Route path="/manager/review" element={<ManagerReview />} />
+                </Route>
 
-          <Route element={<RequireRoleOutlet role="Admin" />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/jobs/new" element={<AdminNewJob />} />
-            <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
-          </Route>
+                {/* Shared Manager/Admin Routes */}
+                <Route path="/manager/archived" element={<RequireRole role={["Manager", "Admin"]}><ArchivedJobsPage /></RequireRole>} />
+                <Route path="/archived" element={<RequireRole role={["Manager", "Admin"]}><ArchivedJobsPage /></RequireRole>} />
+                <Route path="/install-manager" element={<RequireRole role={["Manager", "Admin"]}><InstallManagerDashboard /></RequireRole>} />
+                <Route path="/install-manager/dashboard" element={<RequireRole role={["Manager", "Admin"]}><InstallManagerDashboard /></RequireRole>} />
+                <Route path="/install-manager/job/new" element={<RequireRole role={["Manager", "Admin"]}><NewJobBuilderPage /></RequireRole>} />
+                <Route path="/install-manager/job/:id" element={<RequireRole role={["Manager", "Admin"]}><UnderConstructionPage /></RequireRole>} />
+                <Route path="/clients" element={<RequireRole role={["Manager", "Admin"]}><ClientsPage /></RequireRole>} />
+                <Route path="/crm/leads" element={<RequireRole role={["Sales", "Manager", "Admin"]}><LeadsPage /></RequireRole>} />
+                <Route path="/sales/dashboard" element={<RequireRole role={["Sales", "Manager", "Admin"]}><SalesDashboard /></RequireRole>} />
+                <Route path="/quotes" element={<RequireRole role={["Manager", "Admin"]}><QuotesPage /></RequireRole>} />
+                <Route path="/invoices" element={<RequireRole role={["Manager", "Admin"]}><InvoicesPage /></RequireRole>} />
+                <Route path="/payments" element={<RequireRole role={["Manager", "Admin"]}><PaymentsPage /></RequireRole>} />
+                <Route path="/messages" element={<RequireRole role={["Manager", "Admin"]}><MessagesPanel /></RequireRole>} />
+                <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
+                <Route path="/reports" element={<RequireRole role={["Manager", "Admin"]}><ReportsPage /></RequireRole>} />
 
-          <Route element={<RequireRoleOutlet role="Manager" />}>
-            <Route path="/manager/qa" element={<QAReviewPanel />} />
-            <Route path="/manager/review" element={<ManagerReview />} />
-          </Route>
-
-          <Route
-            path="/manager/archived"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <ArchivedJobsPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/archived"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <ArchivedJobsPage />
-              </RequireRole>
-            }
-          />
-
-          <Route
-            path="/install-manager"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <InstallManagerDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/install-manager/dashboard"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <InstallManagerDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/install-manager/job/new"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <NewJobBuilderPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/install-manager/job/:id"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <UnderConstructionPage />
-              </RequireRole>
-            }
-          />
-
-          <Route
-            path="/clients"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <ClientsPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/crm/leads"
-            element={
-              <RequireRole role={["Sales", "Manager", "Admin"]}>
-                <LeadsPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/sales/dashboard"
-            element={
-              <RequireRole role={["Sales", "Manager", "Admin"]}>
-                <SalesDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/quotes"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <QuotesPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/invoices"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <InvoicesPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/payments"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <PaymentsPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/messages"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <MessagesPanel />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/time-tracking"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <TimeTrackingPanel />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <RequireRole role={["Manager", "Admin"]}>
-                <ReportsPage />
-              </RequireRole>
-            }
-          />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+                {/* Fallback for authenticated routes */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </Suspense>
+
+            {/* Fallback for unauthenticated routes */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </Router>
   );

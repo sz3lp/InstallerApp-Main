@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 interface JobRow {
   id: string;
-  clinic_name: string;
+  client_name: string | null;
   completed_at: string;
   status: string;
 }
@@ -19,11 +19,19 @@ export default function JobHistoryPage() {
     const fetch = async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("id, clinic_name, completed_at, status")
+        .select("id, client_id, completed_at, status, clients(name)")
         .eq("assigned_to", session?.user?.id)
         .in("status", ["needs_qa", "complete", "rework"])
         .order("completed_at", { ascending: false });
-      if (!error) setJobs(data ?? []);
+      if (!error) {
+        const list = (data ?? []).map((j: any) => ({
+          id: j.id,
+          client_name: j.clients?.name ?? null,
+          completed_at: j.completed_at,
+          status: j.status,
+        }));
+        setJobs(list);
+      }
     };
     if (session?.user?.id) fetch();
   }, [session]);
@@ -46,7 +54,7 @@ export default function JobHistoryPage() {
         {jobs.map((job) => (
           <SZCard key={job.id} className="p-3 flex justify-between items-center">
             <div>
-              <div className="font-semibold">{job.clinic_name}</div>
+              <div className="font-semibold">{job.client_name}</div>
               <div className="text-sm text-gray-500">
                 {new Date(job.completed_at).toLocaleDateString()}
               </div>
