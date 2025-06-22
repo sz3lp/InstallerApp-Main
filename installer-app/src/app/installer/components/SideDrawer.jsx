@@ -27,7 +27,7 @@ const SideDrawer = ({ isOpen, onClose }) => {
         </button>
         <ul className="space-y-2">
           {navLinks
-            .filter((link) => !link.roles || link.roles.includes(role))
+            .filter((link) => !link.role || (Array.isArray(link.role) ? link.role.includes(role) : link.role === role))
             .map((link) => (
               <li key={link.path}>
                 {link.path.startsWith('/') ? (
