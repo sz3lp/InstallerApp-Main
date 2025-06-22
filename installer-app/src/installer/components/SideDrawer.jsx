@@ -5,14 +5,14 @@ import { useAuth } from '../../lib/hooks/useAuth';
 
 const SideDrawer = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  let role = 'Installer';
+  let role = 'installer';
   let signOutFn = () => {};
   try {
     const auth = useAuth();
-    role = auth.role || 'Installer';
+    role = auth.role || 'installer';
     signOutFn = auth.signOut;
   } catch {
-    role = 'Installer';
+    role = 'installer';
   }
   if (!isOpen) return null;
   return (
@@ -27,7 +27,11 @@ const SideDrawer = ({ isOpen, onClose }) => {
         </button>
         <ul className="space-y-2">
           {navLinks
-            .filter((link) => !link.roles || link.roles.includes(role))
+            .filter(
+              (link) =>
+                !link.roles ||
+                link.roles.map((r) => r.toLowerCase()).includes(role.toLowerCase())
+            )
             .map((link) => (
               <li key={link.path}>
                 {link.path.startsWith('/') ? (

@@ -14,16 +14,16 @@ export function useInstallers() {
   const fetchInstallers = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("user_roles")
-      .select("user_id, users(full_name)")
-      .eq("role", "Installer");
+      .from("users")
+      .select("id, full_name")
+      .ilike("role", "installer");
     if (error) {
       setError(error.message);
       setInstallers([]);
     } else {
       const mapped = (data ?? []).map((row: any) => ({
-        id: row.user_id,
-        full_name: row.users?.full_name ?? null,
+        id: row.id,
+        full_name: row.full_name ?? null,
       }));
       setInstallers(mapped);
       setError(null);

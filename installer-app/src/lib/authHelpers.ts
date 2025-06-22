@@ -12,5 +12,5 @@ export async function getUserRole(userId: string): Promise<string | null> {
     return null;
   }
 
-  return data?.role ?? null;
+  return data?.role?.toLowerCase() ?? null;
 }

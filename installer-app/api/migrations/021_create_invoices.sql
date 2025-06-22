@@ -25,20 +25,20 @@ alter table invoices enable row level security;
 create policy "Invoices Select" on invoices for select using (true);
 create policy "Invoices Insert" on invoices
   for insert with check (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','sales'))
   );
 create policy "Invoices Update" on invoices
   for update using (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','sales'))
   );
 
 alter table invoice_line_items enable row level security;
 create policy "InvoiceLineItems Select" on invoice_line_items for select using (true);
 create policy "InvoiceLineItems Insert" on invoice_line_items
   for insert with check (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','sales'))
   );
 create policy "InvoiceLineItems Update" on invoice_line_items
   for update using (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','sales'))
   );

@@ -12,7 +12,7 @@ alter table job_quantities_completed enable row level security;
 create policy "JobQuantitiesCompleted Select" on job_quantities_completed
   for select using (
     user_id = auth.uid()
-    or exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager'))
+    or exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','manager'))
   );
 
 create policy "JobQuantitiesCompleted Insert" on job_quantities_completed

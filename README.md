@@ -9,7 +9,7 @@ This repository contains the Vite + React Installer App located in the `installe
 
 - Node.js ≥ 18.x
 - Supabase project with:
-  - `jobs`, `job_materials`, `checklists`, `documents`, `feedback`, `user_roles` tables
+- `jobs`, `job_materials`, `checklists`, `documents`, `feedback`, and `users` tables (with a `role` column)
   - Public storage bucket for document uploads
 
 ---
@@ -58,7 +58,7 @@ Apply migrations to provision required tables in your Supabase/Postgres instance
 ```bash
 psql $DATABASE_URL -f installer-app/api/migrations/001_create_audit_log.sql
 psql $DATABASE_URL -f installer-app/api/migrations/002_create_job_schema.sql
-psql $DATABASE_URL -f installer-app/api/migrations/003_create_user_roles.sql
+psql $DATABASE_URL -f installer-app/api/migrations/003_create_users.sql
 psql $DATABASE_URL -f installer-app/api/migrations/004_create_feedback.sql
 ```
 

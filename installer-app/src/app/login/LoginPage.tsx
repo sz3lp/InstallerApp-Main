@@ -16,12 +16,13 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (session && role) {
-      if (role === "Admin") navigate("/admin/dashboard", { replace: true });
-      else if (role === "Installer")
+      const r = role.toLowerCase();
+      if (r === "admin") navigate("/admin/dashboard", { replace: true });
+      else if (r === "installer")
         navigate("/installer/dashboard", { replace: true });
-      else if (role === "Manager")
+      else if (r === "manager")
         navigate("/install-manager/dashboard", { replace: true });
-      else if (role === "Sales")
+      else if (r === "sales")
         navigate("/sales/dashboard", { replace: true });
       else navigate("/", { replace: true });
     }

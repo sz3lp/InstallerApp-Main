@@ -18,7 +18,8 @@ export default function RequireRole({
   if (loading) return <div>Loading...</div>;
 
   const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-  if (!session || !roles.includes(role ?? "")) {
+  const allowed = roles.map((r) => r.toLowerCase());
+  if (!session || !allowed.includes((role ?? "").toLowerCase())) {
     return <Navigate to={redirectTo} replace />;
   }
 

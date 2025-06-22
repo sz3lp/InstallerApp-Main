@@ -11,7 +11,7 @@ alter table signed_checklists enable row level security;
 create policy "SignedChecklists Select" on signed_checklists
   for select using (
     installer_id = auth.uid()
-    or exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager'))
+    or exists (select 1 from users where id = auth.uid() and lower(role) in ('admin','manager'))
   );
 
 create policy "SignedChecklists Insert" on signed_checklists

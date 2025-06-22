@@ -14,7 +14,7 @@ create policy "JobMaterialsUsed Select" on job_materials_used
   for select using (
     installer_id = auth.uid()
     or exists (
-      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager')
+      select 1 from users where id = auth.uid() and lower(role) in ('admin','manager')
     )
   );
 

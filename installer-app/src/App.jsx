@@ -261,7 +261,7 @@ const App = () => {
                 <Route path="/messages" element={<RequireRole role={["Manager", "Admin"]}><MessagesPanel /></RequireRole>} />
                 <Route path="/time-tracking" element={<RequireRole role={["Manager", "Admin"]}><TimeTrackingPanel /></RequireRole>} />
                 <Route path="/reports" element={<RequireRole role={["Manager", "Admin"]}><ReportsPage /></RequireRole>} />
-                <Route path="/reports/technician-pay" element={<RequireRole role={["Admin", "Install Manager"]}><TechnicianPayReportPage /></RequireRole>} />
+                <Route path="/reports/technician-pay" element={<RequireRole role={["admin", "manager"]}><TechnicianPayReportPage /></RequireRole>} />
                 <Route path="/reports/invoice-aging" element={<RequireRole role={["Manager", "Admin"]}><InvoiceAgingPage /></RequireRole>} />
 
 

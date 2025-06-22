@@ -19,19 +19,19 @@ alter table leads enable row level security;
 create policy "Leads Select" on leads
   for select using (
     sales_rep_id = auth.uid() or
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Admin'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('sales','manager','admin'))
   );
 
 create policy "Leads Insert" on leads
   for insert with check (
     sales_rep_id = auth.uid() or
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Admin'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('sales','manager','admin'))
   );
 
 create policy "Leads Update" on leads
   for update using (
     sales_rep_id = auth.uid() or
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Admin'))
+    exists (select 1 from users where id = auth.uid() and lower(role) in ('sales','manager','admin'))
   );
 
 create or replace function set_lead_audit_fields()
