@@ -60,7 +60,6 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
-
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
 

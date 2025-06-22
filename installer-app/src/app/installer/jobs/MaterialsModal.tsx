@@ -130,6 +130,7 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           ))}
         </SZTable>
       )}
+
       )}
 
 
