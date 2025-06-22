@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useChecklist } from "../../lib/hooks/useChecklist";
 import { useJobs } from "../../lib/hooks/useJobs";
@@ -14,6 +14,13 @@ const InstallerChecklistWizard = ({ isOpen, onClose, onSubmit, job }) => {
   const [step, setStep] = useState(0);
   const { items, toggleItem } = useChecklist(job?.id || "");
   const { updateStatus } = useJobs();
+
+  // Jump to the first incomplete step when loading existing checklist items
+  useEffect(() => {
+    if (!items.length) return;
+    const idx = items.findIndex((i) => !i.completed);
+    setStep(idx === -1 ? items.length : idx);
+  }, [items]);
   const [photos, setPhotos] = useState({});
   const handlePhotoUpload = (stepId, file) => {
     setPhotos((prev) => ({ ...prev, [stepId]: file }));
