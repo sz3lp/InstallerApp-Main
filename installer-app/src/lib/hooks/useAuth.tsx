@@ -21,29 +21,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
-      console.log('Initializing auth...');
-      const {
-        data: { session: active },
-      } = await supabase.auth.getSession();
-      let current = active;
-      if (!current) {
-        const stored =
-          localStorage.getItem("sb_session") ||
-          sessionStorage.getItem("sb_session");
-        if (stored) current = JSON.parse(stored);
-      }
-      setSession(current);
-      setUser(current?.user ?? null);
-      if (current?.user) {
-        const role = await getUserRole(current.user.id);
-        setRole(role);
-        console.log('Loaded role', role);
-      } else {
+      try {
+        console.log("Initializing auth...");
+
+        const {
+          data: { session: active },
+        } = await supabase.auth.getSession();
+
+        let current = active;
+        if (!current) {
+          const stored =
+            localStorage.getItem("sb_session") ||
+            sessionStorage.getItem("sb_session");
+          if (stored) current = JSON.parse(stored);
+        }
+
+        setSession(current);
+        setUser(current?.user ?? null);
+
+        if (current?.user?.id) {
+          const role = await getUserRole(current.user.id);
+          setRole(role);
+          console.log("Loaded role", role);
+        } else {
+          setRole(null);
+        }
+
+        console.log("Auth initialized", { session: current, role });
+      } catch (error) {
+        console.error("Auth init error:", error);
+        setSession(null);
+        setUser(null);
         setRole(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-      console.log('Auth initialized', { session: current, role });
     };
+
     init();
   }, []);
 
@@ -52,24 +66,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     remember: boolean = true
   ) => {
-    console.log('Attempting sign in', email);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    console.log("Attempting sign in", email);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
     setSession(data.session);
     setUser(data.user);
+
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));
+
     const role = await getUserRole(data.user.id);
     setRole(role);
-    console.log('Signed in with role', role);
+    console.log("Signed in with role", role);
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    console.log('Signed out');
+    console.log("Signed out");
     setSession(null);
     setUser(null);
     setRole(null);
