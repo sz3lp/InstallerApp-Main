@@ -7,6 +7,7 @@ export type JobStatus =
   | "needs_qa"
   | "complete"
   | "rework"
+  | "archived"
   | "unassigned";
 
 const statusMap: Record<
@@ -18,6 +19,7 @@ const statusMap: Record<
   needs_qa: { label: "Needs QA", variant: "orange" },
   complete: { label: "Complete", variant: "green" },
   rework: { label: "Rework", variant: "red" },
+  archived: { label: "Archived", variant: "gray" },
   unassigned: { label: "Unassigned", variant: "gray" },
 };
 

@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useJobs } from "../../lib/hooks/useJobs";
 import { SZButton } from "../../components/ui/SZButton";
+import JobAttachmentsPanel from "../../components/JobAttachmentsPanel";
+
 
 export default function ManagerReview() {
   const { jobs, fetchJobs, updateStatus } = useJobs();
@@ -22,9 +24,18 @@ export default function ManagerReview() {
         <p>No jobs pending QA.</p>
       ) : (
         pending.map((job) => (
+
           <div key={job.id} className="border p-4 rounded shadow">
             <div className="font-semibold">Clinic: {job.clinic_name}</div>
             <div>Status: {job.status}</div>
+
+          <div key={job.id} className="border p-4 rounded shadow space-y-4">
+            <div>
+              <div className="font-semibold">Clinic: {job.clinic_name}</div>
+              <div>Status: {job.status}</div>
+            </div>
+            <JobAttachmentsPanel jobId={job.id} />
+
             <div className="mt-2 flex gap-3">
               <SZButton onClick={() => handleDecision(job.id, "complete")}>Approve</SZButton>
               <SZButton

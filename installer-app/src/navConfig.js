@@ -6,6 +6,7 @@ export const navLinks = [
   { path: '/install-manager', label: 'Install Manager Dashboard', roles: ['Admin', 'Manager'] },
   { path: '/feedback', label: 'Feedback', roles: ['Installer'] },
   { path: '/clients', label: 'Clients', roles: ['Admin', 'Manager'] },
+  { path: '/crm/leads', label: 'Leads', roles: ['Sales', 'Manager', 'Admin'] },
   { path: '/quotes', label: 'Quotes', roles: ['Admin', 'Manager'] },
   { path: '/invoices', label: 'Invoices', roles: ['Admin', 'Manager'] },
   { path: '/payments', label: 'Payments', roles: ['Admin', 'Manager'] },
