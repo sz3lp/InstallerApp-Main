@@ -15,6 +15,7 @@ import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
 import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/manager/ArchivedJobsPage";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import ManagerReview from "./app/manager/ManagerReview";
@@ -28,6 +29,7 @@ import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 const LeadsPage = lazy(() => import("./app/crm/LeadsPage"));
 import ManagerReview from "./app/manager/ReviewPage";
+
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireRole as RequireRoleOutlet } from "./components/auth/RequireAuth";
@@ -64,7 +66,6 @@ const App = () => (
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
 
-
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -84,6 +85,7 @@ const App = () => (
             </RequireRole>
           }
         />
+
         <Route
           path="/archived"
           element={
@@ -92,6 +94,7 @@ const App = () => (
             </RequireRole>
           }
         />
+
 
           <Route
             path="/install-manager"

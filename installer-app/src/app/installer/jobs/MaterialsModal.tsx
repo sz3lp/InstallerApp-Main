@@ -28,6 +28,8 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
   const { session } = useAuth();
   const { items, fetchItems } = useJobMaterials(jobId || "");
   const { session } = useAuth();
+  const { items, fetchItems } = useJobMaterials(jobId || "");
+  const { session } = useAuth();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [saving, setSaving] = useState(false);
@@ -125,8 +127,6 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           ))}
         </SZTable>
       )}
-
-
       )}
 
 
@@ -154,7 +154,6 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           </tr>
         ))}
       </SZTable>
-
     </SZModal>
   );
 };
