@@ -14,6 +14,7 @@ export const ROUTES = {
   LEADS: '/crm/leads',
   QUOTES: '/quotes',
   INVOICES: '/invoices',
+
   INVOICE_DETAIL: '/invoices/:id',
   PAYMENTS: '/payments',
   MESSAGES: '/messages',
