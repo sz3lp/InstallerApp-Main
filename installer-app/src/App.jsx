@@ -34,6 +34,7 @@ const App = () => (
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+
           <Route element={<RequireRoleOutlet role="Installer" />}>
             <Route path="/" element={<InstallerHomePage />} />
             <Route path="/appointments" element={<AppointmentSummaryPage />} />
@@ -44,13 +45,16 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
           </Route>
+
           <Route element={<RequireRoleOutlet role="Admin" />}>
             <Route path="/admin/jobs/new" element={<AdminNewJob />} />
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
+
           <Route element={<RequireRoleOutlet role="Manager" />}>
             <Route path="/manager/review" element={<ManagerReview />} />
           </Route>
+
           <Route
             path="/install-manager"
             element={
@@ -75,7 +79,16 @@ const App = () => (
               </RequireRole>
             }
           />
-          <Route path="/feedback" element={<FeedbackPage />} />
+
+          <Route
+            path="/feedback"
+            element={
+              <RequireRole role={["Installer", "Manager", "Admin"]}>
+                <FeedbackPage />
+              </RequireRole>
+            }
+          />
+
           <Route
             path="/clients"
             element={
