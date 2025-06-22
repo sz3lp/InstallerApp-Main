@@ -3,6 +3,7 @@ import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
+import PaymentLoggingModal from "../../components/PaymentLoggingModal";
 import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
 
 const InvoicesPage: React.FC = () => {
@@ -12,9 +13,18 @@ const InvoicesPage: React.FC = () => {
   ] = useInvoices();
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
   const [open, setOpen] = useState(false);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
 
   const markPaid = async (id: string) => {
     await updateInvoice(id, { status: "paid", paid_at: new Date().toISOString() });
+  };
+
+  const openPaymentModal = (id: string) => {
+    setPaymentInvoiceId(id);
+  };
+
+  const closePaymentModal = () => {
+    setPaymentInvoiceId(null);
   };
 
   const filtered = invoices.filter((i) => (filter === "all" ? true : i.status === filter));
@@ -69,12 +79,18 @@ const InvoicesPage: React.FC = () => {
                     Mark Paid
                   </SZButton>
                 )}
+                <SZButton size="sm" variant="secondary" onClick={() => openPaymentModal(inv.id)}>
+                  Log Payment
+                </SZButton>
               </td>
             </tr>
           ))}
         </SZTable>
       )}
       <InvoiceFormModal isOpen={open} onClose={() => setOpen(false)} onSave={handleSave} />
+      {paymentInvoiceId && (
+        <PaymentLoggingModal invoiceId={paymentInvoiceId} open={true} onClose={closePaymentModal} />
+      )}
     </div>
   );
 };
