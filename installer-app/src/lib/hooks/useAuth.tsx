@@ -21,7 +21,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
+
       console.log('Initializing auth...');
+
       const {
         data: { session: active },
       } = await supabase.auth.getSession();
@@ -52,7 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     remember: boolean = true
   ) => {
+
     console.log('Attempting sign in', email);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
