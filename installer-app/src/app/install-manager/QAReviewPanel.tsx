@@ -35,7 +35,9 @@ const QAReviewPanel: React.FC<QAReviewPanelProps> = () => {
     setError(null);
     const { data, error } = await supabase
       .from<QAJobRow>("jobs")
-      .select("id, address, assigned_to, status, scheduled_date, documents")
+      .select(
+        "id, address, assigned_to, status, scheduled_date, documents(id, name, url, path, type)",
+      )
       .eq("status", "needs_qa");
     if (error) {
       setError(error.message);

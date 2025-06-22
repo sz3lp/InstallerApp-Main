@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
-import QuoteFormModal, { QuoteData } from "../../components/modals/QuoteFormModal";
+import QuoteFormModal, {
+  QuoteData,
+} from "../../components/modals/QuoteFormModal";
 import { useJobs } from "../../lib/hooks/useJobs";
 import useQuotes from "../../lib/hooks/useQuotes";
-import { LoadingState, EmptyState, ErrorState } from "../../components/ui/state";
+import {
+  LoadingState,
+  EmptyState,
+  ErrorState,
+} from "../../components/ui/state";
 
 const QuotesPage: React.FC = () => {
   const [
@@ -46,7 +52,12 @@ const QuotesPage: React.FC = () => {
   const approve = async (id: string) => {
     const quote = quotes.find((q) => q.id === id);
     if (!quote) return;
+    if (!quote.client_id) {
+      alert("Client must be selected before creating a job.");
+      return;
+    }
     await createJob({
+      client_id: quote.client_id,
       clinic_name: quote.client_name ?? "",
       contact_name: "",
       contact_phone: "",

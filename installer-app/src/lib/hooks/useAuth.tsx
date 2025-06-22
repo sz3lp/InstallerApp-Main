@@ -2,6 +2,11 @@ import { createContext, useState, useEffect, useContext, ReactNode } from "react
 import supabase from "../supabaseClient";
 import { getUserRole } from "../authHelpers";
 
+function normalizeRole(role: string | null): string | null {
+  if (!role) return null;
+  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+}
+
 type AuthContextType = {
   session: any;
   user: any;
@@ -42,8 +47,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let currentRole: string | null = null;
       if (current?.user) {
         currentRole = await getUserRole(current.user.id);
-        setRole(currentRole);
-        console.log("Loaded role", currentRole);
+        const normalized = normalizeRole(currentRole);
+        setRole(normalized);
+        console.log("Loaded role", normalized);
       } else {
         setRole(null);
       }
@@ -75,8 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     storage.setItem("sb_session", JSON.stringify(data.session));
 
     const role = await getUserRole(data.user.id);
-    setRole(role);
-    console.log("Signed in with role", role);
+    const normalized = normalizeRole(role);
+    setRole(normalized);
+    console.log("Signed in with role", normalized);
   };
 
   const signOut = async () => {

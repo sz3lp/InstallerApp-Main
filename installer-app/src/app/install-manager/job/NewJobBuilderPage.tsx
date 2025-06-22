@@ -38,6 +38,7 @@ const NewJobBuilderPage: React.FC = () => {
     { material_id: "", quantity: 1, sale_price: "", install_location: "" },
   ]);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -50,7 +51,7 @@ const NewJobBuilderPage: React.FC = () => {
   }, []);
 
   const materialMap = Object.fromEntries(
-    materials.map((m) => [m.id, m])
+    materials.map((m) => [m.id, m]),
   ) as Record<string, Material>;
 
   const handleJobChange = (key: string, value: string) => {
@@ -60,7 +61,7 @@ const NewJobBuilderPage: React.FC = () => {
   const handleRowChange = (
     index: number,
     key: keyof MaterialRow,
-    value: string | number
+    value: string | number,
   ) => {
     setRows((rs) => {
       const copy = [...rs];
@@ -92,7 +93,15 @@ const NewJobBuilderPage: React.FC = () => {
   }, 0);
 
   const handleSubmit = async () => {
-    if (!job.client_id || !job.contact_name || !job.address) return;
+    if (!job.client_id) {
+      setError("Client must be selected before creating a job.");
+      return;
+    }
+    if (!job.contact_name || !job.address) {
+      setError("Contact name and address are required.");
+      return;
+    }
+    setError(null);
     setSubmitting(true);
     const { data, error } = await supabase.from("jobs").insert(job).select();
     if (error || !data) {
@@ -110,7 +119,9 @@ const NewJobBuilderPage: React.FC = () => {
           quantity: r.quantity,
           unit_material_cost: m.base_cost,
           unit_labor_cost: m.default_pay_rate,
-          sale_price: r.sale_price ? parseFloat(r.sale_price) : m.default_sale_price,
+          sale_price: r.sale_price
+            ? parseFloat(r.sale_price)
+            : m.default_sale_price,
           install_location: r.install_location,
         };
       });
@@ -128,7 +139,10 @@ const NewJobBuilderPage: React.FC = () => {
         <h2 className="text-xl font-semibold">Job Info</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700" htmlFor="client">
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="client"
+            >
               Client
             </label>
             <select
@@ -145,12 +159,38 @@ const NewJobBuilderPage: React.FC = () => {
               ))}
             </select>
           </div>
-          <SZInput id="contact_name" label="Contact Name" value={job.contact_name} onChange={(v) => handleJobChange("contact_name", v)} />
-          <SZInput id="contact_phone" label="Contact Phone" value={job.contact_phone} onChange={(v) => handleJobChange("contact_phone", v)} />
-          <SZInput id="contact_email" label="Contact Email" value={job.contact_email} onChange={(v) => handleJobChange("contact_email", v)} />
-          <SZInput id="address" label="Address" value={job.address} onChange={(v) => handleJobChange("address", v)} className="md:col-span-2" />
+          <SZInput
+            id="contact_name"
+            label="Contact Name"
+            value={job.contact_name}
+            onChange={(v) => handleJobChange("contact_name", v)}
+          />
+          <SZInput
+            id="contact_phone"
+            label="Contact Phone"
+            value={job.contact_phone}
+            onChange={(v) => handleJobChange("contact_phone", v)}
+          />
+          <SZInput
+            id="contact_email"
+            label="Contact Email"
+            value={job.contact_email}
+            onChange={(v) => handleJobChange("contact_email", v)}
+          />
+          <SZInput
+            id="address"
+            label="Address"
+            value={job.address}
+            onChange={(v) => handleJobChange("address", v)}
+            className="md:col-span-2"
+          />
           <div>
-            <label className="block text-sm font-medium text-gray-700" htmlFor="status">Job Status</label>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="status"
+            >
+              Job Status
+            </label>
             <select
               id="status"
               className="block w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -259,7 +299,9 @@ const NewJobBuilderPage: React.FC = () => {
 
       <section className="space-y-1">
         <p className="font-semibold">Total Price: ${totalPrice.toFixed(2)}</p>
-        <p className="font-semibold">Estimated Tech Payout: ${techPayout.toFixed(2)}</p>
+        <p className="font-semibold">
+          Estimated Tech Payout: ${techPayout.toFixed(2)}
+        </p>
       </section>
 
       <div className="flex flex-wrap gap-2">
@@ -276,6 +318,8 @@ const NewJobBuilderPage: React.FC = () => {
           Generate Contracts
         </SZButton>
       </div>
+
+      {error && <p className="text-red-600 text-sm">{error}</p>}
 
       <div className="pt-4">
         <SZButton onClick={handleSubmit} isLoading={submitting}>

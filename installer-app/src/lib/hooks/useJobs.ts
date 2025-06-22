@@ -23,7 +23,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from("jobs")
       .select(
-        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)"
+        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)",
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -45,7 +45,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from("jobs")
       .select(
-        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)"
+        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)",
       )
       .eq("assigned_to", userId)
       .order("created_at", { ascending: false });
@@ -69,6 +69,9 @@ export function useJobs() {
         quote_id?: string;
       },
     ) => {
+      if (!job.client_id) {
+        throw new Error("client_id is required");
+      }
       const { data, error } = await supabase
         .from<Job>("jobs")
         .insert({ ...job })
