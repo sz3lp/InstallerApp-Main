@@ -79,17 +79,10 @@ export function useJobs() {
     return data;
   }, []);
 
-  const updateStatus = useCallback(async (id: string, status: string) => {
-    const { data, error } = await supabase
-      .from<Job>("jobs")
-      .update({ status })
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
-    setJobs((js) => js.map((j) => (j.id === id ? data : j)));
-    return data;
-  }, []);
+  const updateStatus = async (jobId: string, newStatus: string) => {
+    await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
+    await fetchJobs();
+  };
 
   useEffect(() => {
     fetchJobs();
