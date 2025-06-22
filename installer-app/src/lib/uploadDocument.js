@@ -1,4 +1,4 @@
-export default async function uploadDocument(file) {
+export default async function uploadDocument(file, jobId, folder) {
   if (!file) return null;
 
   if (process.env.NODE_ENV === "test") {
@@ -14,7 +14,11 @@ export default async function uploadDocument(file) {
   try {
     const { default: supabase } = await import("./supabaseClient");
     const ext = file.name.split(".").pop();
-    const filePath = `${Date.now()}_${file.name}`;
+    const filePathParts = [];
+    if (jobId) filePathParts.push(jobId);
+    if (folder) filePathParts.push(folder);
+    filePathParts.push(`${Date.now()}_${file.name}`);
+    const filePath = filePathParts.join("/");
 
     const { error } = await supabase.storage
       .from("documents")
