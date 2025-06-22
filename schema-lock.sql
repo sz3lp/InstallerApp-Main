@@ -116,3 +116,9 @@ CREATE TABLE public.users (
   active boolean NOT NULL,
   CONSTRAINT users_pkey PRIMARY KEY (id, active)
 );
+CREATE TABLE public.user_settings (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id),
+  onboarding_version integer DEFAULT 1,
+  onboarding_completed_tasks jsonb DEFAULT '[]',
+  onboarding_dismissed_at timestamp with time zone
+);

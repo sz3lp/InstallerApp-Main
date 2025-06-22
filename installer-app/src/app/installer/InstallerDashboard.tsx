@@ -2,9 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useJobs } from "../../lib/hooks/useJobs";
 import { useAuth } from "../../lib/hooks/useAuth";
+import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
 
 const InstallerDashboard: React.FC = () => {
-  const { session } = useAuth();
+  const { session, role, user } = useAuth();
   const currentUserId = session?.user?.id;
   const { jobs, loading } = useJobs();
   const myJobs = jobs.filter(
@@ -17,6 +18,7 @@ const InstallerDashboard: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
+      <OnboardingPanel role={role} userId={user?.id ?? null} />
       <h1 className="text-2xl font-bold">Assigned Jobs</h1>
       <ul className="space-y-2">
         {myJobs.map((j) => (

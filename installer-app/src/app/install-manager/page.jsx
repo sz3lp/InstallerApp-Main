@@ -3,6 +3,8 @@ import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
 import { useJobs } from "./useJobs";
+import { useAuth } from "../../lib/hooks/useAuth";
+import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
@@ -14,6 +16,7 @@ import JobCloseoutPanel from "./JobCloseoutPanel";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
+  const { role, user } = useAuth();
   const navigate = useNavigate();
   const [editJob, setEditJob] = useState(null);
   const [deleteJob, setDeleteJob] = useState(null);
@@ -34,6 +37,7 @@ export default function InstallManagerDashboard() {
           New Job
         </SZButton>
       </header>
+      <OnboardingPanel role={role} userId={user?.id ?? null} />
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-600">{error}</div>}
       <ul className="space-y-4">
