@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { SZInput } from "../../components/ui/SZInput";
 import { SZButton } from "../../components/ui/SZButton";
 import { useAuth } from "../../lib/hooks/useAuth";
@@ -12,20 +12,17 @@ const LoginPage: React.FC = () => {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
-  const navigate = useNavigate();
+  const dashboardMap: Record<string, string> = {
+    admin: "/admin/dashboard",
+    installer: "/installer/dashboard",
+    manager: "/install-manager/dashboard",
+    sales: "/sales/dashboard",
+  };
 
-  useEffect(() => {
-    if (session && role) {
-      if (role === "Admin") navigate("/admin/dashboard", { replace: true });
-      else if (role === "Installer")
-        navigate("/installer/dashboard", { replace: true });
-      else if (role === "Manager")
-        navigate("/install-manager/dashboard", { replace: true });
-      else if (role === "Sales")
-        navigate("/sales/dashboard", { replace: true });
-      else navigate("/", { replace: true });
-    }
-  }, [session, role, navigate]);
+  if (!loading && session && role) {
+    const path = dashboardMap[role.toLowerCase()] ?? "/";
+    return <Navigate to={path} replace />;
+  }
 
   const handleLogin = async () => {
     setError(null);
