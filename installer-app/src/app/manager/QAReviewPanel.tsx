@@ -37,17 +37,42 @@ const QAReviewPanel: React.FC = () => {
     fetchJobs();
   }, []);
 
-  const handleDecision = async (jobId: string, decision: "approved" | "rework") => {
+  const handleDecision = async (
+    jobId: string,
+    decision: "approved" | "rework",
+  ) => {
     if (!reviewerId) return;
     const note = notes[jobId] ?? "";
+
     await supabase.from("qa_reviews").insert({
       job_id: jobId,
       reviewer_id: reviewerId,
       decision,
       notes: note,
     });
-    const newStatus = decision === "approved" ? "complete" : "rework";
-    await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
+
+    if (decision === "approved") {
+      const { error } = await supabase
+        .from("jobs")
+        .update({ status: "ready_for_invoice" })
+        .eq("id", jobId);
+      if (!error) {
+        const { error: invErr } = await supabase.rpc(
+          "generate_invoice_for_job",
+          { p_job_id: jobId },
+        );
+        if (invErr) {
+          await supabase
+            .from("jobs")
+            .update({ status: "needs_qa" })
+            .eq("id", jobId);
+          alert(`Failed to generate invoice: ${invErr.message}`);
+        }
+      }
+    } else {
+      await supabase.from("jobs").update({ status: "rework" }).eq("id", jobId);
+    }
+
     fetchJobs();
     setNotes((n) => ({ ...n, [jobId]: "" }));
   };

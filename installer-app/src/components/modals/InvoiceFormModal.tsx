@@ -11,7 +11,13 @@ export interface InvoiceData {
   client_id: string;
   job_id?: string;
   quote_id?: string;
-  amount: number;
+  subtotal: number;
+  discount_type: "flat" | "percent";
+  discount_amount: number;
+  tax_rate: number;
+  tax_amount: number;
+  total_fees: number;
+  invoice_total: number;
   due_date?: string;
 }
 
@@ -30,21 +36,43 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
   const [clientId, setClientId] = useState("");
   const [jobId, setJobId] = useState("");
   const [quoteId, setQuoteId] = useState("");
-  const [amount, setAmount] = useState("0");
+  const [subtotal, setSubtotal] = useState("0");
+  const [discountType, setDiscountType] = useState<"flat" | "percent">("flat");
+  const [discount, setDiscount] = useState("0");
+  const [taxRate, setTaxRate] = useState("0");
+  const [fees, setFees] = useState<{ description: string; amount: string }[]>([]);
   const [dueDate, setDueDate] = useState("");
+
+  const subtotalNum = Number(subtotal) || 0;
+  const discountNum = Number(discount) || 0;
+  const taxRateNum = Number(taxRate) || 0;
+  const feeTotal = fees.reduce((s, f) => s + (Number(f.amount) || 0), 0);
+  const discountAmt =
+    discountType === "percent" ? (subtotalNum * discountNum) / 100 : discountNum;
+  const taxedBase = subtotalNum - discountAmt;
+  const taxAmt = (taxRateNum / 100) * taxedBase;
+  const grandTotal = taxedBase + taxAmt + feeTotal;
 
   useEffect(() => {
     if (initialData) {
       setClientId(initialData.client_id);
       setJobId(initialData.job_id ?? "");
       setQuoteId(initialData.quote_id ?? "");
-      setAmount(String(initialData.amount));
+      setSubtotal(String(initialData.subtotal));
+      setDiscountType(initialData.discount_type);
+      setDiscount(String(initialData.discount_amount));
+      setTaxRate(String(initialData.tax_rate));
+      setFees([]); // fees will be fetched separately if needed
       setDueDate(initialData.due_date ?? "");
     } else {
       setClientId("");
       setJobId("");
       setQuoteId("");
-      setAmount("0");
+      setSubtotal("0");
+      setDiscountType("flat");
+      setDiscount("0");
+      setTaxRate("0");
+      setFees([]);
       setDueDate("");
     }
   }, [initialData]);
@@ -54,7 +82,7 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
       const q = quotes.find((q) => q.id === quoteId);
       if (q) {
         setClientId(q.client_id ?? "");
-        setAmount(String(q.total ?? 0));
+        setSubtotal(String(q.total ?? 0));
       }
     } else if (jobId) {
       const j = jobs.find((j) => j.id === jobId);
@@ -62,7 +90,7 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
         const q = quotes.find((x) => x.id === (j as any).quote_id);
         if (q) {
           setClientId(q.client_id ?? "");
-          setAmount(String(q.total ?? 0));
+          setSubtotal(String(q.total ?? 0));
           setQuoteId(q.id);
         }
       }
@@ -75,7 +103,13 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
       client_id: clientId,
       job_id: jobId || undefined,
       quote_id: quoteId || undefined,
-      amount: Number(amount),
+      subtotal: subtotalNum,
+      discount_type: discountType,
+      discount_amount: discountAmt,
+      tax_rate: taxRateNum,
+      tax_amount: taxAmt,
+      total_fees: feeTotal,
+      invoice_total: grandTotal,
       due_date: dueDate || undefined,
     });
   };
@@ -111,8 +145,36 @@ const InvoiceFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
             ))}
           </select>
         </div>
-        <SZInput id="inv_amount" label="Amount" value={amount} onChange={(v) => setAmount(v)} />
-        <SZInput id="inv_due" label="Due Date" type="date" value={dueDate} onChange={(v) => setDueDate(v)} />
+          <SZInput id="inv_sub" label="Subtotal" value={subtotal} onChange={(v) => setSubtotal(v)} />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Discount</label>
+            <div className="flex items-center gap-2 mt-1">
+              <select value={discountType} onChange={(e) => setDiscountType(e.target.value as any)} className="border rounded p-1">
+                <option value="flat">$</option>
+                <option value="percent">%</option>
+              </select>
+              <input type="number" className="border rounded p-1 w-full" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+            </div>
+          </div>
+          <SZInput id="inv_tax" label="Tax Rate %" value={taxRate} onChange={(v) => setTaxRate(v)} />
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Additional Fees</p>
+            {fees.map((f, idx) => (
+              <div key={idx} className="flex gap-2 items-end">
+                <input type="text" placeholder="Description" className="border rounded p-1 flex-1" value={f.description} onChange={(e) => setFees((rows) => rows.map((r, i) => (i === idx ? { ...r, description: e.target.value } : r)))} />
+                <input type="number" placeholder="Amount" className="border rounded p-1 w-28" value={f.amount} onChange={(e) => setFees((rows) => rows.map((r, i) => (i === idx ? { ...r, amount: e.target.value } : r)))} />
+                <button type="button" className="text-red-600 text-xs" onClick={() => setFees((rows) => rows.filter((_, i) => i !== idx))}>Remove</button>
+              </div>
+            ))}
+            <button type="button" className="text-blue-600 text-xs" onClick={() => setFees((r) => [...r, { description: '', amount: '' }])}>Add Fee</button>
+          </div>
+          <SZInput id="inv_due" label="Due Date" type="date" value={dueDate} onChange={(v) => setDueDate(v)} />
+          <div className="text-sm border-t pt-2 space-y-1">
+            <p>Discount: ${discountAmt.toFixed(2)}</p>
+            <p>Tax: ${taxAmt.toFixed(2)}</p>
+            <p>Fees: ${feeTotal.toFixed(2)}</p>
+            <p className="font-semibold">Total: ${grandTotal.toFixed(2)}</p>
+          </div>
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <SZButton variant="secondary" onClick={onClose}>Cancel</SZButton>
