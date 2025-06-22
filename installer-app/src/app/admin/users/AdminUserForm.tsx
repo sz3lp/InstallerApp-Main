@@ -4,6 +4,7 @@ import { SZButton } from "../../../components/ui/SZButton";
 import { SZInput } from "../../../components/ui/SZInput";
 import supabase from "../../../lib/supabaseClient";
 import { AdminUser } from "./AdminUserListPage";
+import UserRoleEditor from "./UserRoleEditor";
 
 type Props = {
   user: AdminUser;
@@ -66,6 +67,7 @@ const AdminUserForm: React.FC<Props> = ({ user, onClose }) => {
           />
           Active
         </label>
+        {form.id && <UserRoleEditor userId={form.id} />}
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <SZButton variant="secondary" onClick={onClose}>

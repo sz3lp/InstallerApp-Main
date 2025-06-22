@@ -15,7 +15,12 @@ import uploadDocument from "../../lib/uploadDocument";
 const JobDetailPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  let role: string | null = null;
+  try {
+    role = useAuth().role;
+  } catch {
+    role = "Installer";
+  }
   const [showDrawer, setShowDrawer] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
