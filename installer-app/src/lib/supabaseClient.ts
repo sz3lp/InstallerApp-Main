@@ -3,10 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 // Ensure these are populated in `.env.local`:
 // NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 // NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+// or VITE_SUPABASE_API_KEY=your-anon-key-here
 
 // Read credentials from environment variables (works in both Vite and Node)
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.VITE_SUPABASE_API_KEY ||
+  process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error("Missing Supabase credentials", { supabaseUrl, supabaseAnonKey });
