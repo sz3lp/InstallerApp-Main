@@ -9,6 +9,7 @@ export interface Job {
   assigned_to: string | null;
   status: string;
   created_at: string;
+  quote_id?: string | null;
 }
 
 export function useJobs() {
@@ -21,7 +22,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from<Job>("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at",
+        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -39,7 +40,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from<Job>("jobs")
       .select(
-        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at",
+        "id, clinic_name, contact_name, contact_phone, assigned_to, status, created_at, quote_id",
       )
       .eq("assigned_to", userId)
       .order("created_at", { ascending: false });
@@ -54,7 +55,11 @@ export function useJobs() {
   }, []);
 
   const createJob = useCallback(
-    async (job: Omit<Job, "id" | "status" | "assigned_to" | "created_at">) => {
+    async (
+      job: Omit<Job, "id" | "status" | "assigned_to" | "created_at"> & {
+        quote_id?: string;
+      },
+    ) => {
       const { data, error } = await supabase
         .from<Job>("jobs")
         .insert({ ...job })
