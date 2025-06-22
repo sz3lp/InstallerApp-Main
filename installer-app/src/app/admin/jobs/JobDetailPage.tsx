@@ -6,10 +6,11 @@ import { useJobs } from "../../../lib/hooks/useJobs";
 import { useJobMaterials } from "../../../lib/hooks/useJobMaterials";
 import { useInstallers } from "../../../lib/hooks/useInstallers";
 import supabase from "../../../lib/supabaseClient";
+import UploadClosingPackage from "../../../components/UploadClosingPackage";
 
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { jobs, assignJob } = useJobs();
+  const { jobs, assignJob, updateStatus } = useJobs();
   const { items, updateUsed, addMaterial, fetchItems } = useJobMaterials(
     id || "",
   );
@@ -44,6 +45,12 @@ const JobDetailPage: React.FC = () => {
     setNewMaterial("");
     setNewQty(1);
     fetchItems();
+  };
+
+  const handleArchive = async () => {
+    if (!job?.id) return;
+    await updateStatus(job.id, "archived");
+    alert("Job archived.");
   };
 
   if (!job) return <p className="p-4">Job not found</p>;
@@ -132,6 +139,10 @@ const JobDetailPage: React.FC = () => {
           </tr>
         ))}
       </SZTable>
+      <UploadClosingPackage jobId={job.id} />
+      <SZButton onClick={handleArchive} disabled={job.status !== "complete"}>
+        Archive Job
+      </SZButton>
     </div>
   );
 };

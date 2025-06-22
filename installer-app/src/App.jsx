@@ -9,11 +9,15 @@ import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
-import AdminNewJob from "./app/admin/jobs/NewJobPage";
+import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
+import InventoryPage from "./app/installer/InventoryPage";
+import JobHistoryPage from "./app/installer/JobHistoryPage";
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import ManagerReview from "./app/manager/ReviewPage";
 import LoginPage from "./app/login/LoginPage";
 import { AuthProvider } from "./lib/hooks/useAuth";
@@ -47,6 +51,9 @@ const App = () => (
             <Route path="/installer/dashboard" element={<InstallerDashboard />} />
             <Route path="/installer/jobs/:id" element={<InstallerJobPage />} />
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
+            <Route path="/installer/inventory" element={<InventoryPage />} />
+            <Route path="/installer/history" element={<JobHistoryPage />} />
+
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
@@ -54,9 +61,26 @@ const App = () => (
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
 
-          <Route element={<RequireRoleOutlet role="Manager" />}>
-            <Route path="/manager/review" element={<ManagerReview />} />
-          </Route>
+        <Route element={<RequireRoleOutlet role="Manager" />}>
+          <Route path="/manager/review" element={<ManagerReview />} />
+        </Route>
+
+        <Route
+          path="/manager/archived"
+          element={
+            <RequireRole role={["Manager", "Admin"]}>
+              <ArchivedJobsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/archived"
+          element={
+            <RequireRole role={["Manager", "Admin"]}>
+              <ArchivedJobsPage />
+            </RequireRole>
+          }
+        />
 
           <Route
             path="/install-manager"
