@@ -22,28 +22,38 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
   const { session } = useAuth();
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [overages, setOverages] = useState<Record<string, boolean>>({});
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     const q: Record<string, number> = {};
+    const o: Record<string, boolean> = {};
     items.forEach((it) => {
       q[it.id] = 0;
+      o[it.id] = false;
     });
     setQuantities(q);
+    setOverages(o);
     setPhotos({});
   }, [isOpen, items]);
 
   const updateQty = (id: string, qty: number) => {
     setQuantities((q) => ({ ...q, [id]: qty }));
+    const item = items.find((it) => it.id === id);
+    if (item) {
+      setOverages((o) => ({ ...o, [id]: qty > item.quantity }));
+    }
   };
 
   const updatePhoto = (id: string, file: File | null) => {
     setPhotos((p) => ({ ...p, [id]: file }));
   };
 
-  const canSubmit = Object.values(quantities).some((q) => q > 0);
+  const canSubmit =
+    Object.values(quantities).some((q) => q > 0) &&
+    Object.values(overages).every((v) => !v);
 
   const handleSubmit = async () => {
     if (!jobId || !session?.user?.id || !canSubmit) return;
@@ -84,7 +94,11 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
           <SZButton variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
           </SZButton>
-          <SZButton onClick={handleSubmit} disabled={!canSubmit} isLoading={saving}>
+          <SZButton
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            isLoading={saving}
+          >
             Submit
           </SZButton>
         </div>
@@ -106,12 +120,29 @@ const MaterialsModal: React.FC<MaterialsModalProps> = ({
                   value={quantities[m.id] ?? 0}
                   onChange={(e) => updateQty(m.id, Number(e.target.value))}
                 />
+                {overages[m.id] && (
+                  <div className="text-xs text-red-600 mt-1 space-y-1">
+                    <p>
+                      Entered quantity exceeds quoted amount. Please contact
+                      your manager before proceeding.
+                    </p>
+                    <button
+                      type="button"
+                      className="text-blue-600 underline"
+                      onClick={() => null}
+                    >
+                      Contact Manager
+                    </button>
+                  </div>
+                )}
               </td>
               <td className="p-2 border">
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => updatePhoto(m.id, e.target.files?.[0] ?? null)}
+                  onChange={(e) =>
+                    updatePhoto(m.id, e.target.files?.[0] ?? null)
+                  }
                 />
               </td>
             </tr>
