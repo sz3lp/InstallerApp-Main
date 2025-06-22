@@ -132,9 +132,6 @@ const InstallerJobPage: React.FC = () => {
       </SZCard>
 
 
-      <MaterialUsage jobId={id || ""} />
-
-
 
       <MaterialUsage jobId={id || ""} />
 
@@ -142,6 +139,9 @@ const InstallerJobPage: React.FC = () => {
 
       <MaterialUsage jobId={id || ""} />
 
+
+
+      <MaterialUsage jobId={id || ""} />
 
 
 

@@ -14,6 +14,8 @@ import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
+import ManagerReview from "./app/manager/ManagerReview";
+import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
@@ -61,6 +63,7 @@ const App = () => (
             <Route path="/installer/profile" element={<InstallerProfilePage />} />
             <Route path="/installer/inventory" element={<InventoryPage />} />
             <Route path="/installer/history" element={<JobHistoryPage />} />
+
 
           </Route>
 
