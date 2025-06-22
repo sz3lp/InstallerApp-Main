@@ -8,6 +8,7 @@ import MaterialsModal from "./MaterialsModal";
 import InstallerChecklistWizard from "../../../components/InstallerChecklistWizard";
 import DocumentViewerModal from "../../../installer/components/DocumentViewerModal";
 import supabase from "../../../lib/supabaseClient";
+
 export function MaterialUsage({ jobId }: { jobId: string }) {
   const { session } = useAuth();
   const [materials, setMaterials] = useState<any[]>([]);
@@ -141,6 +142,7 @@ const InstallerJobPage: React.FC = () => {
 
 
       <MaterialUsage jobId={id || ""} />
+
 
       <div className="flex flex-wrap gap-2">
         <SZButton onClick={() => setShowDocs(true)} disabled={docs.length === 0}>

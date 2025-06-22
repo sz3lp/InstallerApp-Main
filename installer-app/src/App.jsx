@@ -14,6 +14,7 @@ import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
+import QAReviewPanel from "./app/manager/QAReviewPanel";
 import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/manager/ArchivedJobsPage";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
@@ -70,6 +71,9 @@ const App = () => (
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
 
+          <Route element={<RequireRoleOutlet role="Manager" />}>
+            <Route path="/manager/review" element={<QAReviewPanel />} />
+          </Route>
         <Route element={<RequireRoleOutlet role="Manager" />}>
           <Route path="/manager/review" element={<ManagerReview />} />
         </Route>
