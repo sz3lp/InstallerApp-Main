@@ -1,12 +1,16 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { navLinks } from '../../navConfig';
 import { useAuth } from '../../lib/hooks/useAuth';
 
 const SideDrawer = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   let role = 'Installer';
+  let signOutFn = () => {};
   try {
-    role = useAuth().role || 'Installer';
+    const auth = useAuth();
+    role = auth.role || 'Installer';
+    signOutFn = auth.signOut;
   } catch {
     role = 'Installer';
   }
@@ -25,24 +29,36 @@ const SideDrawer = ({ isOpen, onClose }) => {
           {navLinks
             .filter((link) => !link.roles || link.roles.includes(role))
             .map((link) => (
-            <li key={link.path}>
-              {link.path.startsWith('/') ? (
-                <NavLink
-                  to={link.path}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `block ${isActive ? 'font-semibold' : ''}`.trim()
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              ) : (
-                <a href={link.path} className="block" onClick={onClose}>
-                  {link.label}
-                </a>
-              )}
-            </li>
-          ))}
+              <li key={link.path}>
+                {link.path.startsWith('/') ? (
+                  <NavLink
+                    to={link.path}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `block ${isActive ? 'font-semibold' : ''}`.trim()
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ) : (
+                  <a href={link.path} className="block" onClick={onClose}>
+                    {link.label}
+                  </a>
+                )}
+              </li>
+            ))}
+          <li>
+            <button
+              className="block text-left w-full text-red-600 mt-4"
+              onClick={() => {
+                signOutFn();
+                onClose();
+                navigate('/login');
+              }}
+            >
+              Logout
+            </button>
+          </li>
         </ul>
       </div>
     </>

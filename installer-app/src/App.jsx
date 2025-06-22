@@ -8,6 +8,8 @@ import IFIDashboard from "./installer/pages/IFIDashboard";
 import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
+import AdminDashboard from "./app/admin/AdminDashboard";
+import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
@@ -58,6 +60,7 @@ const App = () => (
           </Route>
 
           <Route element={<RequireRoleOutlet role="Admin" />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/jobs/new" element={<AdminNewJob />} />
             <Route path="/admin/jobs/:id" element={<AdminJobDetail />} />
           </Route>
@@ -86,6 +89,14 @@ const App = () => (
 
           <Route
             path="/install-manager"
+            element={
+              <RequireRole role={["Manager", "Admin"]}>
+                <InstallManagerDashboard />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/install-manager/dashboard"
             element={
               <RequireRole role={["Manager", "Admin"]}>
                 <InstallManagerDashboard />
@@ -122,6 +133,14 @@ const App = () => (
             element={
               <RequireRole role={["Sales", "Manager", "Admin"]}>
                 <LeadsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/sales/dashboard"
+            element={
+              <RequireRole role={["Sales", "Manager", "Admin"]}>
+                <SalesDashboard />
               </RequireRole>
             }
           />
