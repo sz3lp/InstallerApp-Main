@@ -3,8 +3,8 @@ returns void as $$
 declare
   uid uuid;
 begin
-  insert into public.users (email, role, status)
-  values (email, role, 'pending')
+  insert into public.users (email, status)
+  values (email, 'pending')
   on conflict (email) do update set email = excluded.email
   returning id into uid;
 

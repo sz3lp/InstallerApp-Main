@@ -4,7 +4,16 @@ alter table profiles add column if not exists is_active boolean default true;
 -- Ensure user_roles table exists with correct constraint
 create table if not exists user_roles (
   user_id uuid primary key references auth.users(id),
-  role text not null check (role in ('Installer','Sales','Manager','Admin'))
+  role text not null check (
+    role in (
+      'Installer',
+      'Admin',
+      'Manager',
+      'Install Manager',
+      'Sales',
+      'Finance'
+    )
+  )
 );
 
 -- Enable RLS on profiles and user_roles

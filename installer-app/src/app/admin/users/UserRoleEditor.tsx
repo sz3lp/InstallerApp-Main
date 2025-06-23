@@ -4,11 +4,11 @@ import { supabase } from "../../../lib/supabaseClient";
 import { useAuth } from "../../../lib/hooks/useAuth";
 
 const ALL_ROLES = [
+  "Installer",
   "Admin",
   "Manager",
-  "Installer",
-  "Sales",
   "Install Manager",
+  "Sales",
   "Finance",
 ];
 
