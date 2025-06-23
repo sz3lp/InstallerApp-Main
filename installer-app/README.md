@@ -30,6 +30,10 @@ Run tests:
 npm test
 ```
 
+The calendar component relies on styles from `react-big-calendar`; ensure
+`react-big-calendar/lib/css/react-big-calendar.css` is loaded (imported in
+`JobCalendar.tsx`).
+
 Lint the project:
 ```bash
 npm run lint
