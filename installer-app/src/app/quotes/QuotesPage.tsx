@@ -4,8 +4,9 @@ import { SZTable } from "../../components/ui/SZTable";
 import QuoteFormModal, {
   QuoteData,
 } from "../../components/modals/QuoteFormModal";
-import { useJobs } from "../../lib/hooks/useJobs";
 import useQuotes from "../../lib/hooks/useQuotes";
+
+type Toast = { message: string; success: boolean } | null;
 import {
   GlobalLoading,
   GlobalEmpty,
@@ -15,13 +16,22 @@ import {
 const QuotesPage: React.FC = () => {
   const [
     quotes,
-    { loading, error, fetchQuotes, createQuote, updateQuote, deleteQuote },
+    {
+      loading,
+      error,
+      fetchQuotes,
+      createQuote,
+      updateQuote,
+      approveQuote,
+      deleteQuote,
+    },
   ] = useQuotes();
   const [active, setActive] = useState<
     (QuoteData & { status?: string }) | null
   >(null);
   const [open, setOpen] = useState(false);
-  const { createJob } = useJobs();
+  const [toast, setToast] = useState<Toast>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const handleSave = async (data: QuoteData) => {
     if (data.id) {
@@ -50,25 +60,21 @@ const QuotesPage: React.FC = () => {
   };
 
   const approve = async (id: string) => {
-    const quote = quotes.find((q) => q.id === id);
-    if (!quote) return;
-    if (!quote.client_id) {
-      alert("Client must be selected before creating a job.");
-      return;
+    setToast(null);
+    setApprovingId(id);
+    try {
+      await approveQuote(id);
+      setToast({ message: "Quote approved!", success: true });
+      await fetchQuotes();
+    } catch (err: any) {
+      setToast({ message: "Failed to approve quote: " + err.message, success: false });
     }
-    await createJob({
-      client_id: quote.client_id,
-      clinic_name: quote.client_name ?? "",
-      contact_name: "",
-      contact_phone: "",
-      quote_id: quote.id,
-    });
-    await updateQuote(id, {
-      client_id: quote.client_id ?? "",
-      status: "approved",
-      title: quote.title ?? null,
-      items: [],
-    });
+    setApprovingId(null);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const convertQuoteToJob = async (id: string) => {
+    console.log('convert quote', id);
   };
 
   return (
@@ -110,7 +116,12 @@ const QuotesPage: React.FC = () => {
               <td className="p-2 border">{q.status}</td>
               <td className="p-2 border space-x-2">
                 {q.status === "draft" || q.status === "pending" ? (
-                  <SZButton size="sm" onClick={() => approve(q.id!)}>
+                  <SZButton
+                    size="sm"
+                    onClick={() => approve(q.id!)}
+                    isLoading={approvingId === q.id}
+                    disabled={approvingId !== null && approvingId !== q.id}
+                  >
                     Approve
                   </SZButton>
                 ) : null}
@@ -131,6 +142,11 @@ const QuotesPage: React.FC = () => {
                 >
                   Delete
                 </SZButton>
+                {q.status === "approved" && (
+                  <SZButton size="sm" onClick={() => convertQuoteToJob(q.id!)}>
+                    Convert to Job
+                  </SZButton>
+                )}
               </td>
             </tr>
           ))}
@@ -142,6 +158,13 @@ const QuotesPage: React.FC = () => {
         onSave={handleSave}
         initialData={active ?? undefined}
       />
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 text-white px-4 py-2 rounded ${toast.success ? "bg-green-600" : "bg-red-600"}`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };

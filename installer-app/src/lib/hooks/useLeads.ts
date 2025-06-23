@@ -83,7 +83,12 @@ export default function useLeads() {
   const convertLeadToClientAndJob = useCallback(
     async (id: string) => {
       if (!allowed) throw new Error("Unauthorized");
-      await callConvertLeadToClientAndJob(id);
+      const jobId = await callConvertLeadToClientAndJob(id);
+      // mark lead as converted locally
+      setLeads((ls) =>
+        ls.map((l) => (l.id === id ? { ...l, status: "converted" } : l)),
+      );
+      return jobId;
     },
     [allowed],
   );
@@ -114,5 +119,5 @@ async function callGenerateProposalDocument(leadId: string) {
 
 async function callConvertLeadToClientAndJob(leadId: string) {
   const mod = await import("../leadEvents");
-  await mod.convertLeadToClientAndJob(leadId);
+  return await mod.convertLeadToClientAndJob(leadId);
 }

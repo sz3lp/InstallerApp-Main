@@ -98,6 +98,14 @@ export function useQuotes() {
     []
   );
 
+  const approveQuote = useCallback(async (id: string) => {
+    const { error } = await supabase.rpc("approve_quote", { quote_id: id });
+    if (error) throw error;
+    setQuotes((qs) =>
+      qs.map((q) => (q.id === id ? { ...q, status: "approved" } : q)),
+    );
+  }, []);
+
   const deleteQuote = useCallback(async (id: string) => {
     await supabase.from("quote_items").delete().eq("quote_id", id);
     const { error } = await supabase.from("quotes").delete().eq("id", id);
@@ -109,7 +117,10 @@ export function useQuotes() {
     fetchQuotes();
   }, [fetchQuotes]);
 
-  return [quotes, { loading, error, fetchQuotes, createQuote, updateQuote, deleteQuote }] as const;
+  return [
+    quotes,
+    { loading, error, fetchQuotes, createQuote, updateQuote, approveQuote, deleteQuote },
+  ] as const;
 }
 
 export default useQuotes;
