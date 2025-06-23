@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
+import SearchAndFilterBar, {
+  FilterOption,
+} from "../../components/search/SearchAndFilterBar";
 import QuoteFormModal, {
   QuoteData,
 } from "../../components/modals/QuoteFormModal";
@@ -14,6 +17,8 @@ import {
   EmptyState,
   ErrorState,
 } from "../../components/states";
+
+const statuses = ["draft", "pending", "approved"];
 
 const QuotesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,6 +40,8 @@ const QuotesPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   const handleSave = async (data: QuoteData) => {
     if (data.id) {
@@ -88,6 +95,19 @@ const QuotesPage: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const searchFilterOptions: FilterOption[] = [
+    { key: "status", label: "Status", options: statuses },
+  ];
+
+  const filteredQuotes = quotes.filter((q) => {
+    if (statusFilter && q.status !== statusFilter) return false;
+    if (search.trim()) {
+      const term = search.toLowerCase();
+      if (!(q.client_name ?? "").toLowerCase().includes(term)) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
@@ -102,8 +122,18 @@ const QuotesPage: React.FC = () => {
           New Quote
         </SZButton>
       </div>
+
       {loading && <LoadingState />}
       {error && <ErrorState error={error} />}
+
+      <SearchAndFilterBar
+        searchPlaceholder="Search quotes"
+        filters={searchFilterOptions}
+        onSearch={setSearch}
+        onFilterChange={(k, v) => setStatusFilter(v)}
+      />
+      {loading && <GlobalLoading />}
+      {error && <GlobalError message={error} onRetry={fetchQuotes} />}
       {!loading && !error && quotes.length === 0 && (
         <div className="space-y-2">
           <EmptyState message="No Quotes Found" />
@@ -118,9 +148,12 @@ const QuotesPage: React.FC = () => {
           </SZButton>
         </div>
       )}
-      {!loading && !error && quotes.length > 0 && (
+      {!loading && !error && quotes.length > 0 && filteredQuotes.length === 0 && (
+        <GlobalEmpty message="No Quotes Found" />
+      )}
+      {!loading && !error && quotes.length > 0 && filteredQuotes.length > 0 && (
         <SZTable headers={["Client", "Total", "Status", "Actions"]}>
-          {quotes.map((q) => (
+          {filteredQuotes.map((q) => (
             <tr key={q.id} className="border-t">
               <td className="p-2 border">{q.client_name}</td>
               <td className="p-2 border">${(q.total ?? 0).toFixed(2)}</td>
