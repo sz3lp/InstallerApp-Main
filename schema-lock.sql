@@ -414,7 +414,8 @@ CREATE TABLE public.invoices (
     tax_rate numeric DEFAULT 0,
     tax_amount numeric DEFAULT 0,
     total_fees numeric DEFAULT 0,
-    invoice_total numeric DEFAULT 0
+    invoice_total numeric DEFAULT 0,
+    stripe_session_id text
 );
 
 
@@ -1796,10 +1797,57 @@ ALTER TABLE public.qa_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.signed_checklists ENABLE ROW LEVEL SECURITY;
 
 --
+
 -- Name: user_onboarding_status; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.user_onboarding_status ENABLE ROW LEVEL SECURITY;
+
+-- Name: lead_funnel_metrics; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE OR REPLACE VIEW public.lead_funnel_metrics AS
+ SELECT
+   l.sales_rep_id,
+   u.email AS sales_rep_email,
+   count(DISTINCT l.id) AS total_leads,
+   count(DISTINCT q.id) AS leads_with_quotes,
+   count(DISTINCT j.id) AS leads_converted_to_jobs,
+   round((count(DISTINCT q.id)::numeric / NULLIF(count(DISTINCT l.id), 0)) * 100, 1) AS quote_conversion_rate,
+   round((count(DISTINCT j.id)::numeric / NULLIF(count(DISTINCT l.id), 0)) * 100, 1) AS job_conversion_rate
+ FROM leads l
+ LEFT JOIN quotes q ON l.id = q.lead_id
+ LEFT JOIN jobs j ON q.id = j.quote_id
+ LEFT JOIN auth.users u ON l.sales_rep_id = u.id
+ GROUP BY l.sales_rep_id, u.email;
+
+--
+-- Name: leads Allow Admin/Sales/Manager to view funnel; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow Admin/Sales/Manager to view funnel" ON public.leads FOR SELECT
+    USING ((EXISTS ( SELECT 1
+           FROM public.user_roles
+          WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Admin'::text, 'Sales'::text, 'Manager'::text]))))));
+
+--
+-- Name: quotes Allow Admin/Sales/Manager to view funnel; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow Admin/Sales/Manager to view funnel" ON public.quotes FOR SELECT
+    USING ((EXISTS ( SELECT 1
+           FROM public.user_roles
+          WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Admin'::text, 'Sales'::text, 'Manager'::text]))))));
+
+--
+-- Name: jobs Allow Admin/Sales/Manager to view funnel; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow Admin/Sales/Manager to view funnel" ON public.jobs FOR SELECT
+    USING ((EXISTS ( SELECT 1
+           FROM public.user_roles
+          WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Admin'::text, 'Sales'::text, 'Manager'::text]))))));
+
 
 --
 -- PostgreSQL database dump complete

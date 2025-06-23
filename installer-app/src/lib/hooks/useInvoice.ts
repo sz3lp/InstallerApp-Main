@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import supabase from '../supabaseClient';
-import { Invoice } from './useInvoices';
+import { useState, useEffect, useCallback } from "react";
+import supabase from "../supabaseClient";
+import { Invoice } from "./useInvoices";
 
 export default function useInvoice(id: string | null) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -15,11 +15,11 @@ export default function useInvoice(id: string | null) {
     }
     setLoading(true);
     const { data, error } = await supabase
-      .from('invoices')
+      .from("invoices")
       .select(
-        'id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)'
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)",
       )
-      .eq('id', id)
+      .eq("id", id)
       .single();
     if (error) {
       setError(error.message);
@@ -32,8 +32,9 @@ export default function useInvoice(id: string | null) {
         client_name: (data as any).clients?.name ?? null,
         job_name: (data as any).jobs?.clinic_name ?? null,
         amount_paid: (data as any).amount_paid ?? 0,
-        payment_status: (data as any).payment_status ?? 'unpaid',
+        payment_status: (data as any).payment_status ?? "unpaid",
         payment_method: (data as any).payment_method ?? null,
+        stripe_session_id: (data as any).stripe_session_id ?? null,
       } as Invoice);
       setError(null);
     }
