@@ -16,7 +16,7 @@ import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
-import MaterialListPage from "./app/admin/materials/MaterialListPage";
+import MaterialTypesPage from "./app/admin/materials/MaterialTypesPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
@@ -143,8 +143,8 @@ export const ROUTES: RouteConfig[] = [
     label: "User Management",
   },
   {
-    path: "/admin/materials",
-    element: React.createElement(MaterialListPage),
+    path: "/admin/materials/types",
+    element: React.createElement(MaterialTypesPage),
     role: "Admin",
     label: "Material Types",
   },
