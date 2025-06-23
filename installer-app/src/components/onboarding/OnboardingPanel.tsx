@@ -1,47 +1,31 @@
-import React from 'react';
-import { useAuth } from '../../lib/hooks/useAuth';
-import useOnboardingState from '../../lib/hooks/useOnboardingState';
+import React from "react";
+import { useAuth } from "../../lib/hooks/useAuth";
+import useOnboardingState from "../../lib/hooks/useOnboardingState";
 
-const TASKS_BY_ROLE: Record<string, { id: string; label: string; link: string }[]> = {
-  Admin: [
-    { id: 'setup_company', label: 'Set up Company Profile', link: '/settings' },
-    { id: 'add_team_member', label: 'Add Your First Team Member', link: '/admin/users' },
-    { id: 'define_services', label: 'Define Service Types', link: '/admin/catalog' },
-    { id: 'review_kpis', label: "Review Today's KPIs", link: '/admin/dashboard' },
-  ],
-  Sales: [
-    { id: 'add_lead', label: 'Add Your First Lead', link: '/crm/leads' },
-    { id: 'create_quote', label: 'Create Your First Quote', link: '/quotes' },
-    { id: 'explore_crm', label: 'Explore the CRM Pipeline', link: '/crm/leads' },
-  ],
-  Manager: [
-    { id: 'review_jobs', label: 'Review Jobs in Progress', link: '/install-manager' },
-    { id: 'approve_quotes', label: 'Approve Pending Quotes', link: '/quotes' },
-    { id: 'payroll_report', label: 'Generate Payroll Report', link: '/reports/technician-pay' },
-  ],
-  Installer: [
-    { id: 'view_jobs', label: 'View Your Assigned Jobs', link: '/installer' },
-    { id: 'complete_test_job', label: 'Complete First Job (Test)', link: '/installer/jobs/mock' },
-    { id: 'log_materials', label: 'Log Materials for a Job', link: '/installer/inventory' },
-  ],
+const TASKS_BY_ROLE: Record<string, { id: string; label: string }[]> = {
+  Admin: [{ id: "admin_invited_user", label: "Invite a User" }],
+  Sales: [{ id: "sales_created_quote", label: "Create a Quote" }],
+  Manager: [{ id: "manager_reviewed_job", label: "Review a Job" }],
+  Installer: [{ id: "installer_started_job", label: "Start a Job" }],
 };
 
 interface Props {
-  role: string | null;
-  userId: string | null;
+  role: "Installer" | "Sales" | "Manager" | "Admin";
+  userId: string;
 }
 
 const OnboardingPanel: React.FC<Props> = ({ role, userId }) => {
   const { user } = useAuth();
-  const { completedTasks, dismissed, completeTask, dismiss } = useOnboardingState(userId);
+  const { completedTasks, dismissed, completeTask, dismiss } =
+    useOnboardingState(userId);
 
-  if (!role || !userId) return null;
+  if (!userId) return null;
   const tasks = TASKS_BY_ROLE[role] || [];
   const allDone = tasks.every((t) => completedTasks.includes(t.id));
 
   if (dismissed || allDone || tasks.length === 0) return null;
 
-  const name = user?.full_name?.split(' ')[0] || 'User';
+  const name = user?.full_name?.split(" ")[0] || "User";
   return (
     <div className="p-4 mb-4 border rounded bg-yellow-50">
       <div className="flex justify-between mb-2">
@@ -49,7 +33,9 @@ const OnboardingPanel: React.FC<Props> = ({ role, userId }) => {
           <h2 className="font-semibold">{`Welcome, ${name}! Let's get you set up as a ${role}.`}</h2>
           <p className="text-sm text-gray-600">{`${completedTasks.length} of ${tasks.length} tasks completed`}</p>
         </div>
-        <button onClick={dismiss} className="text-sm text-gray-500">Dismiss</button>
+        <button onClick={dismiss} className="text-sm text-gray-500">
+          Dismiss Forever
+        </button>
       </div>
       <ul className="space-y-1">
         {tasks.map((task) => {
@@ -60,14 +46,11 @@ const OnboardingPanel: React.FC<Props> = ({ role, userId }) => {
                 type="checkbox"
                 className="mr-2"
                 checked={done}
-                onChange={() => !done && completeTask(task.id)}
+                onChange={() => !done && completeTask(task.id as any)}
               />
-              <a
-                href={task.link}
-                className={`hover:underline ${done ? 'line-through text-gray-600' : ''}`}
-              >
+              <span className={done ? "line-through text-gray-600" : ""}>
                 {task.label}
-              </a>
+              </span>
             </li>
           );
         })}

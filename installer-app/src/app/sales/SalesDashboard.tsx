@@ -6,7 +6,7 @@ const SalesDashboard: React.FC = () => {
   const { role, user } = useAuth();
   return (
     <div className="p-4 space-y-4">
-      <OnboardingPanel role={role} userId={user?.id ?? null} />
+      <OnboardingPanel role={role as any} userId={user?.id || ""} />
       <h1 className="text-2xl font-bold">Sales Dashboard</h1>
       <p>Welcome to the sales dashboard.</p>
     </div>
