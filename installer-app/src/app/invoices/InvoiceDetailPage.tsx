@@ -15,6 +15,18 @@ const InvoiceDetailPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [payments] = usePayments(id ?? '');
 
+  const sendPaymentLink = async () => {
+    const res = await fetch('/api/payments/initiate-payment-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoice_id: invoice.id }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.open(data.url, '_blank');
+    }
+  };
+
   if (loading) return <GlobalLoading />;
   if (error || !invoice) return <GlobalError message={error || 'Invoice not found'} />;
 
@@ -29,9 +41,14 @@ const InvoiceDetailPage: React.FC = () => {
       <p>Amount Paid: ${totalPaid.toFixed(2)}</p>
       <p>Balance Due: ${balance.toFixed(2)}</p>
       {['Admin', 'Finance'].includes(role) && (
-        <SZButton size="sm" onClick={() => setOpen(true)}>
-          Record Payment
-        </SZButton>
+        <div className="flex gap-2">
+          <SZButton size="sm" onClick={() => setOpen(true)}>
+            Record Payment
+          </SZButton>
+          <SZButton size="sm" variant="secondary" onClick={sendPaymentLink}>
+            Send Payment Link
+          </SZButton>
+        </div>
       )}
       <h2 className="text-lg font-semibold mt-4">Payments</h2>
       <SZTable headers={["Amount", "Method", "Date", "Note"]}>
