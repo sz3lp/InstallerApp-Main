@@ -509,6 +509,7 @@ CREATE TABLE public.jobs (
     clinic_name text NOT NULL,
     contact_name text NOT NULL,
     contact_phone text NOT NULL,
+    scheduled_date timestamp with time zone,
     assigned_to uuid,
     status text DEFAULT 'created'::text NOT NULL,
     created_at timestamp without time zone DEFAULT now(),
@@ -1308,6 +1309,12 @@ CREATE POLICY "Clients Update" ON public.clients FOR UPDATE USING ((EXISTS ( SEL
 CREATE POLICY "InstallerInventory Insert" ON public.installer_inventory FOR INSERT WITH CHECK (((installer_id = auth.uid()) OR (EXISTS ( SELECT 1
    FROM public.user_roles
   WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Admin'::text, 'Manager'::text])))))));
+
+-- Name: jobs Allow rescheduling by Manager/Admin; Type: POLICY; Schema: public; Owner: postgres
+
+CREATE POLICY "Allow rescheduling by Manager/Admin" ON public.jobs FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM public.user_roles
+  WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Manager'::text, 'Admin'::text])))))) WITH CHECK (true);
 
 
 --

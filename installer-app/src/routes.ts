@@ -196,7 +196,7 @@ export const ROUTES: RouteConfig[] = [
     label: "Install Manager Dashboard",
   },
   {
-    path: "/install-manager/calendar",
+    path: "/calendar",
     element: React.createElement(CalendarPage),
     role: ["Manager", "Admin"],
     label: "Schedule Calendar",
