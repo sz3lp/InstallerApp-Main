@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
+import { useAuth } from "../../../lib/hooks/useAuth";
 
 const ROLES = ["Admin", "Installer", "Sales", "Manager"];
 
@@ -12,6 +13,7 @@ const AdminInviteUserPage: React.FC = () => {
   const [role, setRole] = useState("Installer");
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
+  const { refreshRoles } = useAuth();
 
   const submitInvite = async () => {
     setLoading(true);
@@ -23,6 +25,18 @@ const AdminInviteUserPage: React.FC = () => {
     if (error) {
       setToast({ message: error.message, success: false });
     } else {
+      // Lookup inserted user id and assign role via user_roles
+      const { data: userRecord } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+      if (userRecord) {
+        await supabase
+          .from("user_roles")
+          .upsert({ user_id: userRecord.id, role }, { onConflict: "user_id" });
+        await refreshRoles();
+      }
       setToast({ message: `Invite sent to ${email}`, success: true });
       setEmail("");
       setRole("Installer");
