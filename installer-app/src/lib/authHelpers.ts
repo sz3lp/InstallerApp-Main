@@ -2,9 +2,9 @@ import supabase from "./supabaseClient";
 
 export async function getUserRole(userId: string): Promise<string | null> {
   const { data, error } = await supabase
-    .from("users")
+    .from("user_roles")
     .select("role")
-    .eq("id", userId)
+    .eq("user_id", userId)
     .single();
 
   if (error) {

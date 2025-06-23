@@ -10,9 +10,9 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase
-        .from("users")
+        .from("user_roles")
         .select("role")
-        .eq("id", userId)
+        .eq("user_id", userId)
         .single();
       setRole(data?.role ?? null);
     };
@@ -20,7 +20,9 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
   }, [userId]);
 
   const updateRole = async (newRole: string) => {
-    await supabase.from("users").update({ role: newRole }).eq("id", userId);
+    await supabase
+      .from("user_roles")
+      .upsert({ user_id: userId, role: newRole }, { onConflict: "user_id" });
     setRole(newRole);
   };
 
