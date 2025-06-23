@@ -24,7 +24,7 @@ export interface QuoteItem {
 export function useQuotes() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchQuotes = useCallback(async () => {
     setLoading(true);
@@ -33,7 +33,7 @@ export function useQuotes() {
       .select("id, client_id, created_by, status, title, created_at, clients(name), quote_items(quantity, unit_price, total)")
       .order("created_at", { ascending: false });
     if (error) {
-      setError(error.message);
+      setError(error);
       setQuotes([]);
     } else {
       const list = (data ?? []).map((q: any) => {
@@ -119,7 +119,7 @@ export function useQuotes() {
 
   return [
     quotes,
-    { loading, error, fetchQuotes, createQuote, updateQuote, approveQuote, deleteQuote },
+    { data: quotes, loading, error, fetchQuotes, createQuote, updateQuote, approveQuote, deleteQuote },
   ] as const;
 }
 

@@ -3,7 +3,7 @@ import useJobs from "../../lib/hooks/useJobs";
 import useInstallers from "../../lib/hooks/useInstallers";
 import { JobCalendar, JobEvent } from "../../components/calendar/JobCalendar";
 import { useAuth } from "../../lib/hooks/useAuth";
-import { GlobalLoading } from "../../components/global-states";
+import { LoadingState } from "../../components/states";
 import supabase from "../../lib/supabaseClient";
 
 const CalendarPage: React.FC = () => {
@@ -74,7 +74,7 @@ const CalendarPage: React.FC = () => {
         </div>
       </header>
       {loading ? (
-        <GlobalLoading />
+        <LoadingState />
       ) : (
         <JobCalendar
           events={events}

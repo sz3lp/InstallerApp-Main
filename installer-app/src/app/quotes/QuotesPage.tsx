@@ -13,10 +13,10 @@ import supabase from "../../lib/supabaseClient";
 
 type Toast = { message: string; success: boolean } | null;
 import {
-  GlobalLoading,
-  GlobalEmpty,
-  GlobalError,
-} from "../../components/global-states";
+  LoadingState,
+  EmptyState,
+  ErrorState,
+} from "../../components/states";
 
 const statuses = ["draft", "pending", "approved"];
 
@@ -122,6 +122,10 @@ const QuotesPage: React.FC = () => {
           New Quote
         </SZButton>
       </div>
+
+      {loading && <LoadingState />}
+      {error && <ErrorState error={error} />}
+
       <SearchAndFilterBar
         searchPlaceholder="Search quotes"
         filters={searchFilterOptions}
@@ -132,7 +136,7 @@ const QuotesPage: React.FC = () => {
       {error && <GlobalError message={error} onRetry={fetchQuotes} />}
       {!loading && !error && quotes.length === 0 && (
         <div className="space-y-2">
-          <GlobalEmpty message="No Quotes Found" />
+          <EmptyState message="No Quotes Found" />
           <SZButton
             size="sm"
             onClick={() => {
