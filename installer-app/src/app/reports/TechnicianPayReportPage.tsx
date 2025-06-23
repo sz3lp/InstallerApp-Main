@@ -3,10 +3,10 @@ import { DateRangeFilter } from "../../components/ui/filters/DateRangeFilter";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import {
-  LoadingState,
-  EmptyState,
-  ErrorState,
-} from "../../components/ui/state";
+  GlobalLoading,
+  GlobalEmpty,
+  GlobalError,
+} from "../../components/global-states";
 import useTechnicianPayReport, {
   PayLine,
 } from "../../lib/hooks/useTechnicianPayReport";
@@ -149,13 +149,10 @@ const TechnicianPayReportPage: React.FC = () => {
         <p>Total Jobs: {summary.jobs}</p>
         <p>Installers: {summary.techs}</p>
       </div>
-      {loading && <LoadingState type="list" />}
-      {error && <ErrorState message={error} />}
+      {loading && <GlobalLoading />}
+      {error && <GlobalError message={error} />}
       {!loading && !error && lines.length === 0 && (
-        <EmptyState
-          title="No Results"
-          description="No pay records found for the selected period."
-        />
+        <GlobalEmpty message="No pay records found for the selected period." />
       )}
       {!loading &&
         !error &&
