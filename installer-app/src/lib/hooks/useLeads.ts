@@ -18,6 +18,7 @@ export default function useLeads() {
   const { role } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   const allowed =
     role === "Sales" ||
@@ -40,8 +41,14 @@ export default function useLeads() {
         )
         .order("updated_at", { ascending: false });
       if (status) query = query.eq("status", status);
-      const { data } = await query;
-      setLeads(data ?? []);
+      const { data, error } = await query;
+      if (error) {
+        setError(error);
+        setLeads([]);
+      } else {
+        setError(null);
+        setLeads(data ?? []);
+      }
       setLoading(false);
     },
     [allowed],
@@ -99,7 +106,9 @@ export default function useLeads() {
 
   return {
     leads,
+    data: leads,
     loading,
+    error,
     fetchLeads,
     createLead,
     updateLeadStatus,

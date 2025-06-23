@@ -4,6 +4,7 @@ import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
+import { LoadingState, ErrorState, EmptyState } from "../../components/states";
 import LeadHistoryModal from "./LeadHistoryModal";
 
 type Toast = { message: string; success: boolean } | null;
@@ -22,7 +23,14 @@ const statuses = [
 
 export default function LeadsPage() {
   const navigate = useNavigate();
-  const { leads, createLead, updateLeadStatus, convertLeadToClientAndJob } = useLeads();
+  const {
+    leads,
+    loading,
+    error,
+    createLead,
+    updateLeadStatus,
+    convertLeadToClientAndJob,
+  } = useLeads();
   const [form, setForm] = useState({
     clinic_name: "",
     contact_name: "",
@@ -94,54 +102,62 @@ export default function LeadsPage() {
       <SZButton onClick={handleAdd} isLoading={adding} disabled={!form.clinic_name}>
         Add Lead
       </SZButton>
-      <SZTable headers={["Clinic", "Contact", "Status", "Updated", "Actions"]}>
-        {filteredLeads.map((lead) => (
-          <tr key={lead.id} className="border-t">
-            <td className="p-2 border">{lead.clinic_name}</td>
-            <td className="p-2 border">{lead.contact_name}</td>
-            <td className="p-2 border">
-              <select
-                className="border rounded px-2 py-1"
-                value={lead.status}
-                onChange={(e) => changeStatus(lead, e.target.value)}
-              >
-                {statuses.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td className="p-2 border text-xs text-gray-500">
-              {new Date(lead.updated_at).toLocaleString()}
-            </td>
-            <td className="p-2 border space-x-2">
-              {lead.status !== "won" ? (
-                <SZButton
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => changeStatus(lead, "won")}
+      {loading ? (
+        <LoadingState />
+      ) : error ? (
+        <ErrorState error={error} />
+      ) : filteredLeads.length === 0 ? (
+        <EmptyState message="No leads found." />
+      ) : (
+        <SZTable headers={["Clinic", "Contact", "Status", "Updated", "Actions"]}>
+          {filteredLeads.map((lead) => (
+            <tr key={lead.id} className="border-t">
+              <td className="p-2 border">{lead.clinic_name}</td>
+              <td className="p-2 border">{lead.contact_name}</td>
+              <td className="p-2 border">
+                <select
+                  className="border rounded px-2 py-1"
+                  value={lead.status}
+                  onChange={(e) => changeStatus(lead, e.target.value)}
                 >
-                  Mark Won
+                  {statuses.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td className="p-2 border text-xs text-gray-500">
+                {new Date(lead.updated_at).toLocaleString()}
+              </td>
+              <td className="p-2 border space-x-2">
+                {lead.status !== "won" ? (
+                  <SZButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => changeStatus(lead, "won")}
+                  >
+                    Mark Won
+                  </SZButton>
+                ) : (
+                  <SZButton
+                    size="sm"
+                    variant="primary"
+                    onClick={() => convertLead(lead.id)}
+                    isLoading={convertingId === lead.id}
+                    disabled={convertingId !== null && convertingId !== lead.id}
+                  >
+                    Convert
+                  </SZButton>
+                )}
+                <SZButton size="sm" variant="secondary" onClick={() => setHistoryLead(lead)}>
+                  History
                 </SZButton>
-              ) : (
-                <SZButton
-                  size="sm"
-                  variant="primary"
-                  onClick={() => convertLead(lead.id)}
-                  isLoading={convertingId === lead.id}
-                  disabled={convertingId !== null && convertingId !== lead.id}
-                >
-                  Convert
-                </SZButton>
-              )}
-              <SZButton size="sm" variant="secondary" onClick={() => setHistoryLead(lead)}>
-                History
-              </SZButton>
-            </td>
-          </tr>
-        ))}
-      </SZTable>
+              </td>
+            </tr>
+          ))}
+        </SZTable>
+      )}
       <LeadHistoryModal
         leadId={historyLead?.id || null}
         isOpen={!!historyLead}

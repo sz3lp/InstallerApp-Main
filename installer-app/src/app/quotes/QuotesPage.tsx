@@ -10,10 +10,10 @@ import supabase from "../../lib/supabaseClient";
 
 type Toast = { message: string; success: boolean } | null;
 import {
-  GlobalLoading,
-  GlobalEmpty,
-  GlobalError,
-} from "../../components/global-states";
+  LoadingState,
+  EmptyState,
+  ErrorState,
+} from "../../components/states";
 
 const QuotesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -102,11 +102,11 @@ const QuotesPage: React.FC = () => {
           New Quote
         </SZButton>
       </div>
-      {loading && <GlobalLoading />}
-      {error && <GlobalError message={error} onRetry={fetchQuotes} />}
+      {loading && <LoadingState />}
+      {error && <ErrorState error={error} />}
       {!loading && !error && quotes.length === 0 && (
         <div className="space-y-2">
-          <GlobalEmpty message="No Quotes Found" />
+          <EmptyState message="No Quotes Found" />
           <SZButton
             size="sm"
             onClick={() => {
