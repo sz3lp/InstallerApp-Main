@@ -17,7 +17,7 @@ const QuoteListPage: React.FC = () => {
   const [sort, setSort] = useState<"new" | "old" | "total">("new");
 
   if (authLoading) return <GlobalLoading />;
-  if (role !== "InstallManager" && role !== "Admin") {
+  if (role !== "Install Manager" && role !== "Admin") {
     return <Navigate to="/" replace />;
   }
 
@@ -58,7 +58,10 @@ const QuoteListPage: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700"
+          >
             Status
           </label>
           <select
@@ -75,7 +78,10 @@ const QuoteListPage: React.FC = () => {
           </select>
         </div>
         <div>
-          <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="sort"
+            className="block text-sm font-medium text-gray-700"
+          >
             Sort By
           </label>
           <select
@@ -98,7 +104,14 @@ const QuoteListPage: React.FC = () => {
       ) : (
         <div className="overflow-x-auto">
           <SZTable
-            headers={["Client Name", "Title", "Status", "Created At", "Total", "Actions"]}
+            headers={[
+              "Client Name",
+              "Title",
+              "Status",
+              "Created At",
+              "Total",
+              "Actions",
+            ]}
           >
             {filtered.map((q) => (
               <tr key={q.id} className="border-t">

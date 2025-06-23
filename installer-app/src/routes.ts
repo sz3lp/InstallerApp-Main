@@ -57,7 +57,10 @@ export type RouteConfig = {
 
 export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
-  { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
+  {
+    path: "/forgot-password",
+    element: React.createElement(ForgotPasswordPage),
+  },
   { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
   { path: "/unauthorized", element: React.createElement(Unauthorized) },
   { path: "/select-role", element: React.createElement(RoleSelector) },
@@ -173,50 +176,50 @@ export const ROUTES: RouteConfig[] = [
   {
     path: "/manager/inventory-alerts",
     element: React.createElement(InventoryAlertsPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
     label: "Inventory Alerts",
   },
   {
     path: "/manager/archived",
     element: React.createElement(ArchivedJobsPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/archived",
     element: React.createElement(ArchivedJobsPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/install-manager",
     element: React.createElement(InstallManagerDashboard),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
     label: "Install Manager Dashboard",
   },
   {
     path: "/install-manager/calendar",
     element: React.createElement(CalendarPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
     label: "Schedule Calendar",
   },
   {
     path: "/install-manager/job/new",
     element: React.createElement(NewJobBuilderPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/install-manager/job/:id",
     element: React.createElement(UnderConstructionPage),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/install-manager/invoices/generate",
     element: React.createElement(InvoiceGenerator),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/install-manager/payments/log",
     element: React.createElement(PaymentLogger),
-    role: ["Manager", "Admin"],
+    role: ["Install Manager", "Admin"],
   },
   {
     path: "/clients",

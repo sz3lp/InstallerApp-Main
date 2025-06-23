@@ -11,7 +11,7 @@ alter table lead_status_history enable row level security;
 
 create policy "Lead status history access" on lead_status_history
   for select using (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Admin'))
+    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Install Manager','Admin'))
   );
 
 create or replace function log_lead_status_change()

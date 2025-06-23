@@ -12,13 +12,13 @@ alter table qa_reviews enable row level security;
 create policy "QAReviews Select" on qa_reviews
   for select using (
     exists (
-      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager')
+      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager','Install Manager')
     )
   );
 
 create policy "QAReviews Insert" on qa_reviews
   for insert with check (
     exists (
-      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager')
+      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager','Install Manager')
     )
   );
