@@ -2,7 +2,6 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useJobs } from '../../lib/hooks/useJobs';
 import React, { useMemo, useState } from "react";
 import useJobs from "../../lib/hooks/useJobs";
 import useInstallers from "../../lib/hooks/useInstallers";
@@ -75,6 +74,7 @@ const CalendarPage = () => {
         </div>
       )}
 
+    </div>
     </div>
   );
 };

@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useJobs } from "../../lib/hooks/useJobs";
 import { useAuth } from "../../lib/hooks/useAuth";
-import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
 
 const InstallerDashboard: React.FC = () => {
   const { session, role, user } = useAuth();
@@ -18,7 +17,6 @@ const InstallerDashboard: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <OnboardingPanel role={role as any} userId={user?.id || ""} />
       <h1 className="text-2xl font-bold">Assigned Jobs</h1>
       <ul className="space-y-2">
         {myJobs.map((j) => (
