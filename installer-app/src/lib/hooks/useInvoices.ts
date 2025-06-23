@@ -28,7 +28,7 @@ export interface Invoice {
 export function useInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -39,7 +39,7 @@ export function useInvoices() {
       )
       .order("invoice_date", { ascending: false });
     if (error) {
-      setError(error.message);
+      setError(error);
       setInvoices([]);
     } else {
       const list = (data ?? []).map((i: any) => ({
@@ -154,6 +154,7 @@ export function useInvoices() {
   return [
     invoices,
     {
+      data: invoices,
       loading,
       error,
       fetchInvoices,
