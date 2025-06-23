@@ -7,6 +7,6 @@ drop policy if exists "Jobs Insert" on jobs;
 create policy "Jobs Insert" on jobs
   for insert with check (
     exists (
-      select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Admin')
+      select 1 from user_roles where user_id = auth.uid() and role in ('Sales','Manager','Install Manager','Admin')
     )
   );

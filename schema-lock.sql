@@ -610,7 +610,7 @@ ALTER TABLE public.signed_checklists OWNER TO postgres;
 CREATE TABLE public.user_roles (
     user_id uuid NOT NULL,
     role text NOT NULL,
-    CONSTRAINT user_roles_role_check CHECK ((role = ANY (ARRAY['Installer'::text, 'Admin'::text, 'Manager'::text, 'Sales'::text])))
+    CONSTRAINT user_roles_role_check CHECK ((role = ANY (ARRAY['Installer'::text, 'Admin'::text, 'Manager'::text, 'Sales'::text, 'Finance'::text, 'Install Manager'::text])))
 );
 
 

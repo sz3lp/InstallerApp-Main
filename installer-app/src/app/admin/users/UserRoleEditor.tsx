@@ -3,11 +3,18 @@ import { SZButton } from "../../../components/ui/SZButton";
 import { supabase } from "../../../lib/supabaseClient";
 import { useAuth } from "../../../lib/hooks/useAuth";
 
-const ALL_ROLES = ["Admin", "Manager", "Installer", "Sales", "Finance"];
+const ALL_ROLES = [
+  "Admin",
+  "Manager",
+  "Install Manager",
+  "Installer",
+  "Sales",
+  "Finance",
+];
 
 export default function UserRoleEditor({ userId }: { userId: string }) {
   const [role, setRole] = useState<string | null>(null);
-  const { user, refreshRoles } = useAuth();WW
+  const { user, refreshRoles } = useAuth();
 
   useEffect(() => {
     const fetch = async () => {
@@ -16,8 +23,6 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
         .select("role")
         .eq("user_id", userId)
         .single();
-
-        .maybeSingle();
       setRole(data?.role ?? null);
     };
     fetch();
