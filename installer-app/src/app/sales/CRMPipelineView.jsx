@@ -9,7 +9,8 @@ export default function CRMPipelineView() {
   const { role, user } = useAuth();
   const { leads, fetchLeads } = useLeads();
 
-  if (!['Sales', 'Manager'].includes(role ?? '')) return <div className="p-4">Access denied</div>;
+  if (!['Sales', 'Manager', 'Install Manager'].includes(role ?? ''))
+    return <div className="p-4">Access denied</div>;
 
   const onDrop = async (e, status) => {
     const id = e.dataTransfer.getData('text');

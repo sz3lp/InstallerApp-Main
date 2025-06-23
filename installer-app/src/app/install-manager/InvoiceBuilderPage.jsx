@@ -31,7 +31,7 @@ export default function InvoiceBuilderPage() {
     }
   }, [jobId, jobs, quotes]);
 
-  if (role !== 'InstallManager' && role !== 'Admin') return <div className="p-4">Access denied</div>;
+  if (role !== 'Install Manager' && role !== 'Admin') return <div className="p-4">Access denied</div>;
 
   const save = async () => {
     const amt = Number(amount);

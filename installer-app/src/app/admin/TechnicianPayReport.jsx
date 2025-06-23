@@ -10,7 +10,8 @@ export default function TechnicianPayReport() {
   const [end, setEnd] = useState('');
   const rows = usePayReport(start, end);
 
-  if (!['Admin', 'Manager'].includes(role ?? '')) return <div className="p-4">Access denied</div>;
+  if (!['Admin', 'Manager', 'Install Manager'].includes(role ?? ''))
+    return <div className="p-4">Access denied</div>;
 
   const total = rows.reduce((s, r) => s + r.payout, 0);
 

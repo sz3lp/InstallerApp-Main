@@ -24,7 +24,7 @@ const CalendarPage: React.FC = () => {
       }));
   }, [jobs, filter]);
 
-  const canEdit = role === 'Manager' || role === 'Admin';
+  const canEdit = role === 'Manager' || role === 'Install Manager' || role === 'Admin';
 
   const handleDrop = async (event: JobEvent, start: Date) => {
     const dateStr = start.toISOString().slice(0, 10);

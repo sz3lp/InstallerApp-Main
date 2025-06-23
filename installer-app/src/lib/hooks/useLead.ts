@@ -30,7 +30,11 @@ export default function useLead(leadId: string | null) {
   const [history, setHistory] = useState<LeadHistoryEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const allowed = role === "Sales" || role === "Manager" || role === "Admin";
+  const allowed =
+    role === "Sales" ||
+    role === "Manager" ||
+    role === "Install Manager" ||
+    role === "Admin";
 
   const fetchLead = useCallback(async () => {
     if (!leadId || !allowed) {

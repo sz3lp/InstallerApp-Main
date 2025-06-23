@@ -18,13 +18,13 @@ alter table invoice_fees enable row level security;
 create policy "InvoiceFees Select" on invoice_fees for select using (true);
 create policy "InvoiceFees Insert" on invoice_fees
   for insert with check (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales','Install Manager'))
   );
 create policy "InvoiceFees Update" on invoice_fees
   for update using (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales','Install Manager'))
   );
 create policy "InvoiceFees Delete" on invoice_fees
   for delete using (
-    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales'))
+    exists (select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Sales','Install Manager'))
   );
