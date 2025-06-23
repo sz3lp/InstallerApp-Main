@@ -7,7 +7,7 @@ const ALL_ROLES = ["Admin", "Manager", "Installer", "Sales", "Finance"];
 
 export default function UserRoleEditor({ userId }: { userId: string }) {
   const [role, setRole] = useState<string | null>(null);
-  const { user, refreshRoles } = useAuth();
+  const { user, refreshRoles } = useAuth();WW
 
   useEffect(() => {
     const fetch = async () => {
@@ -15,6 +15,8 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
+        .single();
+
         .maybeSingle();
       setRole(data?.role ?? null);
     };
