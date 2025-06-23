@@ -6,7 +6,9 @@ import ClientFormModal, {
   Client,
 } from "../../components/modals/ClientFormModal";
 import useClients from "../../lib/hooks/useClients";
-import SearchBar from "../../components/ui/search/SearchBar";
+import SearchAndFilterBar, {
+  FilterOption,
+} from "../../components/search/SearchAndFilterBar";
 import FilterPanel, {
   AppliedFilters,
   FilterDefinition,
@@ -32,17 +34,11 @@ const ClientsPage: React.FC = () => {
   };
   const [filters, setFilters] = useState<AppliedFilters>(initialFilters);
 
+  const searchFilterOptions: FilterOption[] = [
+    { key: "status", label: "Status", options: ["active", "inactive"] },
+  ];
+
   const filterDefs: FilterDefinition[] = [
-    {
-      key: "status",
-      label: "Status",
-      type: "dropdown",
-      options: [
-        { label: "All", value: "" },
-        { label: "active", value: "active" },
-        { label: "inactive", value: "inactive" },
-      ],
-    },
     { key: "created", label: "Created Date", type: "dateRange" },
   ];
 
@@ -87,6 +83,11 @@ const ClientsPage: React.FC = () => {
       p.delete("search");
     }
     setParams(p);
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    const updated = { ...filters, [key]: value };
+    applyFilters(updated);
   };
 
   const applyFilters = (vals: AppliedFilters) => {
@@ -169,13 +170,12 @@ const ClientsPage: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap items-end gap-4">
-        <div className="flex-1 min-w-[200px]">
-          <SearchBar
-            placeholder="Search clients"
-            onSearch={handleSearch}
-            initialValue={search}
-          />
-        </div>
+        <SearchAndFilterBar
+          searchPlaceholder="Search clients"
+          filters={searchFilterOptions}
+          onSearch={handleSearch}
+          onFilterChange={handleFilterChange}
+        />
         <FilterPanel
           filters={filterDefs}
           onApply={applyFilters}
