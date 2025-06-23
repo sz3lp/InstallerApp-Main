@@ -3,6 +3,7 @@ import useJobs from '../../lib/hooks/useJobs';
 import useInstallers from '../../lib/hooks/useInstallers';
 import { JobCalendar, JobEvent } from '../../components/calendar/JobCalendar';
 import { useAuth } from '../../lib/hooks/useAuth';
+import { GlobalLoading } from '../../components/global-states';
 
 const CalendarPage: React.FC = () => {
   const { jobs, updateScheduledDate, loading } = useJobs();
@@ -54,7 +55,7 @@ const CalendarPage: React.FC = () => {
         </div>
       </header>
       {loading ? (
-        <div>Loading...</div>
+        <GlobalLoading />
       ) : (
         <JobCalendar events={events} editable={canEdit} onEventDrop={handleDrop} />
       )}

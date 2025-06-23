@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { GlobalLoading } from "./components/global-states";
 import {
   BrowserRouter as Router,
   Routes,
@@ -18,7 +19,7 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<GlobalLoading />}>
           <Routes>
             {publicRoutes.map((r) => (
               <Route key={r.path} path={r.path} element={r.element} />

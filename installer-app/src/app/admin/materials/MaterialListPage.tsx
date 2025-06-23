@@ -3,6 +3,7 @@ import { SZButton } from "../../../components/ui/SZButton";
 import { SZTable } from "../../../components/ui/SZTable";
 import MaterialForm from "../../../components/forms/MaterialForm";
 import useMaterials, { Material } from "../../../lib/hooks/useMaterials";
+import { GlobalLoading } from "../../../components/global-states";
 
 const emptyMaterial: Omit<Material, "id"> = {
   name: "",
@@ -30,7 +31,7 @@ const MaterialListPage: React.FC = () => {
         New Material
       </SZButton>
       {loading ? (
-        <div>Loading...</div>
+        <GlobalLoading />
       ) : (
         <SZTable
           headers={[

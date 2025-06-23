@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import UploadDocsModal from "./UploadDocsModal";
 import AssignInventoryModal from "./AssignInventoryModal";
 import JobCloseoutPanel from "./JobCloseoutPanel";
+import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 export default function InstallManagerDashboard() {
   const { jobs, loading, error, refresh } = useJobs();
@@ -38,8 +39,8 @@ export default function InstallManagerDashboard() {
         </SZButton>
       </header>
       <OnboardingPanel role={role} userId={user?.id ?? null} />
-      {loading && <div>Loading...</div>}
-      {error && <div className="text-red-600">{error}</div>}
+      {loading && <GlobalLoading />}
+      {error && <GlobalError message={error} onRetry={refresh} />}
       <ul className="space-y-4">
         {jobs.map((job) => {
           try {

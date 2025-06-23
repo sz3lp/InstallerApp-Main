@@ -1,4 +1,5 @@
 import React from 'react';
+import { GlobalError } from './global-states';
 
 interface Props {
   children: React.ReactNode;
@@ -22,7 +23,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return <div className="p-4 text-red-600">{this.state.error?.message}</div>;
+      return <GlobalError message={this.state.error?.message} />;
     }
     return this.props.children;
   }

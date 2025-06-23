@@ -12,7 +12,7 @@ import FilterPanel, {
   FilterDefinition,
 } from "../../components/ui/filters/FilterPanel";
 import ActiveFiltersDisplay from "../../components/ui/filters/ActiveFiltersDisplay";
-import { LoadingState, EmptyState } from "../../components/ui/state";
+import { GlobalLoading, GlobalEmpty, GlobalError } from "../../components/global-states";
 
 const ClientsPage: React.FC = () => {
   const [
@@ -191,15 +191,12 @@ const ClientsPage: React.FC = () => {
 
       <div className="overflow-x-auto">
         {loading ? (
-          <LoadingState type="list" />
+          <GlobalLoading />
         ) : error ? (
-          <p className="text-red-600">Error: {error}</p>
+          <GlobalError message={error} />
         ) : filtered.length === 0 ? (
-          <EmptyState
-            title="No clients found"
-            description="Try adjusting your search or filters."
-          />
-        ) : (
+          <GlobalEmpty message="No clients found" />
+          ) : (
           <>
             <p className="text-sm text-gray-600 mb-2">
               Showing {filtered.length} of {clients.length} results

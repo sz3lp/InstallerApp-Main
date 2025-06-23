@@ -5,6 +5,7 @@ import { SZButton } from "../../../components/ui/SZButton";
 import { SZInput } from "../../../components/ui/SZInput";
 import useQuotes from "../../../lib/hooks/useQuotes";
 import useAuth from "../../../lib/hooks/useAuth";
+import { GlobalLoading, GlobalEmpty } from "../../../components/global-states";
 
 const QuoteListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const QuoteListPage: React.FC = () => {
   const [status, setStatus] = useState<string>("all");
   const [sort, setSort] = useState<"new" | "old" | "total">("new");
 
-  if (authLoading) return <div>Loading...</div>;
+  if (authLoading) return <GlobalLoading />;
   if (role !== "InstallManager" && role !== "Admin") {
     return <Navigate to="/" replace />;
   }
@@ -91,9 +92,9 @@ const QuoteListPage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div>Loading...</div>
+        <GlobalLoading />
       ) : filtered.length === 0 ? (
-        <div>No quotes found.</div>
+        <GlobalEmpty message="No quotes found." />
       ) : (
         <div className="overflow-x-auto">
           <SZTable
