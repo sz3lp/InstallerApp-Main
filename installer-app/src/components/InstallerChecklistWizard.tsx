@@ -7,6 +7,9 @@ import supabase from "../lib/supabaseClient";
 import { useJobs } from "../lib/hooks/useJobs";
 import { useJobMaterials } from "../lib/hooks/useJobMaterials";
 import useAuth from "../lib/hooks/useAuth";
+import LoadingFallback from "./ui/LoadingFallback";
+import EmptyState from "./ui/EmptyState";
+import ErrorBoundary from "./ui/ErrorBoundary";
 
 export interface ChecklistWizardProps {
   isOpen: boolean;
@@ -18,7 +21,7 @@ export interface ChecklistWizardProps {
   } | null;
 }
 
-const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
+const ChecklistWizardContent: React.FC<ChecklistWizardProps> = ({
   isOpen,
   onClose,
   job,
@@ -29,7 +32,9 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
   const [step, setStep] = useState(0);
   const [customerPresent, setCustomerPresent] = useState<string>("");
   const [absenceReason, setAbsenceReason] = useState<string>("");
-  const { items: jobMaterials } = useJobMaterials(job?.id || "");
+  const { items: jobMaterials, loading: materialsLoading } = useJobMaterials(
+    job?.id || ""
+  );
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [systemVerified, setSystemVerified] = useState<boolean>(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -201,8 +206,10 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
       {step === 1 && (
         <div className="space-y-2">
           <p className="text-sm font-semibold">Materials Used</p>
-          {jobMaterials.length === 0 ? (
-            <p>No materials assigned.</p>
+          {materialsLoading ? (
+            <LoadingFallback />
+          ) : jobMaterials.length === 0 ? (
+            <EmptyState message="No materials assigned to this job" />
           ) : (
             <table className="min-w-full text-sm border">
               <thead>
@@ -358,5 +365,11 @@ const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = ({
     </SZModal>
   );
 };
+
+const InstallerChecklistWizard: React.FC<ChecklistWizardProps> = (props) => (
+  <ErrorBoundary>
+    <ChecklistWizardContent {...props} />
+  </ErrorBoundary>
+);
 
 export default InstallerChecklistWizard;

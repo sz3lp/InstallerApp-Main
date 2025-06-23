@@ -7,7 +7,9 @@ import SearchAndFilterBar, {
   FilterOption,
 } from "../../components/search/SearchAndFilterBar";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
-import { LoadingState, ErrorState, EmptyState } from "../../components/states";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
 import LeadHistoryModal from "./LeadHistoryModal";
 
 type Toast = { message: string; success: boolean } | null;
@@ -24,7 +26,7 @@ const statuses = [
   "closed",
 ];
 
-export default function LeadsPage() {
+function LeadsPageContent() {
   const navigate = useNavigate();
   const {
     leads,
@@ -47,6 +49,14 @@ export default function LeadsPage() {
   const [historyLead, setHistoryLead] = useState<Lead | null>(null);
   const [toast, setToast] = useState<Toast>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (error) {
+      setToast({ message: error.message || 'Failed to load leads', success: false });
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [error]);
 
   const handleAdd = async () => {
     if (!form.clinic_name) return;
@@ -109,11 +119,9 @@ export default function LeadsPage() {
         Add Lead
       </SZButton>
       {loading ? (
-        <LoadingState />
-      ) : error ? (
-        <ErrorState error={error} />
+        <LoadingFallback />
       ) : filteredLeads.length === 0 ? (
-        <EmptyState message="No leads found." />
+        <EmptyState message="No leads found. Create a new lead to get started!" />
       ) : (
         <SZTable headers={["Clinic", "Contact", "Status", "Updated", "Actions"]}>
           {filteredLeads.map((lead) => (
@@ -177,5 +185,13 @@ export default function LeadsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <ErrorBoundary>
+      <LeadsPageContent />
+    </ErrorBoundary>
   );
 }
