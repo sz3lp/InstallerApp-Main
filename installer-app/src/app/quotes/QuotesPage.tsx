@@ -7,10 +7,10 @@ import QuoteFormModal, {
 import { useJobs } from "../../lib/hooks/useJobs";
 import useQuotes from "../../lib/hooks/useQuotes";
 import {
-  LoadingState,
-  EmptyState,
-  ErrorState,
-} from "../../components/ui/state";
+  GlobalLoading,
+  GlobalEmpty,
+  GlobalError,
+} from "../../components/global-states";
 
 const QuotesPage: React.FC = () => {
   const [
@@ -85,18 +85,21 @@ const QuotesPage: React.FC = () => {
           New Quote
         </SZButton>
       </div>
-      {loading && <LoadingState type="list" />}
-      {error && <ErrorState message={error} onRetry={fetchQuotes} />}
+      {loading && <GlobalLoading />}
+      {error && <GlobalError message={error} onRetry={fetchQuotes} />}
       {!loading && !error && quotes.length === 0 && (
-        <EmptyState
-          title="No Quotes Found"
-          description="You haven\u2019t created any quotes yet."
-          actionLabel="Create Quote"
-          onAction={() => {
-            setActive(null);
-            setOpen(true);
-          }}
-        />
+        <div className="space-y-2">
+          <GlobalEmpty message="No Quotes Found" />
+          <SZButton
+            size="sm"
+            onClick={() => {
+              setActive(null);
+              setOpen(true);
+            }}
+          >
+            Create Quote
+          </SZButton>
+        </div>
       )}
       {!loading && !error && quotes.length > 0 && (
         <SZTable headers={["Client", "Total", "Status", "Actions"]}>
