@@ -50,6 +50,8 @@ const QAReviewPanel: React.FC = () => {
       decision,
       notes: note,
     });
+    const { default: update } = await import("../../lib/updateUserOnboarding");
+    await update(reviewerId, "manager_reviewed_job");
 
     if (decision === "approved") {
       const { error } = await supabase
@@ -100,7 +102,12 @@ const QAReviewPanel: React.FC = () => {
                 />
               </td>
               <td className="p-2 border space-x-2">
-                <SZButton size="sm" onClick={() => handleDecision(job.id, "approved")}>Approve</SZButton>
+                <SZButton
+                  size="sm"
+                  onClick={() => handleDecision(job.id, "approved")}
+                >
+                  Approve
+                </SZButton>
                 <SZButton
                   size="sm"
                   variant="secondary"
