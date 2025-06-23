@@ -1,51 +1,63 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import supabase from "../../lib/supabaseClient";
+import React, { useMemo, useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { GlobalLoading, GlobalError, GlobalEmpty } from "../../components/global-states";
-
-interface RevenueRow {
-  month: string;
-  invoice_count: number;
-  total_invoiced: number;
-  total_paid: number;
-  outstanding: number;
-}
+import useRevenueByMonth, { RevenueByMonthRow } from "../../lib/hooks/useRevenueByMonth";
+import { SZTable } from "../../components/ui/SZTable";
 
 const RevenueDashboardPage: React.FC = () => {
-  const [rows, setRows] = useState<RevenueRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const data = useRevenueByMonth();
+  const loading = false; // hook doesn't expose loading, assume immediate
+  const error = null;
+  const [sort, setSort] = useState<{ key: keyof RevenueByMonthRow; dir: "asc" | "desc" }>({
+    key: "month",
+    dir: "desc",
+  });
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("revenue_by_month")
-        .select("*")
-        .order("month", { ascending: true });
-      if (error) {
-        console.error(error);
-        setError(error.message);
-        setRows([]);
-      } else {
-        setRows(data as RevenueRow[]);
-        setError(null);
-      }
-      setLoading(false);
-    }
-    load();
-  }, []);
+  const rows = useMemo(() => {
+    const sorted = [...data].sort((a, b) => {
+      const av = a[sort.key] as any;
+      const bv = b[sort.key] as any;
+      if (av < bv) return sort.dir === "asc" ? -1 : 1;
+      if (av > bv) return sort.dir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [data, sort]);
+
+  const thisMonth = useMemo(() => {
+    const key = new Date().toISOString().slice(0, 7);
+    return rows.find((r) => r.month.startsWith(key));
+  }, [rows]);
+
+  const lastMonth = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    const key = d.toISOString().slice(0, 7);
+    return rows.find((r) => r.month.startsWith(key));
+  }, [rows]);
 
   const totals = useMemo(() => {
     return rows.reduce(
       (acc, r) => ({
         invoiced: acc.invoiced + Number(r.total_invoiced || 0),
         paid: acc.paid + Number(r.total_paid || 0),
-        due: acc.due + Number(r.outstanding || 0),
+        due: acc.due + Number(r.outstanding_balance || 0),
       }),
       { invoiced: 0, paid: 0, due: 0 },
     );
   }, [rows]);
+
+  const thisMonthRevenue = thisMonth?.total_paid ?? 0;
+  const lastMonthRevenue = lastMonth?.total_paid ?? 0;
+  const revenueChange = thisMonthRevenue - lastMonthRevenue;
 
   return (
     <div className="p-4 space-y-4">
@@ -57,14 +69,19 @@ const RevenueDashboardPage: React.FC = () => {
       )}
       {!loading && !error && rows.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white shadow rounded p-4">
-              <p className="text-sm text-gray-600">Total Invoiced</p>
-              <p className="text-lg font-semibold">${totals.invoiced.toFixed(2)}</p>
-            </div>
-            <div className="bg-white shadow rounded p-4">
-              <p className="text-sm text-gray-600">Total Paid</p>
-              <p className="text-lg font-semibold">${totals.paid.toFixed(2)}</p>
+              <p className="text-sm text-gray-600">Revenue This Month</p>
+              <p className="text-lg font-semibold">${thisMonthRevenue.toFixed(2)}</p>
+              <p className="text-xs text-gray-500">
+                Prev Month: ${lastMonthRevenue.toFixed(2)}
+                {revenueChange !== 0 && (
+                  <span className={revenueChange > 0 ? "text-green-600" : "text-red-600"}>
+                    {revenueChange > 0 ? " ▲" : " ▼"}
+                    {Math.abs(revenueChange).toFixed(2)}
+                  </span>
+                )}
+              </p>
             </div>
             <div className="bg-white shadow rounded p-4">
               <p className="text-sm text-gray-600">Outstanding Balance</p>
@@ -80,9 +97,39 @@ const RevenueDashboardPage: React.FC = () => {
                 <Legend />
                 <Line type="monotone" dataKey="total_invoiced" stroke="#8884d8" name="Invoiced" />
                 <Line type="monotone" dataKey="total_paid" stroke="#82ca9d" name="Paid" />
-                <Line type="monotone" dataKey="outstanding" stroke="#f87171" name="Outstanding" />
+                <Line
+                  type="monotone"
+                  dataKey="outstanding_balance"
+                  stroke="#f87171"
+                  name="Outstanding"
+                />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+          <div className="overflow-x-auto">
+            <SZTable headers={["Month", "Invoiced", "Paid", "Outstanding"]}>
+              {rows.map((r) => (
+                <tr key={r.month} className="border-t">
+                  <td
+                    className="p-2 border cursor-pointer"
+                    onClick={() =>
+                      setSort((s) => ({
+                        key: "month",
+                        dir: s.dir === "asc" ? "desc" : "asc",
+                      }))
+                    }
+                  >
+                    {new Date(r.month).toLocaleDateString(undefined, {
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="p-2 border text-right">${r.total_invoiced.toFixed(2)}</td>
+                  <td className="p-2 border text-right">${r.total_paid.toFixed(2)}</td>
+                  <td className="p-2 border text-right">${r.outstanding_balance.toFixed(2)}</td>
+                </tr>
+              ))}
+            </SZTable>
           </div>
         </>
       )}
