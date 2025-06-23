@@ -4,7 +4,6 @@ import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
 import { useJobs } from "./useJobs";
 import { useAuth } from "../../lib/hooks/useAuth";
-import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
 import InventoryAlertBanner from "../../components/InventoryAlertBanner";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
@@ -42,7 +41,6 @@ export default function InstallManagerDashboard() {
           New Job
         </SZButton>
       </header>
-      <OnboardingPanel role={role} userId={user?.id || ""} />
       <InventoryAlertBanner />
       {loading && <GlobalLoading />}
       {error && <GlobalError message={error} onRetry={refresh} />}

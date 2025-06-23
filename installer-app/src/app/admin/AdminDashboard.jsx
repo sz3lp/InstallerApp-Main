@@ -1,7 +1,6 @@
 import React from "react";
 import useAuth from "../../lib/hooks/useAuth";
 import useKPIs from "../../lib/hooks/useKPIs";
-import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
 import InventoryAlertBanner from "../../components/InventoryAlertBanner";
 
 export default function AdminDashboard() {
@@ -12,7 +11,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-4 space-y-4">
-      <OnboardingPanel role={role} userId={user?.id || ""} />
       <InventoryAlertBanner />
       <h1 className="text-2xl font-bold">Business KPIs</h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
