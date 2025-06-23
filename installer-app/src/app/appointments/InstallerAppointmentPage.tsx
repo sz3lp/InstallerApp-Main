@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../lib/hooks/useAuth";
 import useInstallerAppointments from "../../lib/hooks/useInstallerAppointments";
 import JobStatusBadge from "../../components/JobStatusBadge";
+import { GlobalLoading, GlobalEmpty } from "../../components/global-states";
 
 const InstallerAppointmentPage: React.FC = () => {
   const { session } = useAuth();
@@ -22,7 +23,7 @@ const InstallerAppointmentPage: React.FC = () => {
       day: "numeric",
     });
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading) return <GlobalLoading />;
 
   return (
     <div className="p-4 space-y-6">
@@ -31,7 +32,7 @@ const InstallerAppointmentPage: React.FC = () => {
       <section className="space-y-2">
         <h2 className="text-xl font-semibold">Today & Upcoming</h2>
         {upcoming.length === 0 ? (
-          <p>No upcoming appointments.</p>
+          <GlobalEmpty message="No upcoming appointments." />
         ) : (
           <ul className="space-y-2">
             {upcoming.map((a) => (
@@ -53,7 +54,7 @@ const InstallerAppointmentPage: React.FC = () => {
       <section className="space-y-2">
         <h2 className="text-xl font-semibold">Completed & Past</h2>
         {past.length === 0 ? (
-          <p>No past jobs.</p>
+          <GlobalEmpty message="No past jobs." />
         ) : (
           <ul className="space-y-2">
             {past.map((a) => (

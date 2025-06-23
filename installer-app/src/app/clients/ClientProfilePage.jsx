@@ -7,7 +7,7 @@ import { useJobs } from '../../lib/hooks/useJobs';
 import useInvoices from '../../lib/hooks/useInvoices';
 import usePayments from '../../lib/hooks/usePayments';
 import { SZTable } from '../../components/ui/SZTable';
-import { LoadingState, EmptyState, ErrorState } from '../../components/ui/state';
+import { GlobalLoading, GlobalEmpty, GlobalError } from '../../components/global-states';
 
 export default function ClientProfilePage() {
   const { role } = useAuth();
@@ -21,9 +21,11 @@ export default function ClientProfilePage() {
 
   if (!role) return null;
   if (clientsLoading || quotesLoading || jobsLoading || invoicesLoading || paymentsLoading)
-    return <LoadingState type="detail" />;
+    return <GlobalLoading />;
   if (clientsError || quotesError || jobsError || invoicesError || paymentsError)
-    return <ErrorState message={clientsError || quotesError || jobsError || invoicesError || paymentsError} />;
+    return (
+      <GlobalError message={clientsError || quotesError || jobsError || invoicesError || paymentsError} />
+    );
   if (!client) return <div className="p-4">Client not found</div>;
 
   const clientQuotes = quotes.filter(q => q.client_id === id);
@@ -42,7 +44,7 @@ export default function ClientProfilePage() {
       <section>
         <h2 className="font-semibold">Quotes</h2>
         {clientQuotes.length === 0 ? (
-          <EmptyState title="No Quotes" />
+          <GlobalEmpty message="No Quotes" />
         ) : (
           <SZTable headers={["Title", "Status", "Total"]}>
             {clientQuotes.map(q => (
@@ -58,7 +60,7 @@ export default function ClientProfilePage() {
       <section>
         <h2 className="font-semibold">Jobs</h2>
         {clientJobs.length === 0 ? (
-          <EmptyState title="No Jobs" />
+          <GlobalEmpty message="No Jobs" />
         ) : (
           <SZTable headers={["Clinic", "Status"]}>
             {clientJobs.map(j => (
@@ -73,7 +75,7 @@ export default function ClientProfilePage() {
       <section>
         <h2 className="font-semibold">Invoices</h2>
         {clientInvoices.length === 0 ? (
-          <EmptyState title="No Invoices" />
+          <GlobalEmpty message="No Invoices" />
         ) : (
           <SZTable headers={["Amount", "Status"]}>
             {clientInvoices.map(i => (
@@ -88,7 +90,7 @@ export default function ClientProfilePage() {
       <section>
         <h2 className="font-semibold">Payments</h2>
         {clientPayments.length === 0 ? (
-          <EmptyState title="No Payments" />
+          <GlobalEmpty message="No Payments" />
         ) : (
           <SZTable headers={["Amount", "Method", "Date"]}>
             {clientPayments.map(p => (
