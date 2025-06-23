@@ -4,7 +4,10 @@ import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 function normalizeRole(role: string | null): string | null {
   if (!role) return null;
-  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+  return role
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 type AuthContextType = {
