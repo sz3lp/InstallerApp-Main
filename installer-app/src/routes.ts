@@ -11,6 +11,7 @@ import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUserListPage from "./app/admin/users/AdminUserListPage";
+import AdminInviteUserPage from "./app/admin/users/AdminInviteUserPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
@@ -132,6 +133,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminUserListPage),
     role: "Admin",
     label: "User Management",
+  },
+  {
+    path: "/admin/invite-user",
+    element: React.createElement(AdminInviteUserPage),
+    role: "Admin",
+    label: "Invite User",
   },
   {
     path: "/admin/jobs/new",
