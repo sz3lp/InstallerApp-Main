@@ -3,16 +3,22 @@ import { Link } from "react-router-dom";
 import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import useInventoryLevels from "../../lib/hooks/useInventoryLevels";
-import { GlobalLoading, GlobalEmpty } from "../../components/global-states";
+import {
+  GlobalLoading,
+  GlobalEmpty,
+  GlobalError,
+} from "../../components/global-states";
 
 const InventoryAlertsPage: React.FC = () => {
-  const { alerts, loading, markResolved } = useInventoryLevels();
+  const { alerts, loading, error, fetchAlerts, markResolved } = useInventoryLevels();
 
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Low Stock Alerts</h1>
       {loading ? (
         <GlobalLoading />
+      ) : error ? (
+        <GlobalError message={error} onRetry={fetchAlerts} />
       ) : alerts.length === 0 ? (
         <GlobalEmpty message="No low stock alerts." />
       ) : (
