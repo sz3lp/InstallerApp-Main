@@ -4,9 +4,11 @@ import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
-import { LoadingState, EmptyState, ErrorState } from "../../components/states";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
 
-const InvoicesPage: React.FC = () => {
+const InvoicesPageContent: React.FC = () => {
   const [
     invoices,
     { loading, error, fetchInvoices, createInvoice, updateInvoice },
@@ -14,6 +16,15 @@ const InvoicesPage: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
   const [open, setOpen] = useState(false);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; success: boolean } | null>(null);
+
+  React.useEffect(() => {
+    if (error) {
+      setToast({ message: error.message || 'Failed to load invoices', success: false });
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [error]);
 
   const markPaid = async (id: string) => {
     await updateInvoice(id, { payment_status: "paid", paid_at: new Date().toISOString() });
@@ -66,8 +77,10 @@ const InvoicesPage: React.FC = () => {
           </SZButton>
         </div>
       </div>
-      {loading && <LoadingState />}
-      {error && <ErrorState error={error} />}
+      {loading && <LoadingFallback />}
+      {error && (
+        <EmptyState message={error.message || 'Failed to load invoices.'} />
+      )}
       {!loading && !error && filtered.length === 0 && (
         <EmptyState message="No Invoices" />
       )}
@@ -100,8 +113,21 @@ const InvoicesPage: React.FC = () => {
       {paymentInvoiceId && (
         <PaymentLoggingModal invoiceId={paymentInvoiceId} open={true} onClose={closePaymentModal} />
       )}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 text-white px-4 py-2 rounded ${toast.success ? 'bg-green-600' : 'bg-red-600'}`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
+
+const InvoicesPage: React.FC = () => (
+  <ErrorBoundary>
+    <InvoicesPageContent />
+  </ErrorBoundary>
+);
 
 export default InvoicesPage;
