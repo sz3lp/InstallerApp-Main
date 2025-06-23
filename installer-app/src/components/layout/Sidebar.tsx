@@ -21,6 +21,7 @@ const adminLinks: LinkItem[] = [
   { to: "/jobs", label: "Jobs" },
   { to: "/invoices", label: "Invoices" },
   { to: "/payments", label: "Payments" },
+  { to: "/admin/inventory-alerts", label: "Inventory Alerts" },
   { to: "/reports", label: "Reports" },
   { to: "/reports/technician-pay", label: "Technician Pay" },
   { to: "/settings", label: "Settings" },
@@ -34,6 +35,7 @@ const managerLinks: LinkItem[] = [
   { to: "/jobs", label: "Jobs" },
   { to: "/invoices", label: "Invoices" },
   { to: "/payments", label: "Payments" },
+  { to: "/admin/inventory-alerts", label: "Inventory Alerts" },
   { to: "/reports", label: "Reports" },
   { to: "/reports/technician-pay", label: "Technician Pay" },
   { to: "/settings", label: "Settings" },
@@ -78,7 +80,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     <aside
       className={`bg-gray-800 text-white w-64 space-y-1 px-4 py-4 transform ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-200 fixed md:static inset-y-0 left-0 z-40`}
     >
-      <button className="md:hidden mb-4" onClick={onClose} aria-label="Close Menu">
+      <button
+        className="md:hidden mb-4"
+        onClick={onClose}
+        aria-label="Close Menu"
+      >
         <FaTimes />
       </button>
       {links.map((link) => (

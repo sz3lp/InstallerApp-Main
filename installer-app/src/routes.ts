@@ -40,7 +40,7 @@ import TechnicianPayReportPage from "./app/reports/TechnicianPayReportPage";
 import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
-import InventoryAlertsPage from "./app/manager/InventoryAlertsPage";
+import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -57,7 +57,10 @@ export type RouteConfig = {
 
 export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
-  { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
+  {
+    path: "/forgot-password",
+    element: React.createElement(ForgotPasswordPage),
+  },
   { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
   { path: "/unauthorized", element: React.createElement(Unauthorized) },
   { path: "/select-role", element: React.createElement(RoleSelector) },
@@ -171,7 +174,7 @@ export const ROUTES: RouteConfig[] = [
     role: "Manager",
   },
   {
-    path: "/manager/inventory-alerts",
+    path: "/admin/inventory-alerts",
     element: React.createElement(InventoryAlertsPage),
     role: ["Manager", "Admin"],
     label: "Inventory Alerts",

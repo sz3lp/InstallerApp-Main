@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import InventoryAlertsPage from "../app/manager/InventoryAlertsPage";
+import InventoryAlertsPage from "../app/admin/InventoryAlertsPage";
 
 jest.mock("../lib/hooks/useInventoryLevels", () => ({
   __esModule: true,
