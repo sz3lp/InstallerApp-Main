@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import supabase from "../../lib/supabaseClient";
+import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 interface FeedbackRow {
   id: string;
@@ -35,8 +36,8 @@ const FeedbackReviewPanel: React.FC = () => {
     fetchFeedback();
   }, [fetchFeedback]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading) return <GlobalLoading />;
+  if (error) return <GlobalError message={error} onRetry={fetchFeedback} />;
 
   return (
     <div className="space-y-4">

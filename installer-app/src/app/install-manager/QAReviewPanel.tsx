@@ -3,6 +3,7 @@ import JobCard from "../../components/JobCard";
 import { SZButton } from "../../components/ui/SZButton";
 import supabase from "../../lib/supabaseClient";
 import DocumentViewerModal from "../../installer/components/DocumentViewerModal";
+import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 export type QAReviewPanelProps = {};
 
@@ -64,8 +65,8 @@ const QAReviewPanel: React.FC<QAReviewPanelProps> = () => {
     fetchJobs();
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading) return <GlobalLoading />;
+  if (error) return <GlobalError message={error} onRetry={fetchJobs} />;
 
   return (
     <div className="space-y-4">

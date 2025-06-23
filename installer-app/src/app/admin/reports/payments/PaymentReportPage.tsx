@@ -4,6 +4,7 @@ import PaymentSummaryPanel from "./PaymentSummaryPanel";
 import PaymentReportTable from "./PaymentReportTable";
 import ExportButtonGroup from "./ExportButtonGroup";
 import usePaymentReport from "./usePaymentReport";
+import { GlobalLoading } from "../../../../components/global-states";
 
 const defaultFilters: PaymentFilters = {
   date: {
@@ -27,7 +28,7 @@ const PaymentReportPage: React.FC = () => {
             <PaymentSummaryPanel data={rows} />
             <ExportButtonGroup data={rows} />
             {loading ? (
-              <div>Loading...</div>
+              <GlobalLoading />
             ) : (
               <div id="payment-report-table">
                 <PaymentReportTable data={rows} />

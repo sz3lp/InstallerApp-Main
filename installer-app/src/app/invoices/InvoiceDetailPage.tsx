@@ -6,6 +6,7 @@ import PaymentLoggingModal from '../../components/PaymentLoggingModal';
 import useInvoice from '../../lib/hooks/useInvoice';
 import usePayments from '../../lib/hooks/usePayments';
 import useAuth from '../../lib/hooks/useAuth';
+import { GlobalLoading, GlobalError } from '../../components/global-states';
 
 const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,8 +15,8 @@ const InvoiceDetailPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [payments] = usePayments(id ?? '');
 
-  if (loading) return <p className="p-4">Loading...</p>;
-  if (error || !invoice) return <p className="p-4 text-red-600">{error || 'Invoice not found'}</p>;
+  if (loading) return <GlobalLoading />;
+  if (error || !invoice) return <GlobalError message={error || 'Invoice not found'} />;
 
   const totalPaid = invoice.amount_paid ?? payments.reduce((s, p) => s + p.amount, 0);
   const balance = invoice.invoice_total - totalPaid;

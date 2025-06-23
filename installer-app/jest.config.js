@@ -8,5 +8,7 @@ export default {
   transformIgnorePatterns: ['/node_modules/(?!(\\@supabase)/)'],
   moduleNameMapper: {
     '^react$': 'react',
+    '^.+\\.(css|less)$': 'identity-obj-proxy',
+    '^react-big-calendar\\/.*\\.css$': 'identity-obj-proxy',
   },
 };
