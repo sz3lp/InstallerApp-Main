@@ -1,11 +1,35 @@
 export async function createCalendarInvite(leadId: string) {
-  console.log("Create calendar invite for", leadId);
+  try {
+    const res = await fetch('/api/calendar/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadId }),
+    });
+    if (!res.ok) {
+      console.error('Failed to create calendar invite', res.status);
+    }
+  } catch (err) {
+    console.error('Calendar invite error', err);
+  }
 }
 
 export const sendCalendarInvite = createCalendarInvite;
 
-export async function generateProposalDocument(leadId: string) {
-  console.log("Generate proposal document for", leadId);
+export async function generateProposalDocument(
+  leadId: string,
+): Promise<Record<string, any> | null> {
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .insert({ lead_id: leadId, type: 'proposal', name: 'Proposal.pdf' })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as Record<string, any>;
+  } catch (err) {
+    console.error('Failed to generate proposal document', err);
+    return null;
+  }
 }
 
 export const generateQuote = generateProposalDocument;
@@ -23,13 +47,17 @@ export async function convertLeadToClientAndJob(leadId: string) {
 export const prepareInvoice = convertLeadToClientAndJob;
 
 export async function handleLeadEvent(leadId: string, status: string) {
-  if (status === 'appointment_scheduled') {
-    await createCalendarInvite(leadId);
-  }
-  if (status === 'proposal_sent') {
-    await generateProposalDocument(leadId);
-  }
-  if (status === 'won') {
-    // conversion handled manually
+  switch (status) {
+    case 'appointment_scheduled':
+      await createCalendarInvite(leadId);
+      break;
+    case 'proposal_sent':
+      await generateProposalDocument(leadId);
+      break;
+    case 'won':
+      await convertLeadToClientAndJob(leadId);
+      break;
+    default:
+      break;
   }
 }
