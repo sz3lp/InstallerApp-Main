@@ -16,6 +16,7 @@ import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
+import MaterialListPage from "./app/admin/materials/MaterialListPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
@@ -147,6 +148,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminInviteUserPage),
     role: "Admin",
     label: "Invite User",
+  },
+  {
+    path: "/admin/materials",
+    element: React.createElement(MaterialListPage),
+    role: "Admin",
+    label: "Material Types",
   },
   {
     path: "/admin/jobs/new",
