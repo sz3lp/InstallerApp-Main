@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaBell, FaSearch } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import { useAuth } from "../../lib/hooks/useAuth";
+import GlobalSearchBar from "./GlobalSearchBar";
 
 type Props = {
   onToggleSidebar: () => void;
@@ -32,7 +33,9 @@ const Header: React.FC<Props> = ({ onToggleSidebar }) => {
         SentientZone
       </Link>
       <div className="flex items-center space-x-4 relative">
-        <FaSearch className="cursor-pointer" />
+        <div className="hidden md:block w-64">
+          <GlobalSearchBar />
+        </div>
         <FaBell className="cursor-pointer" />
         <button onClick={() => setOpen((o) => !o)} className="font-medium">
           {user?.email}

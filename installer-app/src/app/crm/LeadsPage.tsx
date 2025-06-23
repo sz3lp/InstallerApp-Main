@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
-import SearchAndFilterBar, {
-  FilterOption,
-} from "../../components/search/SearchAndFilterBar";
+import SearchAndFilterBar, { FilterOption } from "../../components/search/SearchAndFilterBar";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
+import StatusFilter from "../../components/filters/StatusFilter";
+import SalesRepSelector from "../../components/filters/SalesRepSelector";
 import LoadingFallback from "../../components/ui/LoadingFallback";
 import EmptyState from "../../components/ui/EmptyState";
 import ErrorBoundary from "../../components/ui/ErrorBoundary";
@@ -28,6 +28,8 @@ const statuses = [
 
 function LeadsPageContent() {
   const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [salesRepId, setSalesRepId] = useState<string>("");
   const {
     leads,
     loading,
@@ -35,7 +37,7 @@ function LeadsPageContent() {
     createLead,
     updateLeadStatus,
     convertLeadToClientAndJob,
-  } = useLeads();
+  } = useLeads({ status: statusFilter, salesRepId });
   const [form, setForm] = useState({
     clinic_name: "",
     contact_name: "",
@@ -44,7 +46,6 @@ function LeadsPageContent() {
     address: "",
   });
   const [adding, setAdding] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string>("");
   const [search, setSearch] = useState("");
   const [historyLead, setHistoryLead] = useState<Lead | null>(null);
   const [toast, setToast] = useState<Toast>(null);
@@ -87,6 +88,7 @@ function LeadsPageContent() {
 
   const filteredLeads = leads.filter((l) => {
     if (statusFilter && l.status !== statusFilter) return false;
+    if (salesRepId && l.sales_rep_id !== salesRepId) return false;
     if (search.trim()) {
       const term = search.toLowerCase();
       const combined = `${l.clinic_name} ${l.contact_name} ${l.contact_email} ${l.contact_phone}`.toLowerCase();
@@ -95,9 +97,7 @@ function LeadsPageContent() {
     return true;
   });
 
-  const searchFilterOptions: FilterOption[] = [
-    { key: "status", label: "Status", options: statuses },
-  ];
+  const searchFilterOptions: FilterOption[] = [];
 
   return (
     <div className="p-4 space-y-4">
@@ -106,8 +106,16 @@ function LeadsPageContent() {
         searchPlaceholder="Search leads"
         filters={searchFilterOptions}
         onSearch={setSearch}
-        onFilterChange={(k, v) => setStatusFilter(v)}
+        onFilterChange={() => {}}
       />
+      <div className="flex gap-4">
+        <StatusFilter
+          options={statuses.map((s) => ({ value: s, label: s }))}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <SalesRepSelector value={salesRepId} onChange={setSalesRepId} />
+      </div>
       <div className="grid md:grid-cols-5 gap-2">
         <SZInput id="clinic" label="Clinic" value={form.clinic_name} onChange={(v) => setForm({ ...form, clinic_name: v })} />
         <SZInput id="contact" label="Contact" value={form.contact_name} onChange={(v) => setForm({ ...form, contact_name: v })} />

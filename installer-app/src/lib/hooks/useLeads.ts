@@ -14,7 +14,12 @@ export interface Lead {
   updated_at: string;
 }
 
-export default function useLeads() {
+export interface LeadFilters {
+  status?: string;
+  salesRepId?: string;
+}
+
+export default function useLeads(filters: LeadFilters = {}) {
   const { role } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +32,7 @@ export default function useLeads() {
     role === "Admin";
 
   const fetchLeads = useCallback(
-    async (status?: string) => {
+    async (status?: string, salesRep?: string) => {
       if (!allowed) {
         setLeads([]);
         setLoading(false);
@@ -41,6 +46,7 @@ export default function useLeads() {
         )
         .order("updated_at", { ascending: false });
       if (status) query = query.eq("status", status);
+      if (salesRep) query = query.eq("sales_rep_id", salesRep);
       const { data, error } = await query;
       if (error) {
         setError(error);
@@ -101,8 +107,8 @@ export default function useLeads() {
   );
 
   useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+    fetchLeads(filters.status, filters.salesRepId);
+  }, [fetchLeads, filters.status, filters.salesRepId]);
 
   return {
     leads,

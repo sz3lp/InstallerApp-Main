@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
+import StatusFilter from "../../components/filters/StatusFilter";
+import DateRangeFilter, { DateRange } from "../../components/filters/DateRangeFilter";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
 import LoadingFallback from "../../components/ui/LoadingFallback";
@@ -9,11 +11,12 @@ import EmptyState from "../../components/ui/EmptyState";
 import ErrorBoundary from "../../components/ui/ErrorBoundary";
 
 const InvoicesPageContent: React.FC = () => {
+  const [status, setStatus] = useState<string>("");
+  const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
   const [
     invoices,
     { loading, error, fetchInvoices, createInvoice, updateInvoice },
-  ] = useInvoices();
-  const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
+  ] = useInvoices({ status, startDate: dateRange.start, endDate: dateRange.end });
   const [open, setOpen] = useState(false);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; success: boolean } | null>(null);
@@ -38,7 +41,7 @@ const InvoicesPageContent: React.FC = () => {
     setPaymentInvoiceId(null);
   };
 
-  const filtered = invoices.filter((i) => (filter === "all" ? true : i.payment_status === filter));
+  const filtered = invoices;
 
   const handleSave = async (data: InvoiceData) => {
     await createInvoice({
@@ -61,17 +64,17 @@ const InvoicesPageContent: React.FC = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Invoices</h1>
-        <div className="flex gap-2 items-center">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className="border rounded px-3 py-2"
-          >
-            <option value="all">All</option>
-            <option value="paid">Paid</option>
-            <option value="partially_paid">Partially Paid</option>
-            <option value="unpaid">Unpaid</option>
-          </select>
+        <div className="flex flex-wrap gap-4 items-end">
+          <StatusFilter
+            options={[
+              { value: "paid", label: "Paid" },
+              { value: "partially_paid", label: "Partially Paid" },
+              { value: "unpaid", label: "Unpaid" },
+            ]}
+            value={status}
+            onChange={setStatus}
+          />
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
           <SZButton size="sm" onClick={() => setOpen(true)}>
             New Invoice
           </SZButton>

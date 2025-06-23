@@ -25,19 +25,27 @@ export interface Invoice {
   job_name?: string | null;
 }
 
-export function useInvoices() {
+export interface InvoiceFilters {
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export function useInvoices(filters: InvoiceFilters = {}) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("invoices")
-      .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)",
-      )
+      .select("id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)")
       .order("invoice_date", { ascending: false });
+    if (filters.status) query = query.eq("payment_status", filters.status);
+    if (filters.startDate) query = query.gte("invoice_date", filters.startDate);
+    if (filters.endDate) query = query.lte("invoice_date", filters.endDate);
+    const { data, error } = await query;
     if (error) {
       setError(error);
       setInvoices([]);
@@ -149,7 +157,7 @@ export function useInvoices() {
 
   useEffect(() => {
     fetchInvoices();
-  }, [fetchInvoices]);
+  }, [fetchInvoices, filters.status, filters.startDate, filters.endDate]);
 
   return [
     invoices,
