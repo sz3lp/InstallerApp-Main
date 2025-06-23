@@ -98,6 +98,25 @@ export function useJobs() {
     return data;
   }, []);
 
+  const updateJob = useCallback(
+    async (id: string, updates: Partial<Job>) => {
+      setJobs((js) => js.map((j) => (j.id === id ? { ...j, ...updates } : j)));
+      const { data, error } = await supabase
+        .from<Job>("jobs")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) {
+        console.error(error);
+        await fetchJobs();
+        throw error;
+      }
+      return data;
+    },
+    [fetchJobs],
+  );
+
   const updateScheduledDate = useCallback(
     async (id: string, date: string) => {
       setJobs((js) => js.map((j) => (j.id === id ? { ...j, scheduled_date: date } : j)));
@@ -135,6 +154,7 @@ export function useJobs() {
     fetchJobs,
     createJob,
     assignJob,
+    updateJob,
     updateScheduledDate,
     updateStatus,
   } as const;
