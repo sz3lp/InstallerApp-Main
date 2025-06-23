@@ -20,7 +20,7 @@ const AdminInviteUserPage: React.FC = () => {
   const [role, setRole] = useState("Installer");
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
-  const { refreshRoles } = useAuth();
+  const { refreshRoles, user } = useAuth();
 
   const submitInvite = async () => {
     setLoading(true);
@@ -29,9 +29,13 @@ const AdminInviteUserPage: React.FC = () => {
     if (error) {
       setToast({ message: error.message, success: false });
     } else if (data?.user) {
-      await supabase
-        .from("user_roles")
-        .insert({ user_id: data.user.id, role });
+      await supabase.from("user_roles").insert({ user_id: data.user.id, role });
+      if (user?.id) {
+        const { default: update } = await import(
+          "../../../lib/updateUserOnboarding"
+        );
+        await update(user.id, "admin_invited_user");
+      }
       await refreshRoles();
       setToast({ message: `Invite sent to ${email}`, success: true });
       setEmail("");
@@ -44,9 +48,17 @@ const AdminInviteUserPage: React.FC = () => {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Invite User</h1>
-      <SZInput id="invite_email" label="Email" value={email} onChange={setEmail} />
+      <SZInput
+        id="invite_email"
+        label="Email"
+        value={email}
+        onChange={setEmail}
+      />
       <div className="space-y-1">
-        <label htmlFor="invite_role" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="invite_role"
+          className="block text-sm font-medium text-gray-700"
+        >
           Role
         </label>
         <select

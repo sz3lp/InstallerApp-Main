@@ -18,7 +18,7 @@ const InstallerDashboard: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <OnboardingPanel role={role} userId={user?.id ?? null} />
+      <OnboardingPanel role={role as any} userId={user?.id || ""} />
       <h1 className="text-2xl font-bold">Assigned Jobs</h1>
       <ul className="space-y-2">
         {myJobs.map((j) => (

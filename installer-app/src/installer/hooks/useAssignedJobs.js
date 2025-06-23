@@ -19,7 +19,7 @@ export default function useAssignedJobs() {
         .eq("assigned_to", installerId)
         .order("created_at", { ascending: false });
       if (error) {
-        setError("Failed to load jobs");
+        setError(new Error("Failed to load jobs"));
         setJobs([]);
       } else {
         const mapped = (data || []).map((j) => ({
@@ -34,5 +34,5 @@ export default function useAssignedJobs() {
     fetchJobs();
   }, [installerId]);
 
-  return { jobs, loading, error };
+  return { jobs, data: jobs, loading, error };
 }
