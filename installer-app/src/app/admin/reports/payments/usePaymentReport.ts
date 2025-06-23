@@ -36,7 +36,7 @@ export default function usePaymentReport(filters: PaymentReportFilters) {
       let query = supabase
         .from('payments')
         .select(
-          'id, payment_date, amount, payment_method, reference_number, invoice_id, job_id, client_id, logged_by_user_id, invoices(amount,status), clients(name), jobs(name), users(name)'
+          'id, payment_date, amount, payment_method, reference_number, invoice_id, job_id, client_id, logged_by_user_id, invoices(amount,status), clients(name), jobs(clinic_name), users(name)'
         );
       if (filters.date?.start) query = query.gte('payment_date', filters.date.start);
       if (filters.date?.end) query = query.lte('payment_date', filters.date.end);
@@ -63,7 +63,7 @@ export default function usePaymentReport(filters: PaymentReportFilters) {
           invoice_status: p.invoices?.payment_status ?? null,
           invoice_amount: p.invoices?.amount ?? null,
           client_name: p.clients?.name ?? null,
-          job_name: p.jobs?.name ?? null,
+          job_name: p.jobs?.clinic_name ?? null,
           user_name: p.users?.name ?? null,
         }));
         setRows(mapped);
