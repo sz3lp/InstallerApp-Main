@@ -19,6 +19,7 @@ This repository contains the Vite + React Installer App located in the `installe
 1. **Navigate into the app:**
    ```bash
    cd installer-app
+   ```
 ````
 
 2. **Install dependencies:**
@@ -33,6 +34,8 @@ This repository contains the Vite + React Installer App located in the `installe
    echo "VITE_SUPABASE_URL=YOUR_SUPABASE_URL" >> .env
    echo "VITE_SUPABASE_API_KEY=YOUR_SUPABASE_ANON_KEY" >> .env
    # or VITE_SUPABASE_ANON_KEY
+   echo "STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET" >> .env
+   echo "STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET" >> .env
    ```
 
 4. **Start the dev server:**
@@ -42,6 +45,9 @@ This repository contains the Vite + React Installer App located in the `installe
    ```
 
 5. **Open the printed local URL** in your browser to access the app.
+
+Supabase Edge Functions for Stripe live in `functions/`. Deploy them via
+`supabase functions deploy`.
 
 ### Running Tests
 
@@ -83,10 +89,11 @@ Roles are assigned in the `user_roles` table and validated against the `roles` l
 
 ## Notes
 
-* Tailwind CSS is preconfigured.
-* Supabase client is initialized in `lib/supabaseClient.ts`.
-* API route handlers live in `api/` and assume a compatible local Supabase schema.
-* App uses Vite, not Next.js. Ensure no middleware from Next remains in the repo.
+- Tailwind CSS is preconfigured.
+- Supabase client is initialized in `lib/supabaseClient.ts`.
+- API route handlers live in `api/` and assume a compatible local Supabase schema.
+- App uses Vite, not Next.js. Ensure no middleware from Next remains in the repo.
 
 ```
+
 ```

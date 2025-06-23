@@ -4,7 +4,7 @@ import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
-import { GlobalLoading, GlobalEmpty, GlobalError } from "../../components/global-states";
+import { LoadingState, EmptyState, ErrorState } from "../../components/states";
 
 const InvoicesPage: React.FC = () => {
   const [
@@ -66,10 +66,10 @@ const InvoicesPage: React.FC = () => {
           </SZButton>
         </div>
       </div>
-      {loading && <GlobalLoading />}
-      {error && <GlobalError message={error} onRetry={fetchInvoices} />}
+      {loading && <LoadingState />}
+      {error && <ErrorState error={error} />}
       {!loading && !error && filtered.length === 0 && (
-        <GlobalEmpty message="No Invoices" />
+        <EmptyState message="No Invoices" />
       )}
       {!loading && !error && filtered.length > 0 && (
         <SZTable headers={["Invoice", "Client", "Amount", "Paid", "Status", "Actions"]}>

@@ -110,6 +110,12 @@ const InstallerJobPage: React.FC = () => {
       .from("jobs")
       .update({ status: "in_progress" })
       .eq("id", job.id);
+    if (session?.user?.id) {
+      const { default: update } = await import(
+        "../../../lib/updateUserOnboarding"
+      );
+      await update(session.user.id, "installer_started_job");
+    }
     refresh();
   };
 

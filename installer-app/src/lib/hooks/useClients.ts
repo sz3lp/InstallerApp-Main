@@ -15,7 +15,7 @@ export interface Client {
 export function useClients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchClients = useCallback(async () => {
     setLoading(true);
@@ -26,7 +26,7 @@ export function useClients() {
       )
       .order("name", { ascending: true });
     if (error) {
-      setError(error.message);
+      setError(error);
       setClients([]);
     } else {
       setClients(data ?? []);
@@ -74,6 +74,7 @@ export function useClients() {
   return [
     clients,
     {
+      data: clients,
       loading,
       error,
       createClient,
