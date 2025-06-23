@@ -1,12 +1,12 @@
 # Deploying Low Stock Alert Functions
 
-This guide explains how to deploy the stored procedure `generate_low_stock_alerts` and the Edge Function `check-thresholds.ts`.
+This guide explains how to deploy the stored procedure `generate_inventory_alerts` and the Edge Function `check-thresholds.ts`.
 
 ## 1. Create the Stored Procedure
 
 1. Log in to your Supabase project.
-2. Open the SQL editor and run the SQL script that defines `generate_low_stock_alerts`.
-   - The procedure should scan installer inventory and insert rows into `inventory_alerts` when quantities fall below `reorder_threshold`.
+2. Open the SQL editor and run the SQL script that defines `generate_inventory_alerts`.
+   - The procedure scans `inventory_levels` and inserts rows into `inventory_alerts` when quantities fall below `reorder_threshold`.
 3. Verify the procedure exists under **Functions** in the dashboard.
 
 ## 2. Deploy the Edge Function
@@ -25,12 +25,12 @@ This guide explains how to deploy the stored procedure `generate_low_stock_alert
 
 ## 3. Schedule Regular Execution
 
-Use the Supabase CLI to schedule the function so that alerts are generated automatically:
+Use the Supabase CLI to schedule the procedure so that alerts are generated automatically:
 
 ```bash
-supabase functions schedule check-thresholds --cron "0 * * * *"
+supabase cron schedule daily-inventory-alert --cron "0 0 * * *" --command "call generate_inventory_alerts();"
 ```
 
-The above example runs the function every hour. Adjust the cron expression as required. Scheduled functions are visible under **Edge Functions → Schedules** in the Supabase dashboard.
+This example runs the RPC once per day at midnight. Scheduled jobs are visible under **Database → Scheduled Jobs** in the Supabase dashboard.
 
-After the schedule is active, Supabase will call the function at the defined interval, which triggers `generate_low_stock_alerts` in your database and populates the `inventory_alerts` table.
+After the schedule is active, Supabase will call `generate_inventory_alerts` on the defined interval and populate the `inventory_alerts` table.

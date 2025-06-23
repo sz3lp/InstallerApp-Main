@@ -5,6 +5,7 @@ import supabase from "../../lib/supabaseClient";
 import { useJobs } from "./useJobs";
 import { useAuth } from "../../lib/hooks/useAuth";
 import OnboardingPanel from "../../components/onboarding/OnboardingPanel";
+import InventoryAlertBanner from "../../components/InventoryAlertBanner";
 import EditJobModal from "./EditJobModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import QAReviewPanel from "./QAReviewPanel";
@@ -34,11 +35,15 @@ export default function InstallManagerDashboard() {
     <div className="p-4">
       <header className="sticky top-0 bg-white p-4 shadow mb-4 flex justify-between">
         <h1 className="text-2xl font-bold">Install Manager Dashboard</h1>
-        <SZButton size="sm" onClick={() => navigate('/install-manager/job/new')}>
+        <SZButton
+          size="sm"
+          onClick={() => navigate("/install-manager/job/new")}
+        >
           New Job
         </SZButton>
       </header>
       <OnboardingPanel role={role} userId={user?.id ?? null} />
+      <InventoryAlertBanner />
       {loading && <GlobalLoading />}
       {error && <GlobalError message={error} onRetry={refresh} />}
       <ul className="space-y-4">
