@@ -3,12 +3,14 @@ import supabase from "../supabaseClient";
 
 export interface LeadFunnelMetric {
   sales_rep_id: string | null;
-  sales_rep_email: string | null;
+  leads_new: number;
+  leads_contacted: number;
+  leads_quoted: number;
+  leads_converted: number;
   total_leads: number;
-  leads_with_quotes: number;
-  leads_converted_to_jobs: number;
-  quote_conversion_rate: number | null;
-  job_conversion_rate: number | null;
+  conversion_rate: number | null;
+  avg_time_to_quote: string | null;
+  avg_time_to_job: string | null;
 }
 
 export default function useLeadFunnelMetrics() {

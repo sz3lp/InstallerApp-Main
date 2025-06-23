@@ -1838,18 +1838,40 @@ ALTER TABLE public.user_onboarding_status ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE VIEW public.lead_funnel_metrics AS
  SELECT
-   l.sales_rep_id,
-   u.email AS sales_rep_email,
-   count(DISTINCT l.id) AS total_leads,
-   count(DISTINCT q.id) AS leads_with_quotes,
-   count(DISTINCT j.id) AS leads_converted_to_jobs,
-   round((count(DISTINCT q.id)::numeric / NULLIF(count(DISTINCT l.id), 0)) * 100, 1) AS quote_conversion_rate,
-   round((count(DISTINCT j.id)::numeric / NULLIF(count(DISTINCT l.id), 0)) * 100, 1) AS job_conversion_rate
- FROM leads l
- LEFT JOIN quotes q ON l.id = q.lead_id
- LEFT JOIN jobs j ON q.id = j.quote_id
- LEFT JOIN auth.users u ON l.sales_rep_id = u.id
- GROUP BY l.sales_rep_id, u.email;
+    enriched.sales_rep_id,
+    count(*) FILTER (WHERE enriched.status = 'new') AS leads_new,
+    count(*) FILTER (WHERE enriched.status = 'contacted') AS leads_contacted,
+    count(*) FILTER (WHERE enriched.status = 'quoted') AS leads_quoted,
+    count(*) FILTER (WHERE enriched.status = 'converted') AS leads_converted,
+    count(*) AS total_leads,
+    round((100.0 * count(*) FILTER (WHERE enriched.status = 'converted') / NULLIF(count(*), 0)), 2) AS conversion_rate,
+    avg(enriched.quote_created_at - enriched.created_at) AS avg_time_to_quote,
+    avg(enriched.job_created_at - enriched.created_at) AS avg_time_to_job
+   FROM (
+        SELECT l.id,
+           l.sales_rep_id,
+           l.status,
+           l.created_at,
+           ( SELECT min(q.created_at) FROM quotes q WHERE q.lead_id = l.id) AS quote_created_at,
+           ( SELECT min(j.created_at) FROM jobs j WHERE j.lead_id = l.id) AS job_created_at
+          FROM leads l
+        ) enriched
+  GROUP BY enriched.sales_rep_id;
+
+--
+-- Name: lead_funnel_metrics; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER VIEW public.lead_funnel_metrics ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: Allow sales, managers, admins to view lead funnel metrics; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow sales, managers, admins to view lead funnel metrics" ON public.lead_funnel_metrics FOR SELECT
+    USING ((EXISTS ( SELECT 1
+           FROM public.user_roles
+          WHERE ((user_roles.user_id = auth.uid()) AND (user_roles.role = ANY (ARRAY['Sales'::text, 'Manager'::text, 'Admin'::text]))))));
 
 --
 -- Name: leads Allow Admin/Sales/Manager to view funnel; Type: POLICY; Schema: public; Owner: postgres
