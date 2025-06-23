@@ -1,44 +1,33 @@
-import React, { useEffect, useState } from "react";
-import supabase from "../../lib/supabaseClient";
+import React, { useState } from "react";
 import QAReviewJobList from "./QAReviewJobList";
 import LoadingFallback from "../../components/ui/LoadingFallback";
 import EmptyState from "../../components/ui/EmptyState";
 import ErrorBoundary from "../../components/ui/ErrorBoundary";
-
-interface JobRow {
-  id: string;
-  clinic_name: string | null;
-  completed_at: string | null;
-}
+import { useJobsForQA } from "../../lib/hooks/useJobsForQA";
+import StatusFilter from "../../components/filters/StatusFilter";
+import InstallerSelector from "../../components/filters/InstallerSelector";
 
 const QAReviewDashboardPage: React.FC = () => {
-  const [jobs, setJobs] = useState<JobRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("id, clinic_name, completed_at")
-        .eq("status", "closed_pending_manager_approval")
-        .order("completed_at", { ascending: false });
-      if (error) {
-        setError(error.message);
-        setJobs([]);
-      } else {
-        setJobs(data ?? []);
-        setError(null);
-      }
-      setLoading(false);
-    };
-    fetchJobs();
-  }, []);
+  const [status, setStatus] = useState<string>("closed_pending_manager_approval");
+  const [installer, setInstaller] = useState<string>("");
+  const { jobs, loading, error } = useJobsForQA({ status, installerId: installer });
 
   return (
     <ErrorBoundary>
       <div className="p-4 space-y-4">
         <h1 className="text-2xl font-bold">QA Review Dashboard</h1>
+        <div className="flex gap-4">
+          <StatusFilter
+            options={[
+              { value: "closed_pending_manager_approval", label: "Pending" },
+              { value: "needs_qa", label: "Needs QA" },
+              { value: "rework", label: "Rework" },
+            ]}
+            value={status}
+            onChange={setStatus}
+          />
+          <InstallerSelector value={installer} onChange={setInstaller} />
+        </div>
         {loading ? (
           <LoadingFallback />
         ) : error ? (
