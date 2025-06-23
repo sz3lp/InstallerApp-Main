@@ -683,6 +683,23 @@ CREATE TABLE public.user_settings (
 ALTER TABLE public.user_settings OWNER TO postgres;
 
 --
+-- Name: user_onboarding_status; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_onboarding_status (
+    user_id uuid NOT NULL,
+    installer_started_job boolean DEFAULT false,
+    sales_created_quote boolean DEFAULT false,
+    manager_reviewed_job boolean DEFAULT false,
+    admin_invited_user boolean DEFAULT false,
+    dismissed boolean DEFAULT false,
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.user_onboarding_status OWNER TO postgres;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -894,6 +911,14 @@ ALTER TABLE ONLY public.user_roles
 
 ALTER TABLE ONLY public.user_settings
     ADD CONSTRAINT user_settings_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: user_onboarding_status user_onboarding_status_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_onboarding_status
+    ADD CONSTRAINT user_onboarding_status_pkey PRIMARY KEY (user_id);
 
 
 --
@@ -1259,6 +1284,27 @@ ALTER TABLE ONLY public.user_roles
 
 ALTER TABLE ONLY public.user_settings
     ADD CONSTRAINT user_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id);
+
+
+--
+-- Name: user_onboarding_status user_onboarding_status_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_onboarding_status
+    ADD CONSTRAINT user_onboarding_status_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id);
+
+
+--
+-- Name: user_onboarding_status Allow user to update their onboarding status; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow user to update their onboarding status" ON public.user_onboarding_status FOR UPDATE USING ((auth.uid() = user_id)) WITH CHECK ((auth.uid() = user_id));
+
+--
+-- Name: user_onboarding_status Allow user to read their onboarding status; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow user to read their onboarding status" ON public.user_onboarding_status FOR SELECT USING ((auth.uid() = user_id));
 
 
 --
@@ -1748,6 +1794,12 @@ ALTER TABLE public.qa_reviews ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.signed_checklists ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: user_onboarding_status; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.user_onboarding_status ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete

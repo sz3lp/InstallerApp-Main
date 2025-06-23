@@ -42,7 +42,7 @@ export default function InstallManagerDashboard() {
           New Job
         </SZButton>
       </header>
-      <OnboardingPanel role={role} userId={user?.id ?? null} />
+      <OnboardingPanel role={role} userId={user?.id || ""} />
       <InventoryAlertBanner />
       {loading && <GlobalLoading />}
       {error && <GlobalError message={error} onRetry={refresh} />}
