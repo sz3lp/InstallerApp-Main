@@ -129,6 +129,7 @@ export function useJobs() {
 
   return {
     jobs,
+    data: jobs,
     loading,
     error,
     fetchMyJobs,

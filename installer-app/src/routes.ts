@@ -39,6 +39,7 @@ import ReportsPage from "./app/reports/ReportsPage";
 import TechnicianPayReportPage from "./app/reports/TechnicianPayReportPage";
 import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
 import LeadFunnelDashboardPage from "./app/reports/LeadFunnelDashboardPage";
+import RevenueDashboardPage from "./app/reports/RevenueDashboardPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
@@ -286,6 +287,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(TechnicianPayReportPage),
     role: ["Admin", "Install Manager"],
     label: "Technician Pay",
+  },
+  {
+    path: "/reports/revenue",
+    element: React.createElement(RevenueDashboardPage),
+    role: ["Admin", "Finance"],
+    label: "Revenue",
   },
   {
     path: "/reports/invoice-aging",
