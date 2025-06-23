@@ -1,12 +1,13 @@
 import React from 'react';
 import { useIFIScores } from '../hooks/useInstallerData';
+import { GlobalLoading } from '../../components/global-states';
 
 
 const IFIDashboard = () => {
   const { data, loading } = useIFIScores();
 
   if (loading || !data) {
-    return <div className="p-4 text-center">Loading...</div>;
+    return <GlobalLoading />;
   }
 
   const {
