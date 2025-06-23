@@ -7,13 +7,14 @@ import { useAuth } from "../../lib/hooks/useAuth";
 
 const QuoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { user, role } = useAuth();
+  const { role } = useAuth();
   const [quotes, { updateQuoteStatus }] = useQuotes();
   const quote = useMemo(() => quotes.find((q) => q.id === id), [quotes, id]);
 
   if (!quote) return <div className="p-4">Loading...</div>;
 
-  const canEdit = role === "Sales" && user?.id === quote.created_by && quote.status === "draft";
+  const showSubmit = role === "Sales" && quote.status === "draft";
+  const showAdminActions = role === "Admin" && quote.status === "pending";
 
   return (
     <div className="p-4 space-y-4">
@@ -32,8 +33,14 @@ const QuoteDetailPage: React.FC = () => {
           ))}
         </SZTable>
       </div>
-      {canEdit && (
-        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>Submit Quote</SZButton>
+      {showSubmit && (
+        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>Submit for Approval</SZButton>
+      )}
+      {showAdminActions && (
+        <div className="space-x-2">
+          <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "approved")}>Approve</SZButton>
+          <SZButton size="sm" variant="destructive" onClick={() => updateQuoteStatus(quote.id, "rejected")}>Reject</SZButton>
+        </div>
       )}
       <Link to="/quotes" className="underline text-blue-600">
         Back
