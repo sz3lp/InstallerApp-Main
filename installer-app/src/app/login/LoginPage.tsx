@@ -20,9 +20,9 @@ const LoginPage: React.FC = () => {
     if (session && role) {
       if (role === "Admin") navigate("/admin/dashboard", { replace: true });
       else if (role === "Installer")
-        navigate("/installer/dashboard", { replace: true });
+        navigate("/installer", { replace: true });
       else if (role === "Manager")
-        navigate("/install-manager/dashboard", { replace: true });
+        navigate("/install-manager", { replace: true });
       else if (role === "Sales")
         navigate("/sales/dashboard", { replace: true });
       else navigate("/", { replace: true });
