@@ -208,6 +208,47 @@ $$;
 
 ALTER FUNCTION public.set_lead_audit_fields() OWNER TO postgres;
 
+--
+-- Name: convert_quote_to_job(uuid); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.convert_quote_to_job(quote_id uuid) RETURNS uuid
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+declare
+  quote_record record;
+  new_job_id uuid;
+begin
+  -- Fetch quote
+  select * into quote_record from quotes where id = quote_id;
+  if not found then
+    raise exception 'Quote not found';
+  end if;
+
+  if quote_record.status <> 'approved' then
+    raise exception 'Quote must be approved';
+  end if;
+
+  -- Create job
+  insert into jobs (client_id, quote_id, status, created_by)
+  values (quote_record.client_id, quote_id, 'created', auth.uid())
+  returning id into new_job_id;
+
+  -- Copy quote items into job materials
+  insert into job_materials (job_id, material_id, quantity)
+  select new_job_id, material_id, quantity
+  from quote_items
+  where quote_id = quote_id;
+
+  -- Update quote status
+  update quotes set status = 'converted_to_job' where id = quote_id;
+
+  return new_job_id;
+end;
+$$;
+
+ALTER FUNCTION public.convert_quote_to_job(quote_id uuid) OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -1628,6 +1669,12 @@ ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.job_materials_used ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: job_materials; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.job_materials ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: job_qa_reviews; Type: ROW SECURITY; Schema: public; Owner: postgres

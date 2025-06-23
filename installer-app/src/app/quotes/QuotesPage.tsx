@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZTable } from "../../components/ui/SZTable";
 import QuoteFormModal, {
   QuoteData,
 } from "../../components/modals/QuoteFormModal";
 import useQuotes from "../../lib/hooks/useQuotes";
+import supabase from "../../lib/supabaseClient";
 
 type Toast = { message: string; success: boolean } | null;
 import {
@@ -14,6 +16,7 @@ import {
 } from "../../components/global-states";
 
 const QuotesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [
     quotes,
     {
@@ -74,7 +77,15 @@ const QuotesPage: React.FC = () => {
   };
 
   const convertQuoteToJob = async (id: string) => {
-    console.log('convert quote', id);
+    setToast(null);
+    const { data, error } = await supabase.rpc("convert_quote_to_job", { quote_id: id });
+    if (error) {
+      setToast({ message: "Failed to convert quote: " + error.message, success: false });
+    } else {
+      setToast({ message: "Quote converted to job", success: true });
+      navigate(`/jobs/${data}`);
+    }
+    setTimeout(() => setToast(null), 3000);
   };
 
   return (
