@@ -40,6 +40,7 @@ import TechnicianPayReportPage from "./app/reports/TechnicianPayReportPage";
 import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
+import InventoryAlertsPage from "./app/manager/InventoryAlertsPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -179,6 +180,12 @@ export const ROUTES: RouteConfig[] = [
     path: "/manager/review",
     element: React.createElement(ManagerReview),
     role: "Manager",
+  },
+  {
+    path: "/manager/inventory-alerts",
+    element: React.createElement(InventoryAlertsPage),
+    role: ["Manager", "Admin"],
+    label: "Inventory Alerts",
   },
   {
     path: "/manager/archived",
