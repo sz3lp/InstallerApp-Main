@@ -249,6 +249,36 @@ $$;
 
 ALTER FUNCTION public.convert_quote_to_job(quote_id uuid) OWNER TO postgres;
 
+--
+-- Name: initiate_payment(uuid, numeric); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.initiate_payment(p_invoice_id uuid, p_amount numeric) RETURNS text
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+  v_invoice_exists boolean;
+  v_stripe_session_id text;
+BEGIN
+  SELECT EXISTS(SELECT 1 FROM public.invoices WHERE id = p_invoice_id)
+    INTO v_invoice_exists;
+  IF NOT v_invoice_exists THEN
+    RAISE EXCEPTION 'Payment initiation failed: Invoice ID % does not exist.', p_invoice_id;
+  END IF;
+
+  IF p_amount <= 0 THEN
+    RAISE EXCEPTION 'Payment initiation failed: Amount must be greater than zero. Received %', p_amount;
+  END IF;
+
+  RAISE NOTICE 'Attempting to initiate payment for Invoice ID: %, Amount: %', p_invoice_id, p_amount;
+
+  v_stripe_session_id := 'cs_mock_' || REPLACE(p_invoice_id::text, '-', '');
+  RETURN v_stripe_session_id;
+END;
+$$;
+
+ALTER FUNCTION public.initiate_payment(p_invoice_id uuid, p_amount numeric) OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
