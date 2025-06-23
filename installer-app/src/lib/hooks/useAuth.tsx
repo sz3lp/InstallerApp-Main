@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import supabase from "../supabaseClient";
-import { getUserRole } from "../authHelpers";
 
 function normalizeRole(role: string | null): string | null {
   if (!role) return null;
@@ -13,7 +12,10 @@ type AuthContextType = {
   role: string | null;
   loading: boolean;
   signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
+  verifyMfa: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
+  setRole: (role: string) => void;
+  getAvailableRoles: () => string[];
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,8 +23,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRoleState] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mfaChallenge, setMfaChallenge] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -44,14 +48,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(current);
       setUser(current?.user ?? null);
 
+      let available: string[] = [];
       let currentRole: string | null = null;
       if (current?.user) {
-        currentRole = await getUserRole(current.user.id);
-        const normalized = normalizeRole(currentRole);
-        setRole(normalized);
-        console.log("Loaded role", normalized);
+        const { data: roleRows } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", current.user.id);
+        available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+        setRoles(available);
+
+        const storedRole = sessionStorage.getItem("selected_role");
+        if (storedRole && available.includes(storedRole)) {
+          currentRole = storedRole;
+        } else if (available.length === 1) {
+          currentRole = available[0];
+        }
+        setRoleState(currentRole);
+        console.log("Loaded roles", available, "current", currentRole);
       } else {
-        setRole(null);
+        setRoles([]);
+        setRoleState(null);
       }
 
       setLoading(false);
@@ -72,7 +89,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email,
       password,
     });
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes("MFA")) {
+        setMfaChallenge(data.mfa);
+        throw error;
+      }
+      throw error;
+    }
 
     setSession(data.session);
     setUser(data.user);
@@ -80,10 +103,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));
 
-    const role = await getUserRole(data.user.id);
-    const normalized = normalizeRole(role);
-    setRole(normalized);
-    console.log("Signed in with role", normalized);
+    const { data: roleRows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id);
+    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+    setRoles(available);
+
+    let selected: string | null = null;
+    const storedRole = sessionStorage.getItem("selected_role");
+    if (storedRole && available.includes(storedRole)) {
+      selected = storedRole;
+    } else if (available.length === 1) {
+      selected = available[0];
+    }
+    setRoleState(selected);
+    console.log("Signed in roles", available, "selected", selected);
   };
 
   const signOut = async () => {
@@ -91,13 +126,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("Signed out");
     setSession(null);
     setUser(null);
-    setRole(null);
+    setRoleState(null);
+    setRoles([]);
     localStorage.removeItem("sb_session");
     sessionStorage.removeItem("sb_session");
   };
 
+  const verifyMfa = async (code: string) => {
+    if (!mfaChallenge) return;
+    const { data, error } = await supabase.auth.mfa.verify({
+      factorId: mfaChallenge.factorId,
+      challengeId: mfaChallenge.id,
+      code,
+    });
+    if (error) throw error;
+    setSession(data.session);
+    setUser(data.user);
+    setMfaChallenge(null);
+
+    const { data: roleRows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id);
+    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+    setRoles(available);
+    let selected: string | null = null;
+    if (available.length === 1) selected = available[0];
+    setRoleState(selected);
+  };
+
+  const setRole = (r: string) => {
+    setRoleState(r);
+    sessionStorage.setItem("selected_role", r);
+  };
+
+  const getAvailableRoles = () => roles;
+
   return (
-    <AuthContext.Provider value={{ session, user, role, loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        role,
+        loading,
+        signIn,
+        verifyMfa,
+        signOut,
+        setRole,
+        getAvailableRoles,
+      }}
+    >
       {loading ? <div>Loading...</div> : children}
     </AuthContext.Provider>
   );

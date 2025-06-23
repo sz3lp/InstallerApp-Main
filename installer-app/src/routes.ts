@@ -11,6 +11,7 @@ import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUserListPage from "./app/admin/users/AdminUserListPage";
+import AdminInviteUserPage from "./app/admin/users/AdminInviteUserPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
@@ -40,6 +41,9 @@ import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import LoginPage from "./app/login/LoginPage";
+import ForgotPasswordPage from "./app/login/ForgotPasswordPage";
+import ResetPasswordPage from "./app/login/ResetPasswordPage";
+import RoleSelector from "./components/auth/RoleSelector";
 
 export type RouteConfig = {
   path: string;
@@ -50,6 +54,9 @@ export type RouteConfig = {
 
 export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
+  { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
+  { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
+  { path: "/select-role", element: React.createElement(RoleSelector) },
   {
     path: "/",
     element: React.createElement(InstallerHomePage),
@@ -132,6 +139,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminUserListPage),
     role: "Admin",
     label: "User Management",
+  },
+  {
+    path: "/admin/invite-user",
+    element: React.createElement(AdminInviteUserPage),
+    role: "Admin",
+    label: "Invite User",
   },
   {
     path: "/admin/jobs/new",
