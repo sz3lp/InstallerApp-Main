@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import RequireRole from "../../../../components/RequireRole";
 import PaymentFilterPanel, { PaymentFilters } from "./PaymentFilterPanel";
 import PaymentSummaryPanel from "./PaymentSummaryPanel";
 import PaymentReportTable from "./PaymentReportTable";
@@ -20,25 +19,23 @@ const PaymentReportPage: React.FC = () => {
   const { rows, loading } = usePaymentReport(filters);
 
   return (
-    <RequireRole role={["Admin", "Finance"]}>
-      <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold">Payment Report</h1>
-        <div className="flex flex-col md:flex-row gap-4">
-          <PaymentFilterPanel filters={filters} onApply={setFilters} />
-          <div className="flex-1 space-y-4">
-            <PaymentSummaryPanel data={rows} />
-            <ExportButtonGroup data={rows} />
-            {loading ? (
-              <div>Loading...</div>
-            ) : (
-              <div id="payment-report-table">
-                <PaymentReportTable data={rows} />
-              </div>
-            )}
-          </div>
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Payment Report</h1>
+      <div className="flex flex-col md:flex-row gap-4">
+        <PaymentFilterPanel filters={filters} onApply={setFilters} />
+        <div className="flex-1 space-y-4">
+          <PaymentSummaryPanel data={rows} />
+          <ExportButtonGroup data={rows} />
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <div id="payment-report-table">
+              <PaymentReportTable data={rows} />
+            </div>
+          )}
         </div>
       </div>
-    </RequireRole>
+    </div>
   );
 };
 
