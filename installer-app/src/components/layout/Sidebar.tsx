@@ -47,7 +47,7 @@ const salesLinks: LinkItem[] = [
 ];
 
 const installerLinks: LinkItem[] = [
-  { to: "/installer/dashboard", label: "Dashboard" },
+  { to: "/installer", label: "Dashboard" },
   { to: "/installer/jobs", label: "My Jobs" },
   { to: "/installer/materials", label: "Material Logger" },
 ];

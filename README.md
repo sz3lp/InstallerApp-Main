@@ -43,11 +43,13 @@ This repository contains the Vite + React Installer App located in the `installe
 
 5. **Open the printed local URL** in your browser to access the app.
 
-6. **Run tests:**
+### Running Tests
 
-   ```bash
-   npm test
-   ```
+After installing dependencies, execute:
+
+```bash
+npm test
+```
 
 ---
 

@@ -11,6 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SideDrawer from '../components/SideDrawer';
 import { useAppointments } from '../hooks/useInstallerData';
+import {
+  GlobalLoading,
+  GlobalError,
+  GlobalEmpty,
+} from '../../components/global-states';
 
 const AppointmentSummaryPage = ({ jobs }) => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -117,9 +122,11 @@ const AppointmentSummaryPage = ({ jobs }) => {
         <h1 className="text-2xl font-bold text-center mb-4">Appointment Summary</h1>
         <div className="space-y-4">
           {loading && !jobs ? (
-            <p className="text-center text-gray-500">Loading...</p>
+            <GlobalLoading />
           ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
+            <GlobalError message={error} />
+          ) : data.length === 0 ? (
+            <GlobalEmpty message="No appointments found." />
           ) : (
             data.map((job) => {
               const status = computeStatus(job);

@@ -15,12 +15,12 @@ const TASKS_BY_ROLE: Record<string, { id: string; label: string; link: string }[
     { id: 'explore_crm', label: 'Explore the CRM Pipeline', link: '/crm/leads' },
   ],
   Manager: [
-    { id: 'review_jobs', label: 'Review Jobs in Progress', link: '/install-manager/dashboard' },
+    { id: 'review_jobs', label: 'Review Jobs in Progress', link: '/install-manager' },
     { id: 'approve_quotes', label: 'Approve Pending Quotes', link: '/quotes' },
     { id: 'payroll_report', label: 'Generate Payroll Report', link: '/reports/technician-pay' },
   ],
   Installer: [
-    { id: 'view_jobs', label: 'View Your Assigned Jobs', link: '/installer/dashboard' },
+    { id: 'view_jobs', label: 'View Your Assigned Jobs', link: '/installer' },
     { id: 'complete_test_job', label: 'Complete First Job (Test)', link: '/installer/jobs/mock' },
     { id: 'log_materials', label: 'Log Materials for a Job', link: '/installer/inventory' },
   ],

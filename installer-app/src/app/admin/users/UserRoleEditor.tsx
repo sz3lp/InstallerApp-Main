@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { SZButton } from "../../../components/ui/SZButton";
 import { supabase } from "../../../lib/supabaseClient";
+import { useAuth } from "../../../lib/hooks/useAuth";
 
 const ALL_ROLES = ["Admin", "Manager", "Installer", "Sales", "Finance"];
 
 export default function UserRoleEditor({ userId }: { userId: string }) {
   const [role, setRole] = useState<string | null>(null);
+  const { user, refreshRoles } = useAuth();WW
 
   useEffect(() => {
     const fetch = async () => {
@@ -14,6 +16,8 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
         .select("role")
         .eq("user_id", userId)
         .single();
+
+        .maybeSingle();
       setRole(data?.role ?? null);
     };
     fetch();
@@ -24,6 +28,9 @@ export default function UserRoleEditor({ userId }: { userId: string }) {
       .from("user_roles")
       .upsert({ user_id: userId, role: newRole }, { onConflict: "user_id" });
     setRole(newRole);
+    if (user && user.id === userId) {
+      await refreshRoles();
+    }
   };
 
   return (

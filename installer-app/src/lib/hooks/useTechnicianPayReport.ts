@@ -30,7 +30,7 @@ export default function useTechnicianPayReport(
           quantity_completed,
           user_id,
           job_id,
-          jobs(name, completed_at, client_id, clients(name)),
+          jobs(clinic_name, completed_at, client_id, clients(name)),
           materials(name, default_pay_rate),
           users(full_name)
         `);
@@ -51,7 +51,7 @@ export default function useTechnicianPayReport(
             user_id: row.user_id,
             user_name: row.users?.full_name ?? null,
             job_id: row.job_id,
-            job_name: row.jobs?.name ?? null,
+            job_name: row.jobs?.clinic_name ?? null,
             client_name: row.jobs?.clients?.name ?? null,
             completed_at: row.jobs?.completed_at ?? null,
             material_name: row.materials?.name ?? null,

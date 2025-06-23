@@ -11,8 +11,7 @@ import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import CalendarPage from "./app/install-manager/CalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
-import AdminUserListPage from "./app/admin/users/AdminUserListPage";
-import AdminInviteUserPage from "./app/admin/users/AdminInviteUserPage";
+import AdminUsersPage from "./app/admin/users/AdminUsersPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
@@ -103,11 +102,6 @@ export const ROUTES: RouteConfig[] = [
     label: "Installer Dashboard",
   },
   {
-    path: "/installer/dashboard",
-    element: React.createElement(InstallerDashboard),
-    role: "Installer",
-  },
-  {
     path: "/installer/jobs/:id",
     element: React.createElement(InstallerJobPage),
     role: "Installer",
@@ -141,15 +135,9 @@ export const ROUTES: RouteConfig[] = [
   },
   {
     path: "/admin/users",
-    element: React.createElement(AdminUserListPage),
+    element: React.createElement(AdminUsersPage),
     role: "Admin",
     label: "User Management",
-  },
-  {
-    path: "/admin/invite-user",
-    element: React.createElement(AdminInviteUserPage),
-    role: "Admin",
-    label: "Invite User",
   },
   {
     path: "/admin/materials",
@@ -209,11 +197,6 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(CalendarPage),
     role: ["Manager", "Admin"],
     label: "Schedule Calendar",
-  },
-  {
-    path: "/install-manager/dashboard",
-    element: React.createElement(InstallManagerDashboard),
-    role: ["Manager", "Admin"],
   },
   {
     path: "/install-manager/job/new",

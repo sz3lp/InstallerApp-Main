@@ -18,6 +18,7 @@ type AuthContextType = {
   signOut: () => Promise<void>;
   setRole: (role: string) => void;
   getAvailableRoles: () => string[];
+  refreshRoles: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -176,6 +177,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRoleState(selected);
   };
 
+  const refreshRoles = async () => {
+    if (!user) return;
+    const { data: roleRows, error: roleErr } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    if (roleErr) {
+      console.error("Failed to fetch roles", roleErr);
+      setError("Failed to load roles");
+      return;
+    }
+    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+    setRoles(available);
+    if (available.length === 1) {
+      setRoleState(available[0]);
+    } else if (role && !available.includes(role)) {
+      setRoleState(null);
+    }
+  };
+
   const setRole = (r: string) => {
     setRoleState(r);
     sessionStorage.setItem("selected_role", r);
@@ -196,6 +217,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         setRole,
         getAvailableRoles,
+        refreshRoles,
       }}
     >
       {loading ? (

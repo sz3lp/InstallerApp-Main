@@ -1,5 +1,5 @@
 import React from "react";
-import InstallerChecklistWizard from "../../../installer/components/InstallerChecklistWizard";
+import InstallerChecklistWizard from "../../../components/InstallerChecklistWizard";
 import { JobDetail } from "../jobService";
 
 export interface JobChecklistFormProps {
