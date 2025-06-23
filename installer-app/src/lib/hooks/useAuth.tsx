@@ -227,6 +227,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setRole = (r: string) => {
+    if (!roles.includes(r)) {
+      console.warn(`Attempt to set unauthorized role: ${r}`);
+      return;
+    }
     setRoleState(r);
     sessionStorage.setItem("selected_role", r);
   };
