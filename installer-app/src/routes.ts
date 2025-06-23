@@ -16,6 +16,7 @@ import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
 import AdminJobDetail from "./app/admin/jobs/JobDetailPage";
+import MaterialListPage from "./app/admin/materials/MaterialListPage";
 import InstallerDashboard from "./app/installer/InstallerDashboard";
 import InstallerJobPage from "./app/installer/jobs/InstallerJobPage";
 import InstallerProfilePage from "./app/installer/profile/InstallerProfilePage";
@@ -40,6 +41,7 @@ import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
+import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
 import ForgotPasswordPage from "./app/login/ForgotPasswordPage";
 import ResetPasswordPage from "./app/login/ResetPasswordPage";
@@ -56,6 +58,7 @@ export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
   { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
   { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
+  { path: "/unauthorized", element: React.createElement(Unauthorized) },
   { path: "/select-role", element: React.createElement(RoleSelector) },
   {
     path: "/",
@@ -145,6 +148,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminInviteUserPage),
     role: "Admin",
     label: "Invite User",
+  },
+  {
+    path: "/admin/materials",
+    element: React.createElement(MaterialListPage),
+    role: "Admin",
+    label: "Material Types",
   },
   {
     path: "/admin/jobs/new",

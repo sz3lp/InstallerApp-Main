@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import RequireRole from "../../../../components/RequireRole";
 import PaymentFilterPanel, { PaymentFilters } from "./PaymentFilterPanel";
 import PaymentSummaryPanel from "./PaymentSummaryPanel";
 import PaymentReportTable from "./PaymentReportTable";
@@ -20,8 +19,7 @@ const PaymentReportPage: React.FC = () => {
   const { rows, loading } = usePaymentReport(filters);
 
   return (
-    <RequireRole role={["Admin", "Finance"]}>
-      <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4">
         <h1 className="text-2xl font-bold">Payment Report</h1>
         <div className="flex flex-col md:flex-row gap-4">
           <PaymentFilterPanel filters={filters} onApply={setFilters} />
@@ -38,7 +36,6 @@ const PaymentReportPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </RequireRole>
   );
 };
 
