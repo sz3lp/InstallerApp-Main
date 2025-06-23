@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from "react";
-import supabase from "../../lib/supabaseClient";
+import React, { useState } from "react";
 import QAReviewJobList from "./QAReviewJobList";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
+import StatusFilter from "../../components/filters/StatusFilter";
+import InstallerSelector from "../../components/filters/InstallerSelector";
+import useJobsForQA from "../../lib/hooks/useJobsForQA";
 
 interface JobRow {
   id: string;
@@ -9,27 +14,36 @@ interface JobRow {
 }
 
 const QAReviewDashboardPage: React.FC = () => {
-  const [jobs, setJobs] = useState<JobRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      const { data } = await supabase
-        .from("jobs")
-        .select("id, clinic_name, completed_at")
-        .eq("status", "closed_pending_manager_approval")
-        .order("completed_at", { ascending: false });
-      setJobs(data ?? []);
-      setLoading(false);
-    };
-    fetchJobs();
-  }, []);
+  const [status, setStatus] = useState("needs_qa");
+  const [installerId, setInstallerId] = useState("");
+  const { jobs, loading, error } = useJobsForQA(status, installerId);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">QA Review Dashboard</h1>
-      {loading ? <p>Loading...</p> : <QAReviewJobList jobs={jobs} />}
-    </div>
+    <ErrorBoundary>
+      <div className="p-4 space-y-4">
+        <h1 className="text-2xl font-bold">QA Review Dashboard</h1>
+        <div className="flex flex-wrap gap-2 items-end">
+          <StatusFilter
+            options={[
+              { value: "needs_qa", label: "Needs QA" },
+              { value: "rework", label: "Rework" },
+            ]}
+            value={status}
+            onChange={setStatus}
+          />
+          <InstallerSelector value={installerId} onChange={setInstallerId} />
+        </div>
+        {loading ? (
+          <LoadingFallback />
+        ) : error ? (
+          <EmptyState message="Failed to load jobs." />
+        ) : jobs.length === 0 ? (
+          <EmptyState message="No jobs currently awaiting QA review. Great work!" />
+        ) : (
+          <QAReviewJobList jobs={jobs} />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 };
 

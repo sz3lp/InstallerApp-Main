@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaBell, FaSearch, FaBars } from "react-icons/fa";
+import { FaBell, FaBars } from "react-icons/fa";
 import { useAuth } from "../../lib/hooks/useAuth";
+import GlobalSearchBar from "../search/GlobalSearchBar";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -34,11 +35,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         </Link>
       </div>
       <div className="flex items-center gap-4 relative">
+        <GlobalSearchBar />
         <button aria-label="Notifications" className="text-xl">
           <FaBell />
-        </button>
-        <button aria-label="Search" className="text-xl">
-          <FaSearch />
         </button>
         <button
           onClick={() => setMenuOpen(!menuOpen)}

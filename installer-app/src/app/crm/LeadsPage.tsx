@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
-import SearchAndFilterBar, {
-  FilterOption,
-} from "../../components/search/SearchAndFilterBar";
+import SearchBar from "../../components/ui/search/SearchBar";
+import StatusFilter from "../../components/filters/StatusFilter";
+import SalesRepSelector from "../../components/filters/SalesRepSelector";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
-import { LoadingState, ErrorState, EmptyState } from "../../components/states";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
 import LeadHistoryModal from "./LeadHistoryModal";
 
 type Toast = { message: string; success: boolean } | null;
@@ -24,12 +26,13 @@ const statuses = [
   "closed",
 ];
 
-export default function LeadsPage() {
+function LeadsPageContent() {
   const navigate = useNavigate();
   const {
     leads,
     loading,
     error,
+    fetchLeads,
     createLead,
     updateLeadStatus,
     convertLeadToClientAndJob,
@@ -43,10 +46,23 @@ export default function LeadsPage() {
   });
   const [adding, setAdding] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [salesRepId, setSalesRepId] = useState<string>("");
   const [search, setSearch] = useState("");
   const [historyLead, setHistoryLead] = useState<Lead | null>(null);
   const [toast, setToast] = useState<Toast>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (error) {
+      setToast({ message: error.message || 'Failed to load leads', success: false });
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [error]);
+
+  React.useEffect(() => {
+    fetchLeads(statusFilter || undefined, salesRepId || undefined);
+  }, [statusFilter, salesRepId, fetchLeads]);
 
   const handleAdd = async () => {
     if (!form.clinic_name) return;
@@ -76,7 +92,6 @@ export default function LeadsPage() {
   };
 
   const filteredLeads = leads.filter((l) => {
-    if (statusFilter && l.status !== statusFilter) return false;
     if (search.trim()) {
       const term = search.toLowerCase();
       const combined = `${l.clinic_name} ${l.contact_name} ${l.contact_email} ${l.contact_phone}`.toLowerCase();
@@ -85,19 +100,18 @@ export default function LeadsPage() {
     return true;
   });
 
-  const searchFilterOptions: FilterOption[] = [
-    { key: "status", label: "Status", options: statuses },
-  ];
-
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Leads</h1>
-      <SearchAndFilterBar
-        searchPlaceholder="Search leads"
-        filters={searchFilterOptions}
-        onSearch={setSearch}
-        onFilterChange={(k, v) => setStatusFilter(v)}
-      />
+      <div className="flex flex-wrap gap-2 items-end">
+        <SearchBar onSearch={setSearch} />
+        <StatusFilter
+          options={statuses.map((s) => ({ value: s, label: s }))}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <SalesRepSelector value={salesRepId} onChange={setSalesRepId} />
+      </div>
       <div className="grid md:grid-cols-5 gap-2">
         <SZInput id="clinic" label="Clinic" value={form.clinic_name} onChange={(v) => setForm({ ...form, clinic_name: v })} />
         <SZInput id="contact" label="Contact" value={form.contact_name} onChange={(v) => setForm({ ...form, contact_name: v })} />
@@ -109,11 +123,9 @@ export default function LeadsPage() {
         Add Lead
       </SZButton>
       {loading ? (
-        <LoadingState />
-      ) : error ? (
-        <ErrorState error={error} />
+        <LoadingFallback />
       ) : filteredLeads.length === 0 ? (
-        <EmptyState message="No leads found." />
+        <EmptyState message="No leads found. Create a new lead to get started!" />
       ) : (
         <SZTable headers={["Clinic", "Contact", "Status", "Updated", "Actions"]}>
           {filteredLeads.map((lead) => (
@@ -177,5 +189,13 @@ export default function LeadsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <ErrorBoundary>
+      <LeadsPageContent />
+    </ErrorBoundary>
   );
 }

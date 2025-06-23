@@ -11,9 +11,11 @@ import InstallerActionsPanel from "../../features/jobs/components/InstallerActio
 import { getJobById, JobDetail } from "../../features/jobs/jobService";
 import useAuth from "../../lib/hooks/useAuth";
 import uploadDocument from "../../lib/uploadDocument";
-import { GlobalLoading, GlobalError } from "../../components/global-states";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
 
-const JobDetailPage: React.FC = () => {
+const JobDetailContent: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   let role: string | null = null;
@@ -29,6 +31,7 @@ const JobDetailPage: React.FC = () => {
   const [job, setJob] = useState<JobDetail | null>(null);
   const [loading, setLoading] = useState(!isTest);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; success: boolean } | null>(null);
   const startTimeRef = useRef(Date.now());
   const sampleJobs: JobDetail[] = [
     {
@@ -74,13 +77,24 @@ const JobDetailPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [jobId, isTest]);
 
+  useEffect(() => {
+    if (error) {
+      setToast({ message: error, success: false });
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [error]);
+
   const handleChecklistSubmit = async (data: any) => {
     await uploadDocument(data.photo);
     navigate("/appointments");
   };
 
-  if (loading) return <GlobalLoading message="Loading job..." />;
-  if (!job || error) return <GlobalError message={error || "Job not found"} />;
+  if (loading) return <LoadingFallback />;
+  if (!job || error)
+    return (
+      <EmptyState message="Job not found or unauthorized access." />
+    );
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
@@ -114,9 +128,22 @@ const JobDetailPage: React.FC = () => {
             onDocuments={() => setShowDocs(true)}
           />
         )}
+        {toast && (
+          <div
+            className={`fixed top-4 right-4 text-white px-4 py-2 rounded ${toast.success ? 'bg-green-600' : 'bg-red-600'}`}
+          >
+            {toast.message}
+          </div>
+        )}
       </main>
     </div>
   );
 };
+
+const JobDetailPage: React.FC = () => (
+  <ErrorBoundary>
+    <JobDetailContent />
+  </ErrorBoundary>
+);
 
 export default JobDetailPage;

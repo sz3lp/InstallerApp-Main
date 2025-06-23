@@ -4,16 +4,34 @@ import { SZTable } from "../../components/ui/SZTable";
 import useInvoices from "../../lib/hooks/useInvoices";
 import InvoiceFormModal, { InvoiceData } from "../../components/modals/InvoiceFormModal";
 import PaymentLoggingModal from "../../components/PaymentLoggingModal";
-import { LoadingState, EmptyState, ErrorState } from "../../components/states";
+import LoadingFallback from "../../components/ui/LoadingFallback";
+import EmptyState from "../../components/ui/EmptyState";
+import ErrorBoundary from "../../components/ui/ErrorBoundary";
+import StatusFilter from "../../components/filters/StatusFilter";
+import DateRangeFilter, { DateRange } from "../../components/filters/DateRangeFilter";
 
-const InvoicesPage: React.FC = () => {
+const InvoicesPageContent: React.FC = () => {
   const [
     invoices,
     { loading, error, fetchInvoices, createInvoice, updateInvoice },
   ] = useInvoices();
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid" | "partially_paid">("all");
+  const [range, setRange] = useState<DateRange>({ start: "", end: "" });
   const [open, setOpen] = useState(false);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; success: boolean } | null>(null);
+
+  React.useEffect(() => {
+    if (error) {
+      setToast({ message: error.message || 'Failed to load invoices', success: false });
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [error]);
+
+  React.useEffect(() => {
+    fetchInvoices(filter, range);
+  }, [filter, range, fetchInvoices]);
 
   const markPaid = async (id: string) => {
     await updateInvoice(id, { payment_status: "paid", paid_at: new Date().toISOString() });
@@ -27,7 +45,7 @@ const InvoicesPage: React.FC = () => {
     setPaymentInvoiceId(null);
   };
 
-  const filtered = invoices.filter((i) => (filter === "all" ? true : i.payment_status === filter));
+  const filtered = invoices;
 
   const handleSave = async (data: InvoiceData) => {
     await createInvoice({
@@ -50,24 +68,27 @@ const InvoicesPage: React.FC = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Invoices</h1>
-        <div className="flex gap-2 items-center">
-          <select
+        <div className="flex flex-wrap gap-2 items-end">
+          <StatusFilter
+            options={[
+              { value: "all", label: "All" },
+              { value: "paid", label: "Paid" },
+              { value: "partially_paid", label: "Partially Paid" },
+              { value: "unpaid", label: "Unpaid" },
+            ]}
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className="border rounded px-3 py-2"
-          >
-            <option value="all">All</option>
-            <option value="paid">Paid</option>
-            <option value="partially_paid">Partially Paid</option>
-            <option value="unpaid">Unpaid</option>
-          </select>
+            onChange={(v) => setFilter(v as any)}
+          />
+          <DateRangeFilter value={range} onChange={setRange} />
           <SZButton size="sm" onClick={() => setOpen(true)}>
             New Invoice
           </SZButton>
         </div>
       </div>
-      {loading && <LoadingState />}
-      {error && <ErrorState error={error} />}
+      {loading && <LoadingFallback />}
+      {error && (
+        <EmptyState message={error.message || 'Failed to load invoices.'} />
+      )}
       {!loading && !error && filtered.length === 0 && (
         <EmptyState message="No Invoices" />
       )}
@@ -100,8 +121,21 @@ const InvoicesPage: React.FC = () => {
       {paymentInvoiceId && (
         <PaymentLoggingModal invoiceId={paymentInvoiceId} open={true} onClose={closePaymentModal} />
       )}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 text-white px-4 py-2 rounded ${toast.success ? 'bg-green-600' : 'bg-red-600'}`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
+
+const InvoicesPage: React.FC = () => (
+  <ErrorBoundary>
+    <InvoicesPageContent />
+  </ErrorBoundary>
+);
 
 export default InvoicesPage;

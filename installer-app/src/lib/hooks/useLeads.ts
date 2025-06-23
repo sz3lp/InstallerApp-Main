@@ -27,7 +27,7 @@ export default function useLeads() {
     role === "Admin";
 
   const fetchLeads = useCallback(
-    async (status?: string) => {
+    async (status?: string, salesRepId?: string) => {
       if (!allowed) {
         setLeads([]);
         setLoading(false);
@@ -41,6 +41,7 @@ export default function useLeads() {
         )
         .order("updated_at", { ascending: false });
       if (status) query = query.eq("status", status);
+      if (salesRepId) query = query.eq("sales_rep_id", salesRepId);
       const { data, error } = await query;
       if (error) {
         setError(error);

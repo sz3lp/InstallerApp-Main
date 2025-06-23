@@ -30,34 +30,46 @@ export function useInvoices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchInvoices = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("invoices")
-      .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)",
-      )
-      .order("invoice_date", { ascending: false });
-    if (error) {
-      setError(error);
-      setInvoices([]);
-    } else {
-      const list = (data ?? []).map((i: any) => ({
-        ...i,
-        issued_at: i.invoice_date,
-        amount: i.invoice_total,
-        client_name: i.clients?.name ?? null,
-        job_name: i.jobs?.clinic_name ?? null,
-        amount_paid: i.amount_paid ?? 0,
-        payment_status: i.payment_status ?? "unpaid",
-        payment_method: i.payment_method ?? null,
-        stripe_session_id: i.stripe_session_id ?? null,
-      }));
-      setInvoices(list);
-      setError(null);
-    }
-    setLoading(false);
-  }, []);
+
+  const fetchInvoices = useCallback(
+    async (status?: string, range?: { start: string; end: string }) => {
+      setLoading(true);
+      let query = supabase
+        .from("invoices")
+        .select(
+          "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)"
+        )
+        .order("invoice_date", { ascending: false });
+      if (status && status !== "all") {
+        query = query.eq("payment_status", status);
+      }
+      if (range) {
+        if (range.start) query = query.gte("invoice_date", range.start);
+        if (range.end) query = query.lte("invoice_date", range.end);
+      }
+      const { data, error } = await query;
+      if (error) {
+        setError(error);
+        setInvoices([]);
+      } else {
+        const list = (data ?? []).map((i: any) => ({
+          ...i,
+          issued_at: i.invoice_date,
+          amount: i.invoice_total,
+          client_name: i.clients?.name ?? null,
+          job_name: i.jobs?.clinic_name ?? null,
+          amount_paid: i.amount_paid ?? 0,
+          payment_status: i.payment_status ?? "unpaid",
+          payment_method: i.payment_method ?? null,
+          stripe_session_id: i.stripe_session_id ?? null,
+        }));
+        setInvoices(list);
+        setError(null);
+      }
+      setLoading(false);
+    },
+    []
+  );
 
   const createInvoice = useCallback(
     async (
