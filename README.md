@@ -1,4 +1,3 @@
-````markdown
 # Installer App Development Setup
 
 This repository contains the Vite + React Installer App located in the `installer-app/` directory.
@@ -20,7 +19,6 @@ This repository contains the Vite + React Installer App located in the `installe
    ```bash
    cd installer-app
    ```
-````
 
 2. **Install dependencies:**
 
@@ -94,6 +92,3 @@ Roles are assigned in the `user_roles` table and validated against the `roles` l
 - API route handlers live in `api/` and assume a compatible local Supabase schema.
 - App uses Vite, not Next.js. Ensure no middleware from Next remains in the repo.
 
-```
-
-```
