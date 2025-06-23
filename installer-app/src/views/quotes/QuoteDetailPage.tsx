@@ -7,13 +7,13 @@ import { useAuth } from "../../lib/hooks/useAuth";
 
 const QuoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { role } = useAuth();
+  const { user, role } = useAuth();
   const [quotes, { updateQuoteStatus }] = useQuotes();
   const quote = useMemo(() => quotes.find((q) => q.id === id), [quotes, id]);
 
   if (!quote) return <div className="p-4">Loading...</div>;
 
-  const showSubmit = role === "Sales" && quote.status === "draft";
+  const canEdit = role === "Sales" && user?.id === quote.created_by && quote.status === "draft";
   const showAdminActions = role === "Admin" && quote.status === "pending";
 
   return (
@@ -33,13 +33,19 @@ const QuoteDetailPage: React.FC = () => {
           ))}
         </SZTable>
       </div>
-      {showSubmit && (
-        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>Submit for Approval</SZButton>
+      {canEdit && (
+        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>
+          Submit for Approval
+        </SZButton>
       )}
       {showAdminActions && (
         <div className="space-x-2">
-          <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "approved")}>Approve</SZButton>
-          <SZButton size="sm" variant="destructive" onClick={() => updateQuoteStatus(quote.id, "rejected")}>Reject</SZButton>
+          <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "approved")}>
+            Approve
+          </SZButton>
+          <SZButton size="sm" variant="destructive" onClick={() => updateQuoteStatus(quote.id, "rejected")}>
+            Reject
+          </SZButton>
         </div>
       )}
       <Link to="/quotes" className="underline text-blue-600">
