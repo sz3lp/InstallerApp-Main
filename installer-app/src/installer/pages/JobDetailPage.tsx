@@ -11,6 +11,7 @@ import InstallerActionsPanel from "../../features/jobs/components/InstallerActio
 import { getJobById, JobDetail } from "../../features/jobs/jobService";
 import useAuth from "../../lib/hooks/useAuth";
 import uploadDocument from "../../lib/uploadDocument";
+import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 const JobDetailPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -78,8 +79,8 @@ const JobDetailPage: React.FC = () => {
     navigate("/appointments");
   };
 
-  if (loading) return <p className="p-4">Loading job...</p>;
-  if (!job || error) return <p className="p-4 text-red-500">{error || "Job not found"}</p>;
+  if (loading) return <GlobalLoading message="Loading job..." />;
+  if (!job || error) return <GlobalError message={error || "Job not found"} />;
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col relative">
