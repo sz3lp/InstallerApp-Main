@@ -10,6 +10,7 @@ export interface Quote {
   created_at: string;
   client_name?: string | null;
   total?: number;
+  items?: QuoteItem[];
 }
 
 export interface QuoteItem {
@@ -30,7 +31,9 @@ export function useQuotes() {
     setLoading(true);
     const { data, error } = await supabase
       .from("quotes")
-      .select("id, client_id, created_by, status, title, created_at, clients(name), quote_items(quantity, unit_price, total)")
+      .select(
+        "id, client_id, created_by, status, title, created_at, clients(name), quote_items(id, description, quantity, unit_price, total)"
+      )
       .order("created_at", { ascending: false });
     if (error) {
       setError(error);
@@ -42,7 +45,7 @@ export function useQuotes() {
           (sum, it) => sum + (it.total ?? it.quantity * it.unit_price),
           0,
         );
-        return { ...q, client_name: q.clients?.name ?? null, total };
+        return { ...q, client_name: q.clients?.name ?? null, total, items };
       });
       setQuotes(list);
       setError(null);
@@ -54,24 +57,16 @@ export function useQuotes() {
     async (
       quote: { client_id: string; title?: string; items: Omit<QuoteItem, "id" | "quote_id">[] }
     ) => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const { data, error } = await supabase
-        .from("quotes")
-        .insert({ client_id: quote.client_id, title: quote.title ?? null, created_by: user?.id })
-        .select()
-        .single();
+      const { data, error } = await supabase.rpc("create_quote_with_items", {
+        client_id: quote.client_id,
+        title: quote.title ?? null,
+        items: quote.items,
+      });
       if (error) throw error;
-      if (quote.items.length) {
-        const rows = quote.items.map((i) => ({ ...i, quote_id: data.id }));
-        const { error: itemErr } = await supabase.from("quote_items").insert(rows);
-        if (itemErr) throw itemErr;
-      }
-      setQuotes((qs) => [{ ...data, client_name: data.clients?.name ?? null }, ...qs]);
+      await fetchQuotes();
       return data as Quote;
     },
-    []
+    [fetchQuotes]
   );
 
   const updateQuote = useCallback(
@@ -98,6 +93,18 @@ export function useQuotes() {
     []
   );
 
+  const updateQuoteStatus = useCallback(
+    async (id: string, status: string) => {
+      const { error } = await supabase.rpc("update_quote_status", {
+        quote_id: id,
+        new_status: status,
+      });
+      if (error) throw error;
+      setQuotes((qs) => qs.map((q) => (q.id === id ? { ...q, status } : q)));
+    },
+    []
+  );
+
   const approveQuote = useCallback(async (id: string) => {
     const { error } = await supabase.rpc("approve_quote", { quote_id: id });
     if (error) throw error;
@@ -119,7 +126,17 @@ export function useQuotes() {
 
   return [
     quotes,
-    { data: quotes, loading, error, fetchQuotes, createQuote, updateQuote, approveQuote, deleteQuote },
+    {
+      data: quotes,
+      loading,
+      error,
+      fetchQuotes,
+      createQuote,
+      updateQuote,
+      updateQuoteStatus,
+      approveQuote,
+      deleteQuote,
+    },
   ] as const;
 }
 
