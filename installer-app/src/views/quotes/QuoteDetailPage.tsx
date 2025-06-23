@@ -14,6 +14,7 @@ const QuoteDetailPage: React.FC = () => {
   if (!quote) return <div className="p-4">Loading...</div>;
 
   const canEdit = role === "Sales" && user?.id === quote.created_by && quote.status === "draft";
+  const showAdminActions = role === "Admin" && quote.status === "pending";
 
   return (
     <div className="p-4 space-y-4">
@@ -33,7 +34,19 @@ const QuoteDetailPage: React.FC = () => {
         </SZTable>
       </div>
       {canEdit && (
-        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>Submit Quote</SZButton>
+        <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "pending")}>
+          Submit for Approval
+        </SZButton>
+      )}
+      {showAdminActions && (
+        <div className="space-x-2">
+          <SZButton size="sm" onClick={() => updateQuoteStatus(quote.id, "approved")}>
+            Approve
+          </SZButton>
+          <SZButton size="sm" variant="destructive" onClick={() => updateQuoteStatus(quote.id, "rejected")}>
+            Reject
+          </SZButton>
+        </div>
       )}
       <Link to="/quotes" className="underline text-blue-600">
         Back
