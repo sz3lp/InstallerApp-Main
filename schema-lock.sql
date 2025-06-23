@@ -414,7 +414,8 @@ CREATE TABLE public.invoices (
     tax_rate numeric DEFAULT 0,
     tax_amount numeric DEFAULT 0,
     total_fees numeric DEFAULT 0,
-    invoice_total numeric DEFAULT 0
+    invoice_total numeric DEFAULT 0,
+    stripe_session_id text
 );
 
 

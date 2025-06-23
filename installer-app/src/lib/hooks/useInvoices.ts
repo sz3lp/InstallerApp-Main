@@ -13,6 +13,7 @@ export interface Invoice {
   tax_amount: number;
   total_fees: number;
   invoice_total: number;
+  stripe_session_id?: string | null;
   amount: number; // alias for invoice_total for older components
   payment_status: string;
   amount_paid: number;
@@ -34,7 +35,7 @@ export function useInvoices() {
     const { data, error } = await supabase
       .from("invoices")
       .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)"
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)",
       )
       .order("invoice_date", { ascending: false });
     if (error) {
@@ -50,6 +51,7 @@ export function useInvoices() {
         amount_paid: i.amount_paid ?? 0,
         payment_status: i.payment_status ?? "unpaid",
         payment_method: i.payment_method ?? null,
+        stripe_session_id: i.stripe_session_id ?? null,
       }));
       setInvoices(list);
       setError(null);
@@ -59,7 +61,10 @@ export function useInvoices() {
 
   const createInvoice = useCallback(
     async (
-      invoice: Omit<Invoice, "id" | "issued_at" | "paid_at" | "client_name" | "job_name" | "amount"> & { status?: string }
+      invoice: Omit<
+        Invoice,
+        "id" | "issued_at" | "paid_at" | "client_name" | "job_name" | "amount"
+      > & { status?: string },
     ) => {
       const insertData = {
         job_id: invoice.job_id ?? null,
@@ -83,23 +88,31 @@ export function useInvoices() {
         .select()
         .single();
       if (error) throw error;
-      setInvoices((list) => [{
-        ...data,
-        client_name: (data as any).clients?.name ?? null,
-        job_name: (data as any).jobs?.clinic_name ?? null,
-        amount_paid: (data as any).amount_paid ?? 0,
-        payment_status: (data as any).payment_status ?? "unpaid",
-        payment_method: (data as any).payment_method ?? null,
-      }, ...list]);
+      setInvoices((list) => [
+        {
+          ...data,
+          client_name: (data as any).clients?.name ?? null,
+          job_name: (data as any).jobs?.clinic_name ?? null,
+          amount_paid: (data as any).amount_paid ?? 0,
+          payment_status: (data as any).payment_status ?? "unpaid",
+          payment_method: (data as any).payment_method ?? null,
+        },
+        ...list,
+      ]);
       return data as Invoice;
     },
-    []
+    [],
   );
 
   const updateInvoice = useCallback(
     async (
       id: string,
-      invoice: Partial<Omit<Invoice, "id" | "issued_at" | "client_name" | "job_name" | "amount">>
+      invoice: Partial<
+        Omit<
+          Invoice,
+          "id" | "issued_at" | "client_name" | "job_name" | "amount"
+        >
+      >,
     ) => {
       const { data, error } = await supabase
         .from("invoices")
@@ -109,11 +122,11 @@ export function useInvoices() {
         .single();
       if (error) throw error;
       setInvoices((list) =>
-        list.map((inv) => (inv.id === id ? { ...inv, ...data } : inv))
+        list.map((inv) => (inv.id === id ? { ...inv, ...data } : inv)),
       );
       return data as Invoice;
     },
-    []
+    [],
   );
 
   const deleteInvoice = useCallback(async (id: string) => {
