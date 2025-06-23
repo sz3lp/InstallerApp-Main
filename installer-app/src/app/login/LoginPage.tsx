@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
       if (role === "Admin") navigate("/admin/dashboard", { replace: true });
       else if (role === "Installer")
         navigate("/installer", { replace: true });
-      else if (role === "Manager")
+      else if (role === "Manager" || role === "Install Manager")
         navigate("/install-manager", { replace: true });
       else if (role === "Sales")
         navigate("/sales/dashboard", { replace: true });

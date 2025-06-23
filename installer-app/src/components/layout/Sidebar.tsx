@@ -57,6 +57,7 @@ function getLinks(role: string | null): LinkItem[] {
     case "Admin":
       return adminLinks;
     case "Manager":
+    case "Install Manager":
       return managerLinks;
     case "Sales":
       return salesLinks;

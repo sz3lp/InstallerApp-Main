@@ -66,6 +66,19 @@ psql $DATABASE_URL -f installer-app/api/migrations/004_create_feedback.sql
 
 Run additional migration files in order when setting up new environments.
 
+### User Roles
+
+Available application roles:
+
+- Admin
+- Manager
+- Installer
+- Sales
+- Install Manager
+- Finance
+
+Roles are assigned in the `user_roles` table and validated against the `roles` lookup table.
+
 ---
 
 ## Notes

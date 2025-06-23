@@ -10,7 +10,7 @@ export default function QuoteListPage() {
   const [status, setStatus] = useState('all');
   const [search, setSearch] = useState('');
 
-  if (!['Sales', 'Manager', 'Admin'].includes(role ?? '')) {
+  if (!['Sales', 'Manager', 'Install Manager', 'Admin'].includes(role ?? '')) {
     return <div className="p-4">Access denied</div>;
   }
 

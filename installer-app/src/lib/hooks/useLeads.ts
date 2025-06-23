@@ -19,7 +19,11 @@ export default function useLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const allowed = role === "Sales" || role === "Manager" || role === "Admin";
+  const allowed =
+    role === "Sales" ||
+    role === "Manager" ||
+    role === "Install Manager" ||
+    role === "Admin";
 
   const fetchLeads = useCallback(
     async (status?: string) => {

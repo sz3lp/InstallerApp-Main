@@ -4,7 +4,14 @@ import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../lib/hooks/useAuth";
 
-const ROLES = ["Admin", "Installer", "Sales", "Manager"];
+const ROLES = [
+  "Admin",
+  "Installer",
+  "Sales",
+  "Manager",
+  "Install Manager",
+  "Finance",
+];
 
 type Toast = { message: string; success: boolean } | null;
 

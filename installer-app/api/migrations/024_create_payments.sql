@@ -18,7 +18,7 @@ create policy "Payments Select" on payments for select using (true);
 create policy "Payments Insert" on payments
   for insert with check (
     exists (
-      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager','Sales','Installer')
+      select 1 from user_roles where user_id = auth.uid() and role in ('Admin','Manager','Install Manager','Sales','Installer')
     )
   );
 

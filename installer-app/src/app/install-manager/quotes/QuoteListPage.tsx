@@ -17,7 +17,7 @@ const QuoteListPage: React.FC = () => {
   const [sort, setSort] = useState<"new" | "old" | "total">("new");
 
   if (authLoading) return <GlobalLoading />;
-  if (role !== "InstallManager" && role !== "Admin") {
+  if (role !== "Install Manager" && role !== "Admin") {
     return <Navigate to="/" replace />;
   }
 

@@ -64,7 +64,7 @@ export default function QuoteBuilderPage() {
     alert(`Quote ${send ? 'sent' : 'saved'} successfully.`);
   };
 
-  if (role !== 'InstallManager') {
+  if (role !== 'Install Manager') {
     return <div className="p-4 text-red-600">Access denied.</div>;
   }
 

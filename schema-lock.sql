@@ -604,13 +604,23 @@ CREATE TABLE public.signed_checklists (
 ALTER TABLE public.signed_checklists OWNER TO postgres;
 
 --
+-- Name: roles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.roles (
+    role text NOT NULL
+);
+
+ALTER TABLE public.roles OWNER TO postgres;
+
+--
 -- Name: user_roles; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_roles (
     user_id uuid NOT NULL,
     role text NOT NULL,
-    CONSTRAINT user_roles_role_check CHECK ((role = ANY (ARRAY['Installer'::text, 'Admin'::text, 'Manager'::text, 'Sales'::text])))
+    CONSTRAINT user_roles_role_check CHECK ((role = ANY (ARRAY['Installer'::text, 'Admin'::text, 'Manager'::text, 'Sales'::text, 'Install Manager'::text, 'Finance'::text])))
 );
 
 
