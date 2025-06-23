@@ -33,7 +33,9 @@ This repository contains the Vite + React Installer App located in the `installe
    echo "VITE_SUPABASE_URL=YOUR_SUPABASE_URL" >> .env
    echo "VITE_SUPABASE_API_KEY=YOUR_SUPABASE_ANON_KEY" >> .env
    # or VITE_SUPABASE_ANON_KEY
-   ```
+   echo "STRIPE_SECRET_KEY=your-stripe-secret" >> .env
+   echo "STRIPE_WEBHOOK_SECRET=your-stripe-webhook" >> .env
+  ```
 
 4. **Start the dev server:**
 

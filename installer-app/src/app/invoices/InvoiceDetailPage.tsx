@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { SZButton } from '../../components/ui/SZButton';
 import { SZTable } from '../../components/ui/SZTable';
 import PaymentLoggingModal from '../../components/PaymentLoggingModal';
+import PayInvoiceButton from '../../components/PayInvoiceButton';
 import useInvoice from '../../lib/hooks/useInvoice';
 import usePayments from '../../lib/hooks/usePayments';
 import useAuth from '../../lib/hooks/useAuth';
@@ -33,6 +34,7 @@ const InvoiceDetailPage: React.FC = () => {
           Record Payment
         </SZButton>
       )}
+      {balance > 0 && <PayInvoiceButton invoiceId={invoice.id} />}
       <h2 className="text-lg font-semibold mt-4">Payments</h2>
       <SZTable headers={["Amount", "Method", "Date", "Note"]}>
         {payments.map((p) => (
