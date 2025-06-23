@@ -7,6 +7,8 @@ export interface Job {
   client_name?: string | null;
   contact_name: string;
   contact_phone: string;
+  address: string;
+  scheduled_date: string | null;
   assigned_to: string | null;
   status: string;
   created_at: string;
@@ -23,7 +25,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from("jobs")
       .select(
-        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)",
+        "id, client_id, contact_name, contact_phone, address, scheduled_date, assigned_to, status, created_at, quote_id, clients(name)"
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -45,7 +47,7 @@ export function useJobs() {
     const { data, error } = await supabase
       .from("jobs")
       .select(
-        "id, client_id, contact_name, contact_phone, assigned_to, status, created_at, quote_id, clients(name)",
+        "id, client_id, contact_name, contact_phone, address, scheduled_date, assigned_to, status, created_at, quote_id, clients(name)"
       )
       .eq("assigned_to", userId)
       .order("created_at", { ascending: false });
@@ -96,6 +98,21 @@ export function useJobs() {
     return data;
   }, []);
 
+  const updateScheduledDate = useCallback(
+    async (id: string, date: string) => {
+      setJobs((js) => js.map((j) => (j.id === id ? { ...j, scheduled_date: date } : j)));
+      const { error } = await supabase
+        .from('jobs')
+        .update({ scheduled_date: date })
+        .eq('id', id);
+      if (error) {
+        console.error(error);
+        await fetchJobs();
+      }
+    },
+    [fetchJobs],
+  );
+
   const updateStatus = async (jobId: string, newStatus: string) => {
     await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
 
@@ -118,6 +135,7 @@ export function useJobs() {
     fetchJobs,
     createJob,
     assignJob,
+    updateScheduledDate,
     updateStatus,
   } as const;
 }

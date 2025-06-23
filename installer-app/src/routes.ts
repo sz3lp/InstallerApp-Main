@@ -9,6 +9,7 @@ import IFIDashboard from "./installer/pages/IFIDashboard";
 import MockJobsPage from "./installer/pages/MockJobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
+import CalendarPage from "./app/install-manager/CalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUserListPage from "./app/admin/users/AdminUserListPage";
 import AdminInviteUserPage from "./app/admin/users/AdminInviteUserPage";
@@ -202,6 +203,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(InstallManagerDashboard),
     role: ["Manager", "Admin"],
     label: "Install Manager Dashboard",
+  },
+  {
+    path: "/install-manager/calendar",
+    element: React.createElement(CalendarPage),
+    role: ["Manager", "Admin"],
+    label: "Schedule Calendar",
   },
   {
     path: "/install-manager/dashboard",
