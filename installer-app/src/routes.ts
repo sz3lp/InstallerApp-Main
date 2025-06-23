@@ -40,6 +40,7 @@ import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
+import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
 import ForgotPasswordPage from "./app/login/ForgotPasswordPage";
 import ResetPasswordPage from "./app/login/ResetPasswordPage";
@@ -56,6 +57,7 @@ export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
   { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
   { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
+  { path: "/unauthorized", element: React.createElement(Unauthorized) },
   { path: "/select-role", element: React.createElement(RoleSelector) },
   {
     path: "/",

@@ -9,7 +9,7 @@ import GlobalLayout from "./components/navigation/GlobalLayout";
 import { ROUTES } from "./routes";
 import { AuthProvider } from "./lib/hooks/useAuth";
 import { RequireAuth as RequireAuthOutlet } from "./components/auth/RequireAuth";
-import RequireRole from "./components/RequireRole";
+import RequireRole from "./components/auth/RequireRole";
 
 const App = () => {
   const publicRoutes = ROUTES.filter((r) => !r.role);
@@ -25,13 +25,18 @@ const App = () => {
             ))}
             <Route element={<RequireAuthOutlet />}>
               <Route element={<GlobalLayout />}>
-                {protectedRoutes.map(({ path, element, role }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={<RequireRole role={role}>{element}</RequireRole>}
-                  />
-                ))}
+                {protectedRoutes.map(({ path, element, role }) => {
+                  const allowed = Array.isArray(role) ? role : [role];
+                  return (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={
+                        <RequireRole allowed={allowed}>{element}</RequireRole>
+                      }
+                    />
+                  );
+                })}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Route>
