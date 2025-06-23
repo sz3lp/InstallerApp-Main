@@ -1,60 +1,55 @@
 import React from "react";
+import supabase from "../../lib/supabaseClient";
 import { useAuth } from "../../lib/hooks/useAuth";
-import useOnboardingState from "../../lib/hooks/useOnboardingState";
+import { toast } from "react-hot-toast";
 
-const TASKS_BY_ROLE: Record<string, { id: string; label: string }[]> = {
-  Admin: [{ id: "admin_invited_user", label: "Invite a User" }],
-  Sales: [{ id: "sales_created_quote", label: "Create a Quote" }],
-  Manager: [{ id: "manager_reviewed_job", label: "Review a Job" }],
-  Installer: [{ id: "installer_started_job", label: "Start a Job" }],
-};
-
-interface Props {
-  role: "Installer" | "Sales" | "Manager" | "Admin";
-  userId: string;
+interface OnboardingPanelProps {
+  onComplete: () => void;
 }
 
-const OnboardingPanel: React.FC<Props> = ({ role, userId }) => {
-  const { user } = useAuth();
-  const { completedTasks, dismissed, completeTask, dismiss } =
-    useOnboardingState(userId);
+const OnboardingPanel: React.FC<OnboardingPanelProps> = ({ onComplete }) => {
+  const { user, role } = useAuth();
 
-  if (!userId) return null;
-  const tasks = TASKS_BY_ROLE[role] || [];
-  const allDone = tasks.every((t) => completedTasks.includes(t.id));
+  if (!user || role === "Admin") return null;
 
-  if (dismissed || allDone || tasks.length === 0) return null;
+  const handleComplete = async () => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ onboarded: true })
+      .eq("user_id", user.id);
+    if (error) {
+      console.error("Error updating onboarding status", error);
+      toast.error("Failed to complete onboarding. Please try again.");
+    } else {
+      toast.success("Welcome to SentientZone!");
+      onComplete();
+    }
+  };
 
-  const name = user?.full_name?.split(" ")[0] || "User";
   return (
-    <div className="p-4 mb-4 border rounded bg-yellow-50">
-      <div className="flex justify-between mb-2">
-        <div>
-          <h2 className="font-semibold">{`Welcome, ${name}! Let's get you set up as a ${role}.`}</h2>
-          <p className="text-sm text-gray-600">{`${completedTasks.length} of ${tasks.length} tasks completed`}</p>
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div className="bg-white p-6 rounded shadow-md w-96 text-center space-y-4">
+        <h2 className="text-xl font-semibold">Welcome to SentientZone!</h2>
+        <p>Let's get you set up quickly.</p>
+        <div className="space-x-2">
+          <button
+            onClick={handleComplete}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Get Started
+          </button>
+          <button
+            onClick={onComplete}
+            className="px-4 py-2 border rounded"
+          >
+            Skip for now
+          </button>
         </div>
-        <button onClick={dismiss} className="text-sm text-gray-500">
-          Dismiss Forever
-        </button>
       </div>
-      <ul className="space-y-1">
-        {tasks.map((task) => {
-          const done = completedTasks.includes(task.id);
-          return (
-            <li key={task.id} className="flex items-center">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={done}
-                onChange={() => !done && completeTask(task.id as any)}
-              />
-              <span className={done ? "line-through text-gray-600" : ""}>
-                {task.label}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
     </div>
   );
 };
