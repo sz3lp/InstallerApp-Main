@@ -6,7 +6,7 @@ import InstallerAppointmentPage from "./app/appointments/InstallerAppointmentPag
 import ActivityLogPage from "./app/activity/ActivityLogPage";
 import JobDetailPage from "./installer/pages/JobDetailPage";
 import IFIDashboard from "./installer/pages/IFIDashboard";
-import MockJobsPage from "./installer/pages/MockJobsPage";
+import JobsPage from "./installer/pages/JobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import CalendarPage from "./app/install-manager/CalendarPage";
@@ -91,8 +91,8 @@ export const ROUTES: RouteConfig[] = [
     role: "Installer",
   },
   {
-    path: "/mock-jobs",
-    element: React.createElement(MockJobsPage),
+    path: "/jobs",
+    element: React.createElement(JobsPage),
     role: "Installer",
   },
   {
