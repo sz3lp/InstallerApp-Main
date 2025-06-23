@@ -18,7 +18,7 @@ export default function useMaterialTypes() {
   const fetchMaterials = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from<MaterialType>("materials")
+      .from<MaterialType>("material_types")
       .select(
         "id, name, unit_of_measure, default_cost, retail_price, created_at",
       )
@@ -36,7 +36,7 @@ export default function useMaterialTypes() {
   const createMaterial = useCallback(
     async (input: Omit<MaterialType, "id" | "created_at">) => {
       const { data, error } = await supabase
-        .from<MaterialType>("materials")
+        .from<MaterialType>("material_types")
         .insert(input)
         .select()
         .single();
@@ -50,7 +50,7 @@ export default function useMaterialTypes() {
   const updateMaterial = useCallback(
     async (id: string, input: Omit<MaterialType, "id" | "created_at">) => {
       const { data, error } = await supabase
-        .from<MaterialType>("materials")
+        .from<MaterialType>("material_types")
         .update(input)
         .eq("id", id)
         .select()
@@ -63,7 +63,7 @@ export default function useMaterialTypes() {
   );
 
   const deleteMaterial = useCallback(async (id: string) => {
-    const { error } = await supabase.from("materials").delete().eq("id", id);
+    const { error } = await supabase.from("material_types").delete().eq("id", id);
     if (error) throw error;
     setMaterials((list) => list.filter((m) => m.id !== id));
   }, []);
