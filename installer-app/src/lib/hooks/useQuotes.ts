@@ -98,6 +98,27 @@ export function useQuotes() {
     []
   );
 
+  const approveQuote = useCallback(async (id: string) => {
+    const { error } = await supabase.rpc("approve_quote", { quote_id: id });
+    if (error) throw error;
+    setQuotes((qs) =>
+      qs.map((q) => (q.id === id ? { ...q, status: "approved" } : q)),
+    );
+  }, []);
+
+  const convertQuoteToJob = useCallback(async (id: string) => {
+    const { data, error } = await supabase.rpc("convert_quote_to_job", {
+      quote_id: id,
+    });
+    if (error) throw error;
+    setQuotes((qs) =>
+      qs.map((q) =>
+        q.id === id ? { ...q, status: "converted_to_job" } : q,
+      ),
+    );
+    return data as string;
+  }, []);
+
   const deleteQuote = useCallback(async (id: string) => {
     await supabase.from("quote_items").delete().eq("quote_id", id);
     const { error } = await supabase.from("quotes").delete().eq("id", id);
@@ -109,7 +130,19 @@ export function useQuotes() {
     fetchQuotes();
   }, [fetchQuotes]);
 
-  return [quotes, { loading, error, fetchQuotes, createQuote, updateQuote, deleteQuote }] as const;
+  return [
+    quotes,
+    {
+      loading,
+      error,
+      fetchQuotes,
+      createQuote,
+      updateQuote,
+      approveQuote,
+      convertQuoteToJob,
+      deleteQuote,
+    },
+  ] as const;
 }
 
 export default useQuotes;

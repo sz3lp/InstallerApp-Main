@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SZTable } from "../../components/ui/SZTable";
 import { SZButton } from "../../components/ui/SZButton";
 import { SZInput } from "../../components/ui/SZInput";
 import useLeads, { Lead } from "../../lib/hooks/useLeads";
 import LeadHistoryModal from "./LeadHistoryModal";
+
+type Toast = { message: string; success: boolean } | null;
 
 const statuses = [
   "new",
@@ -18,6 +21,7 @@ const statuses = [
 ];
 
 export default function LeadsPage() {
+  const navigate = useNavigate();
   const { leads, createLead, updateLeadStatus, convertLeadToClientAndJob } = useLeads();
   const [form, setForm] = useState({
     clinic_name: "",
@@ -29,6 +33,8 @@ export default function LeadsPage() {
   const [adding, setAdding] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [historyLead, setHistoryLead] = useState<Lead | null>(null);
+  const [toast, setToast] = useState<Toast>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
 
   const handleAdd = async () => {
     if (!form.clinic_name) return;
@@ -40,6 +46,21 @@ export default function LeadsPage() {
 
   const changeStatus = async (lead: Lead, status: string) => {
     await updateLeadStatus(lead.id, status);
+  };
+
+  const convertLead = async (leadId: string) => {
+    setToast(null);
+    setConvertingId(leadId);
+    try {
+      const newJobId = await convertLeadToClientAndJob(leadId);
+      setToast({ message: "Lead converted into job", success: true });
+      setTimeout(() => setToast(null), 3000);
+      if (newJobId) navigate(`/jobs/${newJobId}`);
+    } catch (err: any) {
+      setToast({ message: err.message, success: false });
+      setTimeout(() => setToast(null), 3000);
+    }
+    setConvertingId(null);
   };
 
   const filteredLeads =
@@ -107,7 +128,9 @@ export default function LeadsPage() {
                 <SZButton
                   size="sm"
                   variant="primary"
-                  onClick={() => convertLeadToClientAndJob(lead.id)}
+                  onClick={() => convertLead(lead.id)}
+                  isLoading={convertingId === lead.id}
+                  disabled={convertingId !== null && convertingId !== lead.id}
                 >
                   Convert
                 </SZButton>
@@ -124,6 +147,13 @@ export default function LeadsPage() {
         isOpen={!!historyLead}
         onClose={() => setHistoryLead(null)}
       />
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 text-white px-4 py-2 rounded ${toast.success ? "bg-green-600" : "bg-red-600"}`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
