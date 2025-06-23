@@ -55,6 +55,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let available: string[] = [];
       let currentRole: string | null = null;
       if (current?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_active")
+          .eq("user_id", current.user.id)
+          .maybeSingle();
+        if (profile && profile.is_active === false) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setUser(null);
+          setRoles([]);
+          setRoleState(null);
+          setError("Account deactivated");
+          setLoading(false);
+          return;
+        }
+
         const { data: roleRows, error: roleErr } = await supabase
           .from("user_roles")
           .select("role")
@@ -109,6 +125,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setSession(data.session);
     setUser(data.user);
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_active")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+    if (profile && profile.is_active === false) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setError("Account deactivated");
+      return;
+    }
 
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));

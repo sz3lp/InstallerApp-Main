@@ -25,25 +25,14 @@ const AdminInviteUserPage: React.FC = () => {
   const submitInvite = async () => {
     setLoading(true);
     setToast(null);
-    const { error } = await supabase.rpc("create_pending_user", {
-      email,
-      role,
-    });
+    const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
     if (error) {
       setToast({ message: error.message, success: false });
-    } else {
-      // Lookup inserted user id and assign role via user_roles
-      const { data: userRecord } = await supabase
-        .from("users")
-        .select("id")
-        .eq("email", email)
-        .maybeSingle();
-      if (userRecord) {
-        await supabase
-          .from("user_roles")
-          .upsert({ user_id: userRecord.id, role }, { onConflict: "user_id" });
-        await refreshRoles();
-      }
+    } else if (data?.user) {
+      await supabase
+        .from("user_roles")
+        .insert({ user_id: data.user.id, role });
+      await refreshRoles();
       setToast({ message: `Invite sent to ${email}`, success: true });
       setEmail("");
       setRole("Installer");

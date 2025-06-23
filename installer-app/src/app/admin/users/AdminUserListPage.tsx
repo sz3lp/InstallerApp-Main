@@ -1,26 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { SZCard } from "../../../components/ui/SZCard";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
-import AdminUserForm from "./AdminUserForm";
+import UserRoleEditor from "./UserRoleEditor";
 
 export interface AdminUser {
-  id?: string;
+  user_id: string;
   email: string;
-  full_name?: string | null;
-  active?: boolean | null;
-  created_at?: string;
+  role: string | null;
+  is_active: boolean | null;
 }
 
 const AdminUserListPage: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [selected, setSelected] = useState<AdminUser | null>(null);
 
   const fetchUsers = async () => {
     const { data } = await supabase
-      .from<AdminUser>("users")
-      .select("id, email, full_name, active, created_at");
-    setUsers(data ?? []);
+      .from("profiles")
+      .select(
+        "user_id, is_active, user_roles(role), auth_users:auth.users(email)"
+      );
+    const list = (data ?? []).map((u: any) => ({
+      user_id: u.user_id,
+      email: u.auth_users.email,
+      role: u.user_roles?.role ?? null,
+      is_active: u.is_active,
+    }));
+    setUsers(list);
+  };
+
+  const toggleActive = async (id: string, active: boolean) => {
+    await supabase
+      .from("profiles")
+      .update({ is_active: active })
+      .eq("user_id", id);
+    fetchUsers();
   };
 
   useEffect(() => {
@@ -28,40 +41,40 @@ const AdminUserListPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">User Management</h1>
-      <SZButton
-        size="sm"
-        onClick={() => setSelected({ email: "", full_name: "", active: true })}
-      >
-        New User
-      </SZButton>
-      {users.map((u) => (
-        <SZCard key={u.id}>
-          <div className="flex justify-between items-center">
-            <div>
-              <p>
-                {u.full_name || "(No Name)"} ({u.email})
-              </p>
-              <p className="text-sm text-gray-500">
-                {u.active ? "Active" : "Deactivated"}
-              </p>
-            </div>
-            <SZButton size="sm" onClick={() => setSelected(u)}>
-              Edit
-            </SZButton>
-          </div>
-        </SZCard>
-      ))}
-      {selected && (
-        <AdminUserForm
-          user={selected}
-          onClose={() => {
-            setSelected(null);
-            fetchUsers();
-          }}
-        />
-      )}
+    <div className="p-4 space-y-4 overflow-x-auto">
+      <h1 className="text-2xl font-bold">Users</h1>
+      <table className="min-w-full text-sm">
+        <thead>
+          <tr className="text-left">
+            <th className="p-2">Email</th>
+            <th className="p-2">Role</th>
+            <th className="p-2">Active</th>
+            <th className="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => (
+            <tr key={u.user_id} className="border-t">
+              <td className="p-2">{u.email}</td>
+              <td className="p-2">
+                <UserRoleEditor userId={u.user_id} />
+              </td>
+              <td className="p-2">{u.is_active ? "Yes" : "No"}</td>
+              <td className="p-2">
+                {u.is_active ? (
+                  <SZButton size="sm" onClick={() => toggleActive(u.user_id, false)}>
+                    Deactivate
+                  </SZButton>
+                ) : (
+                  <SZButton size="sm" onClick={() => toggleActive(u.user_id, true)}>
+                    Activate
+                  </SZButton>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
