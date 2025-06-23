@@ -11,7 +11,7 @@ const dashboardPath: Record<string, string> = {
   Admin: "/admin/dashboard",
   Manager: "/manager/dashboard",
   Sales: "/sales/dashboard",
-  Installer: "/installer/dashboard",
+  Installer: "/installer",
 };
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {

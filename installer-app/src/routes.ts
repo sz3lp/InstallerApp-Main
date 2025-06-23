@@ -103,11 +103,6 @@ export const ROUTES: RouteConfig[] = [
     label: "Installer Dashboard",
   },
   {
-    path: "/installer/dashboard",
-    element: React.createElement(InstallerDashboard),
-    role: "Installer",
-  },
-  {
     path: "/installer/jobs/:id",
     element: React.createElement(InstallerJobPage),
     role: "Installer",
@@ -209,11 +204,6 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(CalendarPage),
     role: ["Manager", "Admin"],
     label: "Schedule Calendar",
-  },
-  {
-    path: "/install-manager/dashboard",
-    element: React.createElement(InstallManagerDashboard),
-    role: ["Manager", "Admin"],
   },
   {
     path: "/install-manager/job/new",
