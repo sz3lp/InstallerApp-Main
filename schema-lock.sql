@@ -579,6 +579,22 @@ CREATE TABLE public.materials (
 ALTER TABLE public.materials OWNER TO postgres;
 
 --
+-- Name: material_types; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.material_types (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    name text NOT NULL,
+    unit_of_measure text,
+    default_cost numeric,
+    retail_price numeric,
+    created_by uuid,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE public.material_types OWNER TO postgres;
+
+--
 -- Name: payments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -846,6 +862,14 @@ ALTER TABLE ONLY public.leads
 
 ALTER TABLE ONLY public.materials
     ADD CONSTRAINT materials_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: material_types material_types_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.material_types
+    ADD CONSTRAINT material_types_pkey PRIMARY KEY (id);
 
 
 --
@@ -1724,6 +1748,12 @@ ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.materials ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: material_types; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.material_types ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: payments; Type: ROW SECURITY; Schema: public; Owner: postgres
