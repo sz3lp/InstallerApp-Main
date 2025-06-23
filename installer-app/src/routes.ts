@@ -38,6 +38,7 @@ import TimeTrackingPanel from "./app/time-tracking/TimeTrackingPanel";
 import ReportsPage from "./app/reports/ReportsPage";
 import TechnicianPayReportPage from "./app/reports/TechnicianPayReportPage";
 import InvoiceAgingPage from "./app/reports/InvoiceAgingPage";
+import LeadFunnelDashboardPage from "./app/reports/LeadFunnelDashboardPage";
 import RevenueDashboardPage from "./app/reports/RevenueDashboardPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
@@ -297,6 +298,12 @@ export const ROUTES: RouteConfig[] = [
     path: "/reports/invoice-aging",
     element: React.createElement(InvoiceAgingPage),
     role: ["Manager", "Admin"],
+  },
+  {
+    path: "/reports/lead-funnel",
+    element: React.createElement(LeadFunnelDashboardPage),
+    role: ["Sales", "Manager", "Admin"],
+    label: "Lead Funnel",
   },
   {
     path: "/admin/reports/payments",

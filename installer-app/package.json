@@ -20,9 +20,13 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.23.0",
 
+    "recharts": "^2.7.2"
+
+
     "stripe": "^12.16.0"
 
     "recharts": "^2.15.4"
+
 
   },
   "devDependencies": {
