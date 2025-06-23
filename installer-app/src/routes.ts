@@ -57,7 +57,10 @@ export type RouteConfig = {
 
 export const ROUTES: RouteConfig[] = [
   { path: "/login", element: React.createElement(LoginPage) },
-  { path: "/forgot-password", element: React.createElement(ForgotPasswordPage) },
+  {
+    path: "/forgot-password",
+    element: React.createElement(ForgotPasswordPage),
+  },
   { path: "/reset-password", element: React.createElement(ResetPasswordPage) },
   { path: "/unauthorized", element: React.createElement(Unauthorized) },
   { path: "/select-role", element: React.createElement(RoleSelector) },
@@ -193,7 +196,7 @@ export const ROUTES: RouteConfig[] = [
     label: "Install Manager Dashboard",
   },
   {
-    path: "/install-manager/calendar",
+    path: "/calendar",
     element: React.createElement(CalendarPage),
     role: ["Manager", "Admin"],
     label: "Schedule Calendar",
