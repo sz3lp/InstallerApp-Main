@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import supabase from "../supabaseClient";
+import { GlobalLoading, GlobalError } from "../../components/global-states";
 
 function normalizeRole(role: string | null): string | null {
   if (!role) return null;
@@ -11,6 +12,7 @@ type AuthContextType = {
   user: any;
   role: string | null;
   loading: boolean;
+  error: string | null;
   signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
   verifyMfa: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -27,10 +29,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [mfaChallenge, setMfaChallenge] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const init = async () => {
-      console.log("Initializing auth...");
+  const initialize = async () => {
+    setError(null);
+    console.log("Initializing auth...");
 
       const {
         data: { session: active },
@@ -51,21 +54,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let available: string[] = [];
       let currentRole: string | null = null;
       if (current?.user) {
-        const { data: roleRows } = await supabase
+        const { data: roleRows, error: roleErr } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", current.user.id);
-        available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
-        setRoles(available);
+        if (roleErr) {
+          console.error("Failed to fetch roles", roleErr);
+          setError("Failed to load roles");
+        } else {
+          available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+          setRoles(available);
 
-        const storedRole = sessionStorage.getItem("selected_role");
-        if (storedRole && available.includes(storedRole)) {
-          currentRole = storedRole;
-        } else if (available.length === 1) {
-          currentRole = available[0];
+          const storedRole = sessionStorage.getItem("selected_role");
+          if (storedRole && available.includes(storedRole)) {
+            currentRole = storedRole;
+          } else if (available.length === 1) {
+            currentRole = available[0];
+          }
+          setRoleState(currentRole);
+          console.log("Loaded roles", available, "current", currentRole);
         }
-        setRoleState(currentRole);
-        console.log("Loaded roles", available, "current", currentRole);
       } else {
         setRoles([]);
         setRoleState(null);
@@ -75,7 +83,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("Auth initialized", { session: current, role: currentRole });
     };
 
-    init();
+  useEffect(() => {
+    initialize();
   }, []);
 
   const signIn = async (
@@ -103,12 +112,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));
 
-    const { data: roleRows } = await supabase
+    const { data: roleRows, error: roleErr } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", data.user.id);
-    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
-    setRoles(available);
+    let available: string[] = [];
+    if (roleErr) {
+      console.error("Failed to fetch roles", roleErr);
+      setError("Failed to load roles");
+    } else {
+      available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+      setRoles(available);
+    }
 
     let selected: string | null = null;
     const storedRole = sessionStorage.getItem("selected_role");
@@ -144,12 +159,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(data.user);
     setMfaChallenge(null);
 
-    const { data: roleRows } = await supabase
+    const { data: roleRows, error: roleErr } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", data.user.id);
-    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
-    setRoles(available);
+    let available: string[] = [];
+    if (roleErr) {
+      console.error("Failed to fetch roles", roleErr);
+      setError("Failed to load roles");
+    } else {
+      available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+      setRoles(available);
+    }
     let selected: string | null = null;
     if (available.length === 1) selected = available[0];
     setRoleState(selected);
@@ -169,6 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         role,
         loading,
+        error,
         signIn,
         verifyMfa,
         signOut,
@@ -176,7 +198,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         getAvailableRoles,
       }}
     >
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <GlobalLoading />
+      ) : error ? (
+        <GlobalError message={error} onRetry={initialize} />
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
