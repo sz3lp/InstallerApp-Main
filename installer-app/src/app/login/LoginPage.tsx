@@ -21,10 +21,12 @@ const LoginPage: React.FC = () => {
       if (role === "Admin") navigate("/admin/dashboard", { replace: true });
       else if (role === "Installer")
         navigate("/installer/dashboard", { replace: true });
-      else if (role === "Manager")
+      else if (role === "Manager" || role === "Install Manager")
         navigate("/install-manager/dashboard", { replace: true });
       else if (role === "Sales")
         navigate("/sales/dashboard", { replace: true });
+      else if (role === "Finance")
+        navigate("/admin/reports/payments", { replace: true });
       else navigate("/", { replace: true });
     } else if (session && getAvailableRoles().length > 1) {
       navigate("/select-role", { replace: true });

@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { SZButton } from "../../../components/ui/SZButton";
 import { supabase } from "../../../lib/supabaseClient";
 
-const ALL_ROLES = ["Admin", "Manager", "Installer", "Sales", "Finance"];
+const ALL_ROLES = [
+  "Admin",
+  "Manager",
+  "Installer",
+  "Sales",
+  "Finance",
+  "Install Manager",
+];
 
 export default function UserRoleEditor({ userId }: { userId: string }) {
   const [role, setRole] = useState<string | null>(null);

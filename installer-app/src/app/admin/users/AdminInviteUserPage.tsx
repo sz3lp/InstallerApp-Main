@@ -3,7 +3,14 @@ import { SZInput } from "../../../components/ui/SZInput";
 import { SZButton } from "../../../components/ui/SZButton";
 import supabase from "../../../lib/supabaseClient";
 
-const ROLES = ["Admin", "Installer", "Sales", "Manager"];
+const ROLES = [
+  "Admin",
+  "Installer",
+  "Sales",
+  "Manager",
+  "Finance",
+  "Install Manager",
+];
 
 type Toast = { message: string; success: boolean } | null;
 

@@ -12,6 +12,8 @@ const roleDashboard: Record<string, string> = {
   Manager: "/manager/dashboard",
   Sales: "/sales/dashboard",
   Installer: "/installer/dashboard",
+  Finance: "/admin/reports/payments",
+  "Install Manager": "/install-manager/dashboard",
 };
 
 const Header: React.FC<Props> = ({ onToggleSidebar }) => {
