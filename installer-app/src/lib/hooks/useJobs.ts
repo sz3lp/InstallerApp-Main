@@ -136,7 +136,7 @@ export function useJobs() {
     await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
 
     if (newStatus === "ready_for_invoice") {
-      await supabase.rpc("generate_invoice_for_job", { p_job_id: jobId });
+      await supabase.rpc("generate_invoice_from_job", { p_job_id: jobId });
     }
 
     await fetchJobs();

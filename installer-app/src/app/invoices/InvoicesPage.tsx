@@ -88,14 +88,17 @@ const InvoicesPageContent: React.FC = () => {
         <EmptyState message="No Invoices" />
       )}
       {!loading && !error && filtered.length > 0 && (
-        <SZTable headers={["Invoice", "Client", "Amount", "Paid", "Status", "Actions"]}>
+        <SZTable headers={["Invoice", "Client", "Total", "Tax", "Discount", "Fees", "Paid", "Status", "Actions"]}>
           {filtered.map((inv) => (
             <tr key={inv.id} className="border-t">
               <td className="p-2 border">
                 <a className="text-blue-600 underline" href={`/invoices/${inv.id}`}>{inv.id}</a>
               </td>
               <td className="p-2 border">{inv.client_name}</td>
-              <td className="p-2 border">${inv.amount.toFixed(2)}</td>
+              <td className="p-2 border">${inv.invoice_total.toFixed(2)}</td>
+              <td className="p-2 border">${inv.tax_amount.toFixed(2)}</td>
+              <td className="p-2 border">${inv.discount_amount.toFixed(2)}</td>
+              <td className="p-2 border">${inv.total_fees.toFixed(2)}</td>
               <td className="p-2 border">${inv.amount_paid?.toFixed(2) ?? '0.00'}</td>
               <td className="p-2 border">{inv.payment_status}</td>
               <td className="p-2 border">
