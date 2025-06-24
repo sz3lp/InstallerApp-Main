@@ -56,6 +56,7 @@ import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import ARAgingReportPage from "./app/admin/reports/ar-aging/ARAgingReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
 import PurchaseOrdersPage from "./app/inventory/PurchaseOrdersPage";
+import ReceivePOPage from "./app/inventory/ReceivePOPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -205,6 +206,11 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(PurchaseOrdersPage),
     roles: ["Install Manager", "Admin"],
     label: "Purchase Orders",
+  },
+  {
+    path: "/inventory/receive/:poId",
+    element: React.createElement(ReceivePOPage),
+    roles: ["Install Manager", "Admin"],
   },
   {
     path: "/archived",
