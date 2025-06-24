@@ -25,7 +25,7 @@ const InvoiceGenerator: React.FC = () => {
   }, []);
 
   const finalize = async (id: string) => {
-    await supabase.rpc('generate_invoice_for_job', { p_job_id: id });
+    await supabase.rpc('generate_invoice_from_job', { p_job_id: id });
     await supabase.from('jobs').update({ status: 'invoiced' }).eq('id', id);
     setJobs((js) => js.filter((j) => j.id !== id));
   };

@@ -48,9 +48,30 @@ const InvoiceDetailPage: React.FC = () => {
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Invoice {invoice.id}</h1>
       <p>Client: {invoice.client_name}</p>
-      <p>Total: ${invoice.invoice_total.toFixed(2)}</p>
+      <div className="space-y-1">
+        <p>Subtotal: ${invoice.subtotal.toFixed(2)}</p>
+        <p>Discount: ${invoice.discount_amount.toFixed(2)}</p>
+        <p>Tax: ${invoice.tax_amount.toFixed(2)}</p>
+        <p>Fees: ${invoice.total_fees.toFixed(2)}</p>
+        <p className="font-semibold">Total: ${invoice.invoice_total.toFixed(2)}</p>
+      </div>
       <p>Amount Paid: ${totalPaid.toFixed(2)}</p>
       <p>Balance Due: ${balance.toFixed(2)}</p>
+      {invoice.line_items && invoice.line_items.length > 0 && (
+        <>
+          <h2 className="text-lg font-semibold mt-4">Line Items</h2>
+          <SZTable headers={["Description", "Qty", "Price", "Total"]}>
+            {invoice.line_items.map((item) => (
+              <tr key={item.id} className="border-t">
+                <td className="p-2 border">{item.description}</td>
+                <td className="p-2 border">{item.quantity}</td>
+                <td className="p-2 border">${item.unit_price.toFixed(2)}</td>
+                <td className="p-2 border">${item.line_total.toFixed(2)}</td>
+              </tr>
+            ))}
+          </SZTable>
+        </>
+      )}
       {['Admin', 'Finance'].includes(role) && (
         <div className="flex gap-2">
           <SZButton size="sm" onClick={() => setOpen(true)}>
