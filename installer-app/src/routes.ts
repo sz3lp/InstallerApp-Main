@@ -48,6 +48,7 @@ import InstallerPerformancePage from "./app/reports/InstallerPerformancePage";
 import LeadsPage from "./app/crm/LeadsPage";
 import LeadForm from "./app/crm/LeadForm";
 import LeadPipelinePage from "./app/crm/LeadPipelinePage";
+import LeadDetailPage from "./app/crm/LeadDetailPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import ARAgingReportPage from "./app/admin/reports/ar-aging/ARAgingReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
@@ -261,6 +262,11 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(LeadsPage),
     roles: ["Sales", "Manager", "Admin"],
     label: "Leads",
+  },
+  {
+    path: "/crm/leads/:id",
+    element: React.createElement(LeadDetailPage),
+    roles: ["Sales", "Manager", "Admin"],
   },
   {
     path: "/crm/pipeline",
