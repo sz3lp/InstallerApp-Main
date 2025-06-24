@@ -27,6 +27,7 @@ import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
 import ClientsPage from "./app/clients/ClientsPage";
+import ClientPaymentsPage from "./app/clients/ClientPaymentsPage";
 import QuotesPage from "./app/quotes/QuotesPage";
 import InvoicesPage from "./app/invoices/InvoicesPage";
 import InvoiceDetailPage from "./app/invoices/InvoiceDetailPage";
@@ -230,6 +231,11 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(ClientsPage),
     roles: ["Manager", "Admin"],
     label: "Clients",
+  },
+  {
+    path: "/clients/:id/payments",
+    element: React.createElement(ClientPaymentsPage),
+    roles: ["Sales", "Admin"],
   },
   {
     path: "/crm/leads",
