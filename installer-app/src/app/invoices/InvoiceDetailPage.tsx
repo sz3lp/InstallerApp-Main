@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { SZButton } from "../../components/ui/SZButton";
+import SZStripeLinkSender from "../../components/payments/SZStripeLinkSender";
 import { SZTable } from "../../components/ui/SZTable";
 import ManualPaymentEntryPanel from "../../components/invoices/ManualPaymentEntryPanel";
 import InvoicePaymentHistory from "../../components/invoices/InvoicePaymentHistory";
@@ -16,22 +17,6 @@ const InvoiceDetailPage: React.FC = () => {
   const { invoice, loading, error, refresh } = useInvoice(id ?? null);
   const [payments, { fetchPayments }] = usePayments(id ?? "");
 
-  const handlePayNow = async () => {
-    if (!invoice) return;
-    try {
-      const { data, error } = await supabase.functions.invoke("initiate_stripe_payment", {
-        body: JSON.stringify({ invoice_id: invoice.id }),
-      });
-      if (error) {
-        console.error("Error initiating Stripe payment:", error);
-        return;
-      }
-      const url = (data as any).stripeSessionUrl || (data as any).url;
-      if (url) window.location.href = url as string;
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    }
-  };
 
   const updateStatus = async (status: "paid" | "unpaid") => {
     if (!invoice) return;
@@ -65,9 +50,10 @@ const InvoiceDetailPage: React.FC = () => {
       <p>Balance Due: ${balance.toFixed(2)}</p>
 
       {invoice.payment_status === "unpaid" && (
-        <SZButton size="sm" onClick={handlePayNow}>
-          Pay Now
-        </SZButton>
+        <SZStripeLinkSender
+          invoiceId={invoice.id}
+          clientEmail={invoice.client_email ?? ""}
+        />
       )}
 
       {invoice.line_items && invoice.line_items.length > 0 && (
