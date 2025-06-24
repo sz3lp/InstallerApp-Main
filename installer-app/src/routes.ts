@@ -9,7 +9,7 @@ import IFIDashboard from "./installer/pages/IFIDashboard";
 import JobsPage from "./installer/pages/JobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
-import CalendarPage from "./app/install-manager/CalendarPage";
+import CalendarPage from "./views/CalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUsersPage from "./app/admin/users/AdminUsersPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
