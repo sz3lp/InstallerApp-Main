@@ -26,6 +26,7 @@ import ManagerReview from "./app/manager/ManagerReview";
 import ArchivedJobsPage from "./app/archived/ArchivedJobsPage";
 import InventoryPage from "./app/installer/InventoryPage";
 import JobHistoryPage from "./app/installer/JobHistoryPage";
+import InstallerSchedulePage from "./app/installer/InstallerSchedulePage";
 import ClientsPage from "./app/clients/ClientsPage";
 import QuotesPage from "./app/quotes/QuotesPage";
 import InvoicesPage from "./app/invoices/InvoicesPage";
@@ -125,6 +126,12 @@ export const ROUTES: RouteConfig[] = [
     path: "/installer/history",
     element: React.createElement(JobHistoryPage),
     roles: ["Installer"],
+  },
+  {
+    path: "/installer/schedule",
+    element: React.createElement(InstallerSchedulePage),
+    roles: ["Installer"],
+    label: "Schedule",
   },
   {
     path: "/feedback",
