@@ -48,6 +48,7 @@ import LeadFunnelDashboardPage from "./app/reports/LeadFunnelDashboardPage";
 import RevenueDashboardPage from "./app/reports/RevenueDashboardPage";
 import ARRevenueReportPage from "./app/reports/ARRevenueReportPage";
 import InstallerPerformancePage from "./app/reports/InstallerPerformancePage";
+import InstallTimeReportPage from "./app/reports/InstallTimeReportPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import LeadForm from "./app/crm/LeadForm";
 import LeadPipelinePage from "./app/crm/LeadPipelinePage";
@@ -353,6 +354,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(InstallerPerformancePage),
     roles: ["Admin", "Manager"],
     label: "Installer Performance",
+  },
+  {
+    path: "/reports/install-time",
+    element: React.createElement(InstallTimeReportPage),
+    roles: ["Admin", "Manager"],
+    label: "Install Time",
   },
   {
     path: "/reports/revenue",
