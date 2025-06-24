@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import supabase from "../supabaseClient";
-import { Invoice } from "./useInvoices";
+import { Invoice, InvoiceLineItem } from "./useInvoices";
 
 export default function useInvoice(id: string | null) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -17,7 +17,7 @@ export default function useInvoice(id: string | null) {
     const { data, error } = await supabase
       .from("invoices")
       .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)",
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name), invoice_line_items(id, material_id, description, quantity, unit_price, line_total)",
       )
       .eq("id", id)
       .single();
@@ -35,6 +35,7 @@ export default function useInvoice(id: string | null) {
         payment_status: (data as any).payment_status ?? "unpaid",
         payment_method: (data as any).payment_method ?? null,
         stripe_session_id: (data as any).stripe_session_id ?? null,
+        line_items: (data as any).invoice_line_items ?? [],
       } as Invoice);
       setError(null);
     }

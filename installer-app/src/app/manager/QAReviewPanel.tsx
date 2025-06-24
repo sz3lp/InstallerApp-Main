@@ -60,7 +60,7 @@ const QAReviewPanel: React.FC = () => {
         .eq("id", jobId);
       if (!error) {
         const { error: invErr } = await supabase.rpc(
-          "generate_invoice_for_job",
+          "generate_invoice_from_job",
           { p_job_id: jobId },
         );
         if (invErr) {

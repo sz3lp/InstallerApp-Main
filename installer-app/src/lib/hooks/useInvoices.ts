@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import supabase from "../supabaseClient";
 
+export interface InvoiceLineItem {
+  id: string;
+  material_id: string | null;
+  description: string | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
 export interface Invoice {
   id: string;
   job_id: string | null;
@@ -23,6 +32,7 @@ export interface Invoice {
   paid_at: string | null;
   client_name?: string | null;
   job_name?: string | null;
+  line_items?: InvoiceLineItem[];
 }
 
 export interface InvoiceFilters {
@@ -40,7 +50,9 @@ export function useInvoices(filters: InvoiceFilters = {}) {
     setLoading(true);
     let query = supabase
       .from("invoices")
-      .select("id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name)")
+      .select(
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name), invoice_line_items(id, material_id, description, quantity, unit_price, line_total)"
+      )
       .order("invoice_date", { ascending: false });
     if (filters.status) query = query.eq("payment_status", filters.status);
     if (filters.startDate) query = query.gte("invoice_date", filters.startDate);
@@ -60,6 +72,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
         payment_status: i.payment_status ?? "unpaid",
         payment_method: i.payment_method ?? null,
         stripe_session_id: i.stripe_session_id ?? null,
+        line_items: i.invoice_line_items ?? [],
       }));
       setInvoices(list);
       setError(null);
@@ -104,6 +117,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
           amount_paid: (data as any).amount_paid ?? 0,
           payment_status: (data as any).payment_status ?? "unpaid",
           payment_method: (data as any).payment_method ?? null,
+          line_items: [],
         },
         ...list,
       ]);
@@ -146,7 +160,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
   const generateFromJob = useCallback(
     async (jobId: string) => {
       const { data, error } = await supabase
-        .rpc("generate_invoice_for_job", { p_job_id: jobId })
+        .rpc("generate_invoice_from_job", { p_job_id: jobId })
         .single();
       if (error) throw error;
       await fetchInvoices();
