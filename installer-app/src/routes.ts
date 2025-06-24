@@ -33,6 +33,7 @@ import ClientPaymentsPage from "./app/clients/ClientPaymentsPage";
 import QuotesPage from "./app/quotes/QuotesPage";
 import InvoicesPage from "./app/invoices/InvoicesPage";
 import InvoiceDetailPage from "./app/invoices/InvoiceDetailPage";
+import InvoiceGeneratorV2 from "./app/invoices/InvoiceGeneratorV2";
 import PaymentsPage from "./app/payments/PaymentsPage";
 import InvoiceGenerator from "./app/install-manager/InvoiceGenerator";
 import PaymentLogger from "./app/install-manager/PaymentLogger";
@@ -302,6 +303,11 @@ export const ROUTES: RouteConfig[] = [
     path: "/invoices/:id",
     element: React.createElement(InvoiceDetailPage),
     roles: ["Admin", "Finance"],
+  },
+  {
+    path: "/invoices/generate",
+    element: React.createElement(InvoiceGeneratorV2),
+    roles: ["Admin", "Sales", "Finance"],
   },
   {
     path: "/payments",
