@@ -31,6 +31,7 @@ export interface Invoice {
   due_date: string | null;
   paid_at: string | null;
   client_name?: string | null;
+  client_email?: string | null;
   job_name?: string | null;
   line_items?: InvoiceLineItem[];
 }
@@ -51,7 +52,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
     let query = supabase
       .from("invoices")
       .select(
-        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name), jobs(clinic_name), invoice_line_items(id, material_id, description, quantity, unit_price, line_total)"
+        "id, job_id, quote_id, client_id, subtotal, discount_type, discount_amount, tax_rate, tax_amount, total_fees, invoice_total, amount_paid, payment_status, payment_method, stripe_session_id, invoice_date, due_date, paid_at, clients(name, contact_email), jobs(clinic_name), invoice_line_items(id, material_id, description, quantity, unit_price, line_total)"
       )
       .order("invoice_date", { ascending: false });
     if (filters.status) query = query.eq("payment_status", filters.status);
@@ -67,6 +68,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
         issued_at: i.invoice_date,
         amount: i.invoice_total,
         client_name: i.clients?.name ?? null,
+        client_email: i.clients?.contact_email ?? null,
         job_name: i.jobs?.clinic_name ?? null,
         amount_paid: i.amount_paid ?? 0,
         payment_status: i.payment_status ?? "unpaid",
@@ -113,6 +115,7 @@ export function useInvoices(filters: InvoiceFilters = {}) {
         {
           ...data,
           client_name: (data as any).clients?.name ?? null,
+          client_email: (data as any).clients?.contact_email ?? null,
           job_name: (data as any).jobs?.clinic_name ?? null,
           amount_paid: (data as any).amount_paid ?? 0,
           payment_status: (data as any).payment_status ?? "unpaid",
