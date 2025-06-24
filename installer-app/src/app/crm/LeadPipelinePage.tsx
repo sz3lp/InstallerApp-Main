@@ -3,17 +3,9 @@ import useAuth from "../../lib/hooks/useAuth";
 import useLeads from "../../lib/hooks/useLeads";
 import supabase from "../../lib/supabaseClient";
 
-const statuses = [
-  "new",
-  "attempted_contact",
-  "appointment_scheduled",
-  "consultation_complete",
-  "proposal_sent",
-  "waiting",
-  "won",
-  "lost",
-  "closed",
-];
+// Pipeline stages shown as columns on the board
+// These map to the `status` field of the `leads` table
+const statuses = ["new", "contacted", "quoted", "won", "lost"];
 
 const MAX_RETRIES = 5;
 
@@ -74,7 +66,14 @@ const LeadPipelinePage: React.FC = () => {
   const onDrop = async (e: React.DragEvent<HTMLDivElement>, status: string) => {
     const id = e.dataTransfer.getData("text");
     if (!id) return;
+    const lead = leads.find((l) => l.id === id);
     await updateLeadStatus(id, status);
+    // Record the status change in history for auditing
+    await supabase.from("lead_status_history").insert({
+      lead_id: id,
+      old_status: lead?.status ?? null,
+      new_status: status,
+    });
   };
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
