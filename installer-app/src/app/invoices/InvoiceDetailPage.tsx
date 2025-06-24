@@ -7,11 +7,12 @@ import useInvoice from "../../lib/hooks/useInvoice";
 import usePayments from "../../lib/hooks/usePayments";
 import useAuth from "../../lib/hooks/useAuth";
 import { GlobalLoading, GlobalError } from "../../components/global-states";
+import supabase from "../../lib/supabaseClient";
 
 const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { role } = useAuth();
-  const { invoice, loading, error } = useInvoice(id ?? null);
+  const { invoice, loading, error, refresh } = useInvoice(id ?? null);
   const [open, setOpen] = useState(false);
   const [payments] = usePayments(id ?? "");
 
@@ -25,15 +26,24 @@ const InvoiceDetailPage: React.FC = () => {
   };
 
   const sendPaymentLink = async () => {
-    const res = await fetch('/api/payments/initiate-payment-link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/payments/initiate-payment-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ invoice_id: invoice.id }),
     });
     const data = await res.json();
     if (data.url) {
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank");
     }
+  };
+
+  const updateStatus = async (status: "paid" | "unpaid") => {
+    if (!invoice) return;
+    await supabase.rpc("update_invoice_status", {
+      invoice_id: invoice.id,
+      status,
+    });
+    refresh();
   };
 
   if (loading) return <GlobalLoading />;
@@ -51,24 +61,30 @@ const InvoiceDetailPage: React.FC = () => {
       <p>Total: ${invoice.invoice_total.toFixed(2)}</p>
       <p>Amount Paid: ${totalPaid.toFixed(2)}</p>
       <p>Balance Due: ${balance.toFixed(2)}</p>
-      {['Admin', 'Finance'].includes(role) && (
-        <div className="flex gap-2">
-          <SZButton size="sm" onClick={() => setOpen(true)}>
-            Record Payment
-          </SZButton>
-          <SZButton size="sm" variant="secondary" onClick={sendPaymentLink}>
-            Send Payment Link
-          </SZButton>
       {["Admin", "Finance"].includes(role) && (
         <div className="flex gap-2">
           <SZButton size="sm" onClick={() => handleSendInvoice(invoice.id)}>
             Send Invoice
           </SZButton>
+          <SZButton size="sm" variant="secondary" onClick={sendPaymentLink}>
+            Send Payment Link
+          </SZButton>
           <SZButton size="sm" onClick={() => setOpen(true)}>
             Record Payment
           </SZButton>
-
         </div>
+      )}
+      {role === "Admin" && (
+        <SZButton
+          size="sm"
+          onClick={() =>
+            updateStatus(invoice.payment_status === "paid" ? "unpaid" : "paid")
+          }
+        >
+          {invoice.payment_status === "paid"
+            ? "Mark as Unpaid"
+            : "Mark as Paid"}
+        </SZButton>
       )}
       <h2 className="text-lg font-semibold mt-4">Payments</h2>
       <SZTable headers={["Amount", "Method", "Date", "Note"]}>
