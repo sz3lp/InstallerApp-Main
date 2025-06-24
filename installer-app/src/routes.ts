@@ -10,6 +10,7 @@ import JobsPage from "./installer/pages/JobsPage";
 import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import CalendarPage from "./views/CalendarPage";
+import InstallManagerCalendarPage from "./app/install-manager/InstallManagerCalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUsersPage from "./app/admin/AdminUsersPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
@@ -204,8 +205,8 @@ export const ROUTES: RouteConfig[] = [
     label: "Install Manager Dashboard",
   },
   {
-    path: "/calendar",
-    element: React.createElement(CalendarPage),
+    path: "/install-manager/calendar",
+    element: React.createElement(InstallManagerCalendarPage),
     roles: ["Install Manager", "Admin"],
     label: "Schedule Calendar",
   },
