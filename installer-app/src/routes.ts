@@ -11,7 +11,7 @@ import FeedbackPage from "./installer/pages/FeedbackPage";
 import InstallManagerDashboard from "./app/install-manager/page.jsx";
 import CalendarPage from "./views/CalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
-import AdminUsersPage from "./app/admin/users/AdminUsersPage";
+import AdminUsersPage from "./app/admin/AdminUsersPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
