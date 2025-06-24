@@ -29,6 +29,11 @@ const MaterialTypesPage: React.FC = () => {
     data: Omit<MaterialType, "id" | "created_at">,
     id?: string,
   ) => {
+    const normalized = data.name.trim().toLowerCase();
+    const exists = materials.some(
+      (m) => m.name.trim().toLowerCase() === normalized && m.id !== id,
+    );
+    if (exists) throw new Error("Name already exists");
     if (id) await updateMaterial(id, data);
     else await createMaterial(data);
   };
