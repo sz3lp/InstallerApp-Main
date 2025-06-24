@@ -10,10 +10,14 @@ type Props = {
 
 const Sidebar: React.FC<Props> = ({ open, onClose }) => {
   const { role } = useAuth();
-  const items = navLinks.filter((l) => !l.role || (Array.isArray(l.role) ? l.role.includes(role as any) : l.role === role));
+  const items = navLinks.filter(
+    (l) => !l.roles || l.roles.includes(role as any),
+  );
 
   return (
-    <div className={`${open ? "block" : "hidden"} md:block bg-gray-900 text-white w-64 flex-shrink-0`}>
+    <div
+      className={`${open ? "block" : "hidden"} md:block bg-gray-900 text-white w-64 flex-shrink-0`}
+    >
       <nav className="p-4 space-y-1">
         {items.map((item) => (
           <NavLink
