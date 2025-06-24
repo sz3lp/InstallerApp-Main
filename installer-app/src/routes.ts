@@ -49,6 +49,7 @@ import LeadsPage from "./app/crm/LeadsPage";
 import LeadForm from "./app/crm/LeadForm";
 import LeadPipelinePage from "./app/crm/LeadPipelinePage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
+import ARAgingReportPage from "./app/admin/reports/ar-aging/ARAgingReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
 import PurchaseOrdersPage from "./app/inventory/PurchaseOrdersPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
@@ -348,6 +349,12 @@ export const ROUTES: RouteConfig[] = [
     path: "/reports/invoice-aging",
     element: React.createElement(InvoiceAgingPage),
     roles: ["Manager", "Admin"],
+  },
+  {
+    path: "/admin/reports/ar-aging",
+    element: React.createElement(ARAgingReportPage),
+    roles: ["Admin", "Finance", "Sales"],
+    label: "AR Aging Report",
   },
   {
     path: "/admin/reports/payments",
