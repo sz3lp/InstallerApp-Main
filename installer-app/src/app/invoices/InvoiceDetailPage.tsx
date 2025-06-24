@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { SZButton } from "../../components/ui/SZButton";
-import { SZTable } from "../../components/ui/SZTable";
-import PaymentLoggingModal from "../../components/PaymentLoggingModal";
+import ManualPaymentEntryPanel from "../../components/invoices/ManualPaymentEntryPanel";
+import InvoicePaymentHistory from "../../components/invoices/InvoicePaymentHistory";
+import supabase from "../../lib/supabaseClient";
 import useInvoice from "../../lib/hooks/useInvoice";
 import usePayments from "../../lib/hooks/usePayments";
 import useAuth from "../../lib/hooks/useAuth";
@@ -12,27 +13,25 @@ const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { role } = useAuth();
   const { invoice, loading, error } = useInvoice(id ?? null);
-  const [open, setOpen] = useState(false);
-  const [payments] = usePayments(id ?? "");
+  const [payments, { fetchPayments }] = usePayments(id ?? "");
 
-  const handleSendInvoice = async (invoiceId: string) => {
-    const res = await fetch("/functions/initiate_stripe_payment", {
-      method: "POST",
-      body: JSON.stringify({ invoice_id: invoiceId }),
-    });
-    const { url } = await res.json();
-    window.open(url, "_blank");
-  };
-
-  const sendPaymentLink = async () => {
-    const res = await fetch('/api/payments/initiate-payment-link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invoice_id: invoice.id }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.open(data.url, '_blank');
+  const handlePayNow = async () => {
+    if (!invoice) return;
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "initiate_stripe_payment",
+        {
+          body: JSON.stringify({ invoice_id: invoice.id }),
+        },
+      );
+      if (error) {
+        console.error("Error initiating Stripe payment:", error);
+        return;
+      }
+      const url = (data as any).stripeSessionUrl || (data as any).url;
+      if (url) window.location.href = url as string;
+    } catch (err) {
+      console.error("Unexpected error:", err);
     }
   };
 
@@ -51,45 +50,23 @@ const InvoiceDetailPage: React.FC = () => {
       <p>Total: ${invoice.invoice_total.toFixed(2)}</p>
       <p>Amount Paid: ${totalPaid.toFixed(2)}</p>
       <p>Balance Due: ${balance.toFixed(2)}</p>
-      {['Admin', 'Finance'].includes(role) && (
-        <div className="flex gap-2">
-          <SZButton size="sm" onClick={() => setOpen(true)}>
-            Record Payment
-          </SZButton>
-          <SZButton size="sm" variant="secondary" onClick={sendPaymentLink}>
-            Send Payment Link
-          </SZButton>
-      {["Admin", "Finance"].includes(role) && (
-        <div className="flex gap-2">
-          <SZButton size="sm" onClick={() => handleSendInvoice(invoice.id)}>
-            Send Invoice
-          </SZButton>
-          <SZButton size="sm" onClick={() => setOpen(true)}>
-            Record Payment
-          </SZButton>
 
+      {invoice.payment_status === "unpaid" && (
+        <SZButton size="sm" onClick={handlePayNow}>
+          Pay Now
+        </SZButton>
+      )}
+
+      {['Admin', 'Finance'].includes(role) && (
+        <div className="space-y-4">
+          <ManualPaymentEntryPanel
+            invoiceId={invoice.id}
+            onPaymentLogged={fetchPayments}
+          />
         </div>
       )}
-      <h2 className="text-lg font-semibold mt-4">Payments</h2>
-      <SZTable headers={["Amount", "Method", "Date", "Note"]}>
-        {payments.map((p) => (
-          <tr key={p.id} className="border-t">
-            <td className="p-2 border">${p.amount.toFixed(2)}</td>
-            <td className="p-2 border">{p.payment_method}</td>
-            <td className="p-2 border">
-              {new Date(p.payment_date).toLocaleDateString()}
-            </td>
-            <td className="p-2 border">{p.note || "-"}</td>
-          </tr>
-        ))}
-      </SZTable>
-      {open && (
-        <PaymentLoggingModal
-          invoiceId={invoice.id}
-          open={open}
-          onClose={() => setOpen(false)}
-        />
-      )}
+
+      <InvoicePaymentHistory invoiceId={invoice.id} />
     </div>
   );
 };
