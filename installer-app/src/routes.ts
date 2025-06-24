@@ -57,6 +57,9 @@ import ARAgingReportPage from "./app/admin/reports/ar-aging/ARAgingReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
 import PurchaseOrdersPage from "./app/inventory/PurchaseOrdersPage";
 import ReceivePOPage from "./app/inventory/ReceivePOPage";
+import InventoryReportPage from "./app/inventory/InventoryReportPage";
+
+import ClosingDocsPage from "./app/jobs/ClosingDocsPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -208,9 +211,16 @@ export const ROUTES: RouteConfig[] = [
     label: "Purchase Orders",
   },
   {
+    
     path: "/inventory/receive/:poId",
     element: React.createElement(ReceivePOPage),
     roles: ["Install Manager", "Admin"],
+
+    path: "/inventory/report",
+    element: React.createElement(InventoryReportPage),
+    roles: ["Install Manager", "Admin"],
+    label: "Inventory Report",
+
   },
   {
     path: "/archived",
@@ -393,6 +403,11 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(PaymentReportPage),
     roles: ["Admin", "Finance"],
     label: "Payment Reports",
+  },
+  {
+    path: "/jobs/:id/closing-docs",
+    element: React.createElement(ClosingDocsPage),
+    roles: ["Installer", "Manager", "Admin"],
   },
 ];
 

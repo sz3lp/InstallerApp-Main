@@ -5,7 +5,14 @@ import supabase from "../../lib/supabaseClient";
 
 // Pipeline stages shown as columns on the board
 // These map to the `status` field of the `leads` table
-const statuses = ["new", "contacted", "quoted", "won", "lost"];
+// Follow up and proposal sent trigger automated comms
+const statuses = [
+  "new",
+  "follow_up",
+  "proposal_sent",
+  "won",
+  "lost",
+];
 
 const MAX_RETRIES = 5;
 
@@ -74,6 +81,14 @@ const LeadPipelinePage: React.FC = () => {
       old_status: lead?.status ?? null,
       new_status: status,
     });
+    // When moving to follow_up or proposal_sent, record automated message
+    if (status === "follow_up" || status === "proposal_sent") {
+      await supabase.from("messages").insert({
+        lead_id: id,
+        message_type: status,
+        sent_at: new Date().toISOString(),
+      });
+    }
   };
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
