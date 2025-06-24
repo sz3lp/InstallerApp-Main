@@ -33,6 +33,7 @@ import InvoiceDetailPage from "./app/invoices/InvoiceDetailPage";
 import PaymentsPage from "./app/payments/PaymentsPage";
 import InvoiceGenerator from "./app/install-manager/InvoiceGenerator";
 import PaymentLogger from "./app/install-manager/PaymentLogger";
+import NotificationsPanel from "./app/install-manager/NotificationsPanel";
 import MessagesPanel from "./app/messages/MessagesPanel";
 import TimeTrackingPanel from "./app/time-tracking/TimeTrackingPanel";
 import ReportsPage from "./app/reports/ReportsPage";
@@ -217,6 +218,12 @@ export const ROUTES: RouteConfig[] = [
     path: "/install-manager/payments/log",
     element: React.createElement(PaymentLogger),
     roles: ["Install Manager", "Admin"],
+  },
+  {
+    path: "/install-manager/notifications",
+    element: React.createElement(NotificationsPanel),
+    roles: ["Install Manager", "Admin"],
+    label: "Notifications",
   },
   {
     path: "/clients",

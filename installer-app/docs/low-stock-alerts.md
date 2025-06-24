@@ -1,6 +1,6 @@
 # Deploying Low Stock Alert Functions
 
-This guide explains how to deploy the stored procedure `generate_inventory_alerts` and the Edge Function `check-thresholds.ts`.
+This guide explains how to deploy the stored procedure `generate_inventory_alerts`, the Edge Function `check-thresholds.ts`, and the email function `send_low_stock_email`.
 
 ## 1. Create the Stored Procedure
 
@@ -22,6 +22,14 @@ This guide explains how to deploy the stored procedure `generate_inventory_alert
    This uploads `check-thresholds.ts` as an Edge Function named `check-thresholds`.
 
 3. Test the function locally with `supabase functions serve check-thresholds` if needed.
+
+### Deploy Email Function
+
+Run the following to deploy the `send_low_stock_email` function used to notify the Install Manager:
+
+```bash
+cd ../../.. && supabase functions deploy send_low_stock_email
+```
 
 ## 3. Schedule Regular Execution
 
