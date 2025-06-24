@@ -47,6 +47,7 @@ import LeadsPage from "./app/crm/LeadsPage";
 import LeadForm from "./app/crm/LeadForm";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
+import PurchaseOrdersPage from "./app/inventory/PurchaseOrdersPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -184,6 +185,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(InventoryAlertsPage),
     roles: ["Install Manager", "Admin"],
     label: "Inventory Alerts",
+  },
+  {
+    path: "/inventory/purchase-orders",
+    element: React.createElement(PurchaseOrdersPage),
+    roles: ["Install Manager", "Admin"],
+    label: "Purchase Orders",
   },
   {
     path: "/archived",
