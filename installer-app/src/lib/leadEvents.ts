@@ -36,9 +36,13 @@ export const generateQuote = generateProposalDocument;
 
 import supabase from "./supabaseClient";
 
-export async function convertLeadToClientAndJob(leadId: string) {
+export async function convertLeadToClientAndJob(
+  leadId: string,
+  sessionUserId: string,
+) {
   const { data, error } = await supabase.rpc("convert_lead_to_client_and_job", {
     lead_id: leadId,
+    session_user_id: sessionUserId,
   });
   if (error) throw error;
   return data as string | null;
@@ -46,7 +50,11 @@ export async function convertLeadToClientAndJob(leadId: string) {
 
 export const prepareInvoice = convertLeadToClientAndJob;
 
-export async function handleLeadEvent(leadId: string, status: string) {
+export async function handleLeadEvent(
+  leadId: string,
+  status: string,
+  sessionUserId: string,
+) {
   switch (status) {
     case 'appointment_scheduled':
       await createCalendarInvite(leadId);
@@ -55,7 +63,7 @@ export async function handleLeadEvent(leadId: string, status: string) {
       await generateProposalDocument(leadId);
       break;
     case 'won':
-      await convertLeadToClientAndJob(leadId);
+      await convertLeadToClientAndJob(leadId, sessionUserId);
       break;
     default:
       break;
