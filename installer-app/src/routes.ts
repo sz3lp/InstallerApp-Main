@@ -13,6 +13,7 @@ import CalendarPage from "./views/CalendarPage";
 import InstallManagerCalendarPage from "./app/install-manager/InstallManagerCalendarPage";
 import AdminDashboard from "./app/admin/AdminDashboard";
 import AdminUsersPage from "./app/admin/AdminUsersPage";
+import SalesDirectoryPage from "./app/admin/SalesDirectoryPage";
 import SalesDashboard from "./app/sales/SalesDashboard";
 import NewJobBuilderPage from "./app/install-manager/job/NewJobBuilderPage";
 import AdminNewJob from "./app/admin/jobs/AdminNewJob";
@@ -166,6 +167,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(AdminUsersPage),
     roles: ["Admin"],
     label: "User Management",
+  },
+  {
+    path: "/admin/sales-directory",
+    element: React.createElement(SalesDirectoryPage),
+    roles: ["Admin", "Sales", "Manager"],
+    label: "Sales Directory",
   },
   {
     path: "/admin/materials/types",
