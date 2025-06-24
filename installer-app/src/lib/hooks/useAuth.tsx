@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from "react";
 import supabase from "../supabaseClient";
 import { GlobalLoading, GlobalError } from "../../components/global-states";
 
@@ -13,7 +19,11 @@ type AuthContextType = {
   role: string | null;
   loading: boolean;
   error: string | null;
-  signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
+  signIn: (
+    email: string,
+    password: string,
+    remember?: boolean,
+  ) => Promise<void>;
   verifyMfa: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
   setRole: (role: string) => void;
@@ -36,69 +46,79 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     console.log("Initializing auth...");
 
-      const {
-        data: { session: active },
-      } = await supabase.auth.getSession();
+    const {
+      data: { session: active },
+    } = await supabase.auth.getSession();
 
-      let current = active;
+    let current = active;
 
-      if (!current) {
-        const stored =
-          localStorage.getItem("sb_session") ||
-          sessionStorage.getItem("sb_session");
-        if (stored) current = JSON.parse(stored);
-      }
+    if (!current) {
+      const stored =
+        localStorage.getItem("sb_session") ||
+        sessionStorage.getItem("sb_session");
+      if (stored) current = JSON.parse(stored);
+    }
 
-      setSession(current);
-      setUser(current?.user ?? null);
+    setSession(current);
+    setUser(current?.user ?? null);
 
-      let available: string[] = [];
-      let currentRole: string | null = null;
-      if (current?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("is_active")
-          .eq("user_id", current.user.id)
-          .maybeSingle();
-        if (profile && profile.is_active === false) {
-          await supabase.auth.signOut();
-          setSession(null);
-          setUser(null);
-          setRoles([]);
-          setRoleState(null);
-          setError("Account deactivated");
-          setLoading(false);
-          return;
-        }
-
-        const { data: roleRows, error: roleErr } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", current.user.id);
-        if (roleErr) {
-          console.error("Failed to fetch roles", roleErr);
-          setError("Failed to load roles");
-        } else {
-          available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
-          setRoles(available);
-
-          const storedRole = sessionStorage.getItem("selected_role");
-          if (storedRole && available.includes(storedRole)) {
-            currentRole = storedRole;
-          } else if (available.length === 1) {
-            currentRole = available[0];
-          }
-          setRoleState(currentRole);
-          console.log("Loaded roles", available, "current", currentRole);
-        }
-      } else {
+    let available: string[] = [];
+    let currentRole: string | null = null;
+    if (current?.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_active")
+        .eq("user_id", current.user.id)
+        .maybeSingle();
+      if (profile && profile.is_active === false) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
         setRoles([]);
         setRoleState(null);
+        setError("Account deactivated");
+        setLoading(false);
+        return;
       }
 
-      setLoading(false);
-      console.log("Auth initialized", { session: current, role: currentRole });
-    };
+      const { data: roleRow, error: roleErr } = await supabase
+        .from("user_roles")
+        .select("role, disabled")
+        .eq("user_id", current.user.id)
+        .maybeSingle();
+      if (roleErr) {
+        console.error("Failed to fetch roles", roleErr);
+        setError("Failed to load roles");
+      } else if (roleRow?.disabled) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setRoles([]);
+        setRoleState(null);
+        setError("Account disabled");
+        setLoading(false);
+        return;
+      } else {
+        available = roleRow ? [normalizeRole(roleRow.role) as string] : [];
+        setRoles(available);
+
+        const storedRole = sessionStorage.getItem("selected_role");
+        if (storedRole && available.includes(storedRole)) {
+          currentRole = storedRole;
+        } else if (available.length === 1) {
+          currentRole = available[0];
+        }
+        setRoleState(currentRole);
+        console.log("Loaded roles", available, "current", currentRole);
+      }
+    } else {
+      setRoles([]);
+      setRoleState(null);
+    }
+
+    setLoading(false);
+    console.log("Auth initialized", { session: current, role: currentRole });
+  };
 
   useEffect(() => {
     initialize();
@@ -107,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (
     email: string,
     password: string,
-    remember: boolean = true
+    remember: boolean = true,
   ) => {
     console.log("Attempting sign in", email);
 
@@ -142,16 +162,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem("sb_session", JSON.stringify(data.session));
 
-    const { data: roleRows, error: roleErr } = await supabase
+    const { data: roleRow, error: roleErr } = await supabase
       .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id);
+      .select("role, disabled")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
     let available: string[] = [];
     if (roleErr) {
       console.error("Failed to fetch roles", roleErr);
       setError("Failed to load roles");
+    } else if (roleRow?.disabled) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setError("Account disabled");
+      return;
     } else {
-      available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+      available = roleRow ? [normalizeRole(roleRow.role) as string] : [];
       setRoles(available);
     }
 
@@ -189,16 +216,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(data.user);
     setMfaChallenge(null);
 
-    const { data: roleRows, error: roleErr } = await supabase
+    const { data: roleRow, error: roleErr } = await supabase
       .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id);
+      .select("role, disabled")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
     let available: string[] = [];
     if (roleErr) {
       console.error("Failed to fetch roles", roleErr);
       setError("Failed to load roles");
+    } else if (roleRow?.disabled) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setError("Account disabled");
+      return;
     } else {
-      available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+      available = roleRow ? [normalizeRole(roleRow.role) as string] : [];
       setRoles(available);
     }
     let selected: string | null = null;
@@ -208,16 +242,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshRoles = async () => {
     if (!user) return;
-    const { data: roleRows, error: roleErr } = await supabase
+    const { data: roleRow, error: roleErr } = await supabase
       .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id);
+      .select("role, disabled")
+      .eq("user_id", user.id)
+      .maybeSingle();
     if (roleErr) {
       console.error("Failed to fetch roles", roleErr);
       setError("Failed to load roles");
       return;
     }
-    const available = (roleRows ?? []).map((r: any) => normalizeRole(r.role) as string);
+    if (roleRow?.disabled) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setRoles([]);
+      setRoleState(null);
+      setError("Account disabled");
+      return;
+    }
+    const available = roleRow ? [normalizeRole(roleRow.role) as string] : [];
     setRoles(available);
     if (available.length === 1) {
       setRoleState(available[0]);
