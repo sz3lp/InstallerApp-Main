@@ -39,6 +39,7 @@ import InvoiceGenerator from "./app/install-manager/InvoiceGenerator";
 import PaymentLogger from "./app/install-manager/PaymentLogger";
 import NotificationsPanel from "./app/install-manager/NotificationsPanel";
 import MessagesPanel from "./app/messages/MessagesPanel";
+import ReschedulingDashboard from "./app/dispatch/ReschedulingDashboard";
 import TimeTrackingPanel from "./app/time-tracking/TimeTrackingPanel";
 import ReportsPage from "./app/reports/ReportsPage";
 import TechnicianPayReportPage from "./app/reports/TechnicianPayReportPage";
@@ -247,6 +248,12 @@ export const ROUTES: RouteConfig[] = [
     element: React.createElement(NotificationsPanel),
     roles: ["Install Manager", "Admin"],
     label: "Notifications",
+  },
+  {
+    path: "/dispatch/rescheduling",
+    element: React.createElement(ReschedulingDashboard),
+    roles: ["Manager", "Dispatcher"],
+    label: "Reschedule Requests",
   },
   {
     path: "/clients",
