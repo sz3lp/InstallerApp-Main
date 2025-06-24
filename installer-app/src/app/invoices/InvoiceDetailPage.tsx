@@ -7,11 +7,12 @@ import useInvoice from "../../lib/hooks/useInvoice";
 import usePayments from "../../lib/hooks/usePayments";
 import useAuth from "../../lib/hooks/useAuth";
 import { GlobalLoading, GlobalError } from "../../components/global-states";
+import supabase from "../../lib/supabaseClient";
 
 const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { role } = useAuth();
-  const { invoice, loading, error } = useInvoice(id ?? null);
+  const { invoice, loading, error, refresh } = useInvoice(id ?? null);
   const [open, setOpen] = useState(false);
   const [payments] = usePayments(id ?? "");
 
@@ -21,19 +22,28 @@ const InvoiceDetailPage: React.FC = () => {
       body: JSON.stringify({ invoice_id: invoiceId }),
     });
     const { url } = await res.json();
-    window.open(url, "_blank");
+    if (url) window.open(url, "_blank");
   };
 
   const sendPaymentLink = async () => {
-    const res = await fetch('/api/payments/initiate-payment-link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/payments/initiate-payment-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ invoice_id: invoice.id }),
     });
     const data = await res.json();
     if (data.url) {
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank");
     }
+  };
+
+  const updateStatus = async (status: "paid" | "unpaid") => {
+    if (!invoice) return;
+    await supabase.rpc("update_invoice_status", {
+      invoice_id: invoice.id,
+      status,
+    });
+    refresh();
   };
 
   if (loading) return <GlobalLoading />;
@@ -42,7 +52,7 @@ const InvoiceDetailPage: React.FC = () => {
 
   const totalPaid =
     invoice.amount_paid ?? payments.reduce((s, p) => s + p.amount, 0);
-  const balance = invoice.invoice_total - totalPaid;
+  const balance = (invoice.invoice_total ?? 0) - totalPaid;
 
   return (
     <div className="p-4 space-y-4">
@@ -57,6 +67,7 @@ const InvoiceDetailPage: React.FC = () => {
       </div>
       <p>Amount Paid: ${totalPaid.toFixed(2)}</p>
       <p>Balance Due: ${balance.toFixed(2)}</p>
+
       {invoice.line_items && invoice.line_items.length > 0 && (
         <>
           <h2 className="text-lg font-semibold mt-4">Line Items</h2>
@@ -72,25 +83,33 @@ const InvoiceDetailPage: React.FC = () => {
           </SZTable>
         </>
       )}
-      {['Admin', 'Finance'].includes(role) && (
-        <div className="flex gap-2">
-          <SZButton size="sm" onClick={() => setOpen(true)}>
-            Record Payment
+
+      {["Admin", "Finance"].includes(role) && (
+        <div className="flex gap-2 flex-wrap">
+          <SZButton size="sm" onClick={() => handleSendInvoice(invoice.id)}>
+            Pay Now
           </SZButton>
           <SZButton size="sm" variant="secondary" onClick={sendPaymentLink}>
             Send Payment Link
           </SZButton>
-      {["Admin", "Finance"].includes(role) && (
-        <div className="flex gap-2">
-          <SZButton size="sm" onClick={() => handleSendInvoice(invoice.id)}>
-            Send Invoice
-          </SZButton>
           <SZButton size="sm" onClick={() => setOpen(true)}>
             Record Payment
           </SZButton>
-
+          {role === "Admin" && (
+            <SZButton
+              size="sm"
+              onClick={() =>
+                updateStatus(invoice.payment_status === "paid" ? "unpaid" : "paid")
+              }
+            >
+              {invoice.payment_status === "paid"
+                ? "Mark as Unpaid"
+                : "Mark as Paid"}
+            </SZButton>
+          )}
         </div>
       )}
+
       <h2 className="text-lg font-semibold mt-4">Payments</h2>
       <SZTable headers={["Amount", "Method", "Date", "Note"]}>
         {payments.map((p) => (
@@ -104,6 +123,7 @@ const InvoiceDetailPage: React.FC = () => {
           </tr>
         ))}
       </SZTable>
+
       {open && (
         <PaymentLoggingModal
           invoiceId={invoice.id}
