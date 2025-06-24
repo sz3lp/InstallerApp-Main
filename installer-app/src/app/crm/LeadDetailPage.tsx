@@ -9,7 +9,7 @@ import { GlobalLoading, GlobalError } from "../../components/global-states";
 const LeadDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const { lead, loading, error, refresh } = useLead(id ?? null);
   const [createJob, setCreateJob] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +22,7 @@ const LeadDetailPage: React.FC = () => {
       if (createJob) {
         const { data, error: rpcError } = await supabase.rpc(
           "convert_lead_to_client_and_job",
-          { lead_id: lead.id },
+          { lead_id: lead.id, session_user_id: user?.id },
         );
         if (rpcError) throw rpcError;
         newJobId = data as string | null;

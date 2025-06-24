@@ -20,7 +20,7 @@ export interface LeadFilters {
 }
 
 export default function useLeads(filters: LeadFilters = {}) {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -96,14 +96,15 @@ export default function useLeads(filters: LeadFilters = {}) {
   const convertLeadToClientAndJob = useCallback(
     async (id: string) => {
       if (!allowed) throw new Error("Unauthorized");
-      const jobId = await callConvertLeadToClientAndJob(id);
+      if (!user) throw new Error("Unauthorized");
+      const jobId = await callConvertLeadToClientAndJob(id, user.id);
       // mark lead as converted locally
       setLeads((ls) =>
         ls.map((l) => (l.id === id ? { ...l, status: "converted" } : l)),
       );
       return jobId;
     },
-    [allowed],
+    [allowed, user],
   );
 
   useEffect(() => {
@@ -132,7 +133,7 @@ async function callGenerateProposalDocument(leadId: string) {
   await mod.generateProposalDocument(leadId);
 }
 
-async function callConvertLeadToClientAndJob(leadId: string) {
+async function callConvertLeadToClientAndJob(leadId: string, userId: string) {
   const mod = await import("../leadEvents");
-  return await mod.convertLeadToClientAndJob(leadId);
+  return await mod.convertLeadToClientAndJob(leadId, userId);
 }
