@@ -231,6 +231,12 @@ export const ROUTES: RouteConfig[] = [
     label: "Leads",
   },
   {
+    path: "/crm/pipeline",
+    element: React.createElement(require("./app/crm/LeadPipelinePage").default),
+    roles: ["Sales", "Manager"],
+    label: "Lead Pipeline",
+  },
+  {
     path: "/sales/dashboard",
     element: React.createElement(SalesDashboard),
     roles: ["Sales", "Manager", "Admin"],
