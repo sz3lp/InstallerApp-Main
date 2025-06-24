@@ -43,6 +43,7 @@ import RevenueDashboardPage from "./app/reports/RevenueDashboardPage";
 import LeadsPage from "./app/crm/LeadsPage";
 import PaymentReportPage from "./app/admin/reports/payments/PaymentReportPage";
 import InventoryAlertsPage from "./app/admin/InventoryAlertsPage";
+import ReceivePOPage from "./app/inventory/ReceivePOPage";
 import UnderConstructionPage from "./app/UnderConstructionPage";
 import Unauthorized from "./app/Unauthorized";
 import LoginPage from "./app/login/LoginPage";
@@ -184,6 +185,11 @@ export const ROUTES: RouteConfig[] = [
   {
     path: "/archived",
     element: React.createElement(ArchivedJobsPage),
+    roles: ["Install Manager", "Admin"],
+  },
+  {
+    path: "/inventory/receive/:poId",
+    element: React.createElement(ReceivePOPage),
     roles: ["Install Manager", "Admin"],
   },
   {
