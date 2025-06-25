@@ -22,7 +22,7 @@ const AdminUserForm: React.FC<Props> = ({ user, onClose }) => {
   const save = async () => {
     if (form.id) {
       await supabase
-        .from("users")
+        .from("auth.users")
         .update({
           email: form.email,
           full_name: form.full_name,
@@ -30,7 +30,7 @@ const AdminUserForm: React.FC<Props> = ({ user, onClose }) => {
         })
         .eq("id", form.id);
     } else {
-      await supabase.from("users").insert({
+      await supabase.from("auth.users").insert({
         email: form.email,
         full_name: form.full_name,
         active: form.active,

@@ -89,9 +89,12 @@ CREATE FUNCTION public.create_pending_user(email text, role text) RETURNS void
     LANGUAGE plpgsql
     AS $$
 begin
-  insert into public.users (email, role, status)
-  values (email, role, 'pending')
+  insert into auth.users (email)
+  values (email)
   on conflict (email) do nothing;
+  insert into public.user_roles (user_id, role)
+  values ((select id from auth.users where auth.users.email = email), role)
+  on conflict (user_id) do update set role = excluded.role;
 end;
 $$;
 
@@ -747,18 +750,12 @@ CREATE TABLE public.user_onboarding_status (
 ALTER TABLE public.user_onboarding_status OWNER TO postgres;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
+-- Name: users; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.users (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    email text,
-    role text,
-    status text
-);
-
-
-ALTER TABLE public.users OWNER TO postgres;
+CREATE VIEW public.users AS
+    SELECT id, email, full_name
+      FROM auth.users;
 
 --
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: auth; Owner: postgres
@@ -980,8 +977,6 @@ ALTER TABLE ONLY public.user_onboarding_status
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 --
