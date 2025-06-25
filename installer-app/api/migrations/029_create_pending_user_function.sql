@@ -3,13 +3,13 @@ returns void as $$
 declare
   uid uuid;
 begin
-  insert into public.users (email, status)
-  values (email, 'pending')
-  on conflict (email) do update set email = excluded.email
+  insert into auth.users (email)
+  values (email)
+  on conflict (email) do nothing
   returning id into uid;
 
   if uid is null then
-    select id into uid from public.users where public.users.email = email;
+    select id into uid from auth.users where auth.users.email = email;
   end if;
 
   insert into public.user_roles (user_id, role)
